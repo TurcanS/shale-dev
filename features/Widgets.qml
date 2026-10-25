@@ -66,43 +66,44 @@ PanelWindow {
         enabled: root.showing
         precision: SystemClock.Minutes
     }
-    Item {
-        id: row
-        x: root.atLeft ? root.edge : root.room
-        y: root.atTop ? root.edge : root.room
-        width: root.rowWidth
-        height: 214
-        WidgetsClock {
-            id: clockCard
-            visible: root.shown("clock")
-            x: root.offset("clock")
-            width: root.widths.clock
-            outputName: root.outputName
-            now: clock.date
-        }
-        WidgetsSky {
-            id: skyCard
-            visible: root.shown("sky")
-            x: root.offset("sky")
-            width: root.widths.sky
-            outputName: root.outputName
-            now: clock.date
-            live: root.showing && visible
-        }
-        WidgetsNote {
-            id: noteCard
-            visible: root.shown("note")
-            x: root.offset("note")
-            width: root.widths.note
-            outputName: root.outputName
-        }
-        WidgetsSystem {
-            id: systemCard
-            visible: root.shown("system")
-            x: root.offset("system")
-            width: root.widths.system
-            outputName: root.outputName
-            live: root.showing && visible
-        }
+    // The cards sit straight in the window, not in a row item, so the mask follows each card's own position when the
+    // corner changes.
+    readonly property int rowX: atLeft ? edge : room
+    readonly property int rowY: atTop ? edge : room
+    WidgetsClock {
+        id: clockCard
+        visible: root.shown("clock")
+        x: root.rowX + root.offset("clock")
+        y: root.rowY
+        width: root.widths.clock
+        outputName: root.outputName
+        now: clock.date
+    }
+    WidgetsSky {
+        id: skyCard
+        visible: root.shown("sky")
+        x: root.rowX + root.offset("sky")
+        y: root.rowY
+        width: root.widths.sky
+        outputName: root.outputName
+        now: clock.date
+        live: root.showing && visible
+    }
+    WidgetsNote {
+        id: noteCard
+        visible: root.shown("note")
+        x: root.rowX + root.offset("note")
+        y: root.rowY
+        width: root.widths.note
+        outputName: root.outputName
+    }
+    WidgetsSystem {
+        id: systemCard
+        visible: root.shown("system")
+        x: root.rowX + root.offset("system")
+        y: root.rowY
+        width: root.widths.system
+        outputName: root.outputName
+        live: root.showing && visible
     }
 }
