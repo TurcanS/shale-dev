@@ -161,11 +161,11 @@ class Component extends DCLogic {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     const m = now.getHours() * 60 + now.getMinutes();
     const rise = 463, set = 1101;
-    const span = (x) => Math.floor(x / 60) + 'H' + pad(x % 60);
+    const span = (x) => Math.floor(x / 60) + ' h ' + pad(x % 60);
     let f, status;
-    if (m >= rise && m <= set) { f = (m - rise) / (set - rise); status = 'SETS IN ' + span(set - m); }
-    else if (m > set) { f = 1; status = 'RISES IN ' + span(1440 - m + rise); }
-    else { f = 0; status = 'RISES IN ' + span(rise - m); }
+    if (m >= rise && m <= set) { f = (m - rise) / (set - rise); status = 'Sets in ' + span(set - m); }
+    else if (m > set) { f = 1; status = 'Rises in ' + span(1440 - m + rise); }
+    else { f = 0; status = 'Rises in ' + span(rise - m); }
     const ang = Math.PI * f;
     const sunX = 133 - 110 * Math.cos(ang), sunY = 84 - 72 * Math.sin(ang);
     const open = (name) => {

@@ -4,8 +4,14 @@ Panels are dark cases holding modules, like a modern music app (FL Studio 2024, 
 backdrop, one module surface, soft corners, line icons and plain words. The accent comes from the wallpaper and marks
 what is **on, live or chosen**. Everything else stays quiet.
 
-Mockups: `mockups/*.html` (open in a browser to read the markup; the JS runtime isn't included, so they won't render
-live). `mockups/Language.html` is this page as a board.
+Design files (live canvas, owner only: https://claude.ai/artifact/A2obyYkUzXVFqbwkWbBs9F):
+- `previews/<Board>.png`: what every board looks like, at 1×. **Look at these first.**
+- `previews/<Board>.html`: the same boards as static HTML; read it for exact sizes, colours, radii and text.
+- `mockups/<Board>.dc.html`: the source templates (inline styles plus a small JS class with the demo state and
+  behaviour). Read these for interactions; don't port the JS.
+- `tools/build-previews.sh`: rebuilds `previews/` after a mockup changes (node + headless Chrome).
+
+`previews/Language.png` is this page as a board.
 
 ## Colour tokens
 
@@ -82,7 +88,7 @@ Bundle `HankenGrotesk[wght].ttf` and `MartianMono[wdth,wght].ttf` (Google Fonts,
 Line icons on a 24 grid, stroke 1.8–2, round caps and joins, `currentColor`. Every action and every quick tile has
 one. The mockups carry the exact paths; add missing ones to `core/icons.js` and draw them with `components/Icon.qml`.
 
-## Controls (see `mockups/Language.html` and `mockups/Control.html`)
+## Controls (see `previews/Language.png` and `previews/Control.png`)
 
 - **Primary button**: accent fill, `onAccent` text, 650. **Secondary**: `key` fill. **Danger**: danger edge at 45%,
   danger text, danger background at 7%; destructive power actions are hold-to-confirm (1 s, a fill or ring shows

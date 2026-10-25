@@ -23,7 +23,7 @@ Prompt:
 ## Stage 2: shared controls
 Files: `components/*.qml` (Button, Toggle, SliderRow, Segmented, ListRow, Group, QuickTile, Field, SectionHeader,
 Tooltip, Card, Stat, StatusCard, GlyphTile, ChoiceRow, HoldButton, EmptyState, ScrollBar), `core/icons.js`.
-Done: every control matches the Controls section of README.md and `mockups/Language.html`; same public properties
+Done: every control matches the Controls section of README.md and `previews/Language.png`; same public properties
 and signals as before; panels pick up the new look without being edited.
 
 Prompt:
@@ -33,11 +33,11 @@ Prompt:
 
 ## Stage 3: bar
 Files: `features/Bar.qml`, `features/BarContent.qml`, `core/barItems.js`, `features/TrayMenu*.qml`.
-Done: matches `mockups/Bar.html` and the Bar entry in PANELS.md; floating 8 px from edges; all items, tray, bar
+Done: matches `previews/Bar.png` and the Bar entry in PANELS.md; floating 8 px from edges; all items, tray, bar
 settings and multi-monitor still work.
 
 Prompt:
-> Do stage 3 of docs/PLAN.md on branch `redesign`: the bar, per docs/design/PANELS.md and mockups/Bar.html. Keep every
+> Do stage 3 of docs/PLAN.md on branch `redesign`: the bar, per docs/design/PANELS.md and previews/Bar.png. Keep every
 > item's actions and the bar settings. Push and summarise what to test.
 
 ## Stage 4: Control, Network, Mixer, Session
@@ -70,11 +70,11 @@ Prompt:
 
 ## Stage 7: Lock screen
 Files: `features/Lock*.qml`.
-Done: matches `mockups/Lock.html`; unlock, wrong password, Caps Lock, media, power and the transition all work;
+Done: matches `previews/Lock.png`; unlock, wrong password, Caps Lock, media, power and the transition all work;
 nothing on the lock screen can be reached without unlocking.
 
 Prompt:
-> Do stage 7 of docs/PLAN.md on branch `redesign`: the lock screen per PANELS.md and mockups/Lock.html. Don't change
+> Do stage 7 of docs/PLAN.md on branch `redesign`: the lock screen per PANELS.md and previews/Lock.png. Don't change
 > the PAM flow or the security behaviour. Push and summarise.
 
 ## Stage 8: Clipboard, Capture, Overview
@@ -96,7 +96,7 @@ Files: `features/Settings.qml`, `features/*Settings.qml`, `features/UpdatePage.q
 
 Prompt:
 > Do stage 10 of docs/PLAN.md on branch `redesign`: Settings and all settings pages per PANELS.md and
-> mockups/Settings.html. Push and summarise.
+> previews/Settings.png. Push and summarise.
 
 ## Stage 11 (optional): Widgets and Focus view
 Files: `shell.qml` (bottom-layer window per output), new `features/Widgets*.qml`, a Focus view, `helpers/backend.py`

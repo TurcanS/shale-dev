@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Shale Rack · Mixer</title><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&family=Martian+Mono:wght@200..700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#0e0f11}*{animation:none!important;transition:none!important}</style><style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.95)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes bMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.95)}70%{transform:scaleY(.45)}100%{transform:scaleY(.8)}}
+.b-meter{transform-origin:bottom;animation:bMeter 720ms ease-in-out infinite alternate}
+.b-ws{transition:width 220ms cubic-bezier(.2,.8,.2,1),background-color 160ms ease-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes cBlink{50%{opacity:.35}}
+.c-rec{animation:cBlink 1s steps(2) infinite}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-rec{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes cMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.9)}70%{transform:scaleY(.45)}100%{transform:scaleY(1)}}
+.c-meter{transform-origin:bottom;animation:cMeter 700ms ease-in-out infinite alternate}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
+</style>
+<style></style>
+<style>
+
+.f-ring{transition:stroke-dashoffset 900ms linear}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion: reduce){.f-ring,button{transition:none}}
+</style>
+<style>
+
+@keyframes nIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.n-in{animation:nIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes lgIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.lg-in{animation:lgIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.lg-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes lShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.l-shake{animation:lShake 300ms ease-in-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:rgba(239,236,230,0.45)}
+@media (prefers-reduced-motion: reduce){.l-shake{animation:none}button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#0b111a}
+@keyframes rIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes rSlide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes rFade{from{opacity:0}to{opacity:1}}
+@keyframes rVu{0%{transform:scaleY(.3)}35%{transform:scaleY(.9)}60%{transform:scaleY(.5)}100%{transform:scaleY(1)}}
+.r-pnl{animation:rIn 170ms cubic-bezier(.2,.8,.2,1) both}
+.r-toast{animation:rSlide 200ms cubic-bezier(.2,.8,.2,1) both}
+.r-fade{animation:rFade 180ms ease-out both}
+.r-vu{transform-origin:bottom;animation:rVu 800ms ease-in-out infinite alternate}
+.r-cable{transition:d 340ms cubic-bezier(.3,1.35,.5,1)}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.r-pnl,.r-toast,.r-fade,.r-vu{animation:none}.r-cable,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.94)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.p-bar{transition:height 240ms ease-out}
+@media (prefers-reduced-motion: reduce){.p-bar,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.m-lvl{transition:height 110ms linear}
+@media (prefers-reduced-motion: reduce){.m-lvl,button{transition:none}}
+</style>
+<style>
+
+@keyframes nSpin{to{transform:rotate(360deg)}}
+.n-spin{animation:nSpin 900ms linear infinite;transform-origin:center}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-spin{animation:none}button{transition:none}}
+</style>
+<style>
+
+.o-fill{transition:width 160ms cubic-bezier(.2,.8,.2,1)}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.o-fill,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
+@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
+@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
+@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
+@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
+.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
+.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
+.rt-down{animation:rtDown 300ms ease-in both}
+.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
+.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
+.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
+.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-wake{animation:rtWake 320ms ease-out both}
+.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:hover{background-color:#23262b}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style></head>
+<body><div style="width:720px;height:460px;padding:0;">
+<section aria-label="Mixer and equalizer" style="width: 720px; height: 460px; box-sizing: border-box; padding: 12px; display: flex; gap: 8px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<div style="width: 408px; box-sizing: border-box; background: #1c1e22; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: center; gap: 8px;"><span style="font-weight: 650; font-size: 15px;">Mixer</span><span style="padding: 3px 8px; border-radius: 8px; background: #141518; font-size: 12px; color: #a7a9ad;">Out · Headphones</span></div>
+<div style="flex: 1; display: flex; gap: 6px; min-height: 0;">
+
+<div style="width: 72px; border-radius: 12px; background: #17191c; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-bottom: 8px;">
+<span aria-hidden="true" style="align-self: stretch; height: 3px; background: #ff8a3d;"></span>
+<span style="font-weight: 600; font-size: 12px; max-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Master</span>
+<div style="position: relative; width: 30px; height: 30px;" title="Pan centre">
+<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="#2a2d33" stroke-width="3"></circle><path d="" fill="none" stroke="#e7e2d6" stroke-width="3" stroke-linecap="round"></path><circle cx="15" cy="15" r="2" fill="#8c8f95"></circle></svg>
+<input type="range" min="-50" max="50" value="0" aria-label="Master pan" style="position: absolute; inset: 0; width: 30px; height: 30px; margin: 0; opacity: 0; cursor: ew-resize;">
+</div>
+<div style="position: relative; flex: 1; width: 56px; min-height: 0;">
+<span aria-hidden="true" style="position: absolute; left: 6px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 43%; background: linear-gradient(to top, rgba(255,138,61,0.14), #ff8a3d);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 12px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 47%; background: linear-gradient(to top, rgba(255,138,61,0.14), #ff8a3d);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; top: 0; bottom: 0; width: 2px; border-radius: 1px; background: #2a2d33;"></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; bottom: 0; width: 2px; height: 78%; border-radius: 1px; background: #ff8a3d;"></span>
+<span aria-hidden="true" style="position: absolute; left: 22px; bottom: calc(78% - 7px); width: 24px; height: 14px; border-radius: 4px; background: #f4f2ee; box-shadow: 0 2px 6px rgba(0,0,0,0.55);"><span style="position: absolute; left: 5px; right: 5px; top: 6px; height: 2px; border-radius: 1px; background: #17181a;"></span></span>
+<input type="range" min="0" max="100" value="78" aria-label="Master volume" style="position: absolute; inset: 0; width: 56px; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+<span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf; font-variant-numeric: tabular-nums;">0.0</span>
+<div style="display: flex; gap: 4px;">
+<button aria-pressed="false" aria-label="Mute Master" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">M</button>
+<button aria-pressed="false" aria-label="Solo Master" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">S</button>
+</div>
+</div>
+
+<div style="width: 72px; border-radius: 12px; background: #17191c; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-bottom: 8px;">
+<span aria-hidden="true" style="align-self: stretch; height: 3px; background: #4a4e55;"></span>
+<span style="font-weight: 600; font-size: 12px; max-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Firefox</span>
+<div style="position: relative; width: 30px; height: 30px;" title="Pan centre">
+<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="#2a2d33" stroke-width="3"></circle><path d="" fill="none" stroke="#e7e2d6" stroke-width="3" stroke-linecap="round"></path><circle cx="15" cy="15" r="2" fill="#8c8f95"></circle></svg>
+<input type="range" min="-50" max="50" value="0" aria-label="Firefox pan" style="position: absolute; inset: 0; width: 30px; height: 30px; margin: 0; opacity: 0; cursor: ew-resize;">
+</div>
+<div style="position: relative; flex: 1; width: 56px; min-height: 0;">
+<span aria-hidden="true" style="position: absolute; left: 6px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 37%; background: linear-gradient(to top, rgba(255,138,61,0.14), #ff8a3d);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 12px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 51%; background: linear-gradient(to top, rgba(255,138,61,0.14), #ff8a3d);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; top: 0; bottom: 0; width: 2px; border-radius: 1px; background: #2a2d33;"></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; bottom: 0; width: 2px; height: 52%; border-radius: 1px; background: #8c8f95;"></span>
+<span aria-hidden="true" style="position: absolute; left: 22px; bottom: calc(52% - 7px); width: 24px; height: 14px; border-radius: 4px; background: #f4f2ee; box-shadow: 0 2px 6px rgba(0,0,0,0.55);"><span style="position: absolute; left: 5px; right: 5px; top: 6px; height: 2px; border-radius: 1px; background: #17181a;"></span></span>
+<input type="range" min="0" max="100" value="52" aria-label="Firefox volume" style="position: absolute; inset: 0; width: 56px; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+<span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf; font-variant-numeric: tabular-nums;">-3.5</span>
+<div style="display: flex; gap: 4px;">
+<button aria-pressed="false" aria-label="Mute Firefox" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">M</button>
+<button aria-pressed="false" aria-label="Solo Firefox" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">S</button>
+</div>
+</div>
+
+<div style="width: 72px; border-radius: 12px; background: #17191c; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-bottom: 8px;">
+<span aria-hidden="true" style="align-self: stretch; height: 3px; background: #4a4e55;"></span>
+<span style="font-weight: 600; font-size: 12px; max-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Spotify</span>
+<div style="position: relative; width: 30px; height: 30px;" title="Pan L10">
+<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="#2a2d33" stroke-width="3"></circle><path d="M15.0 4.0 A11 11 0 0 0 10.2 5.1" fill="none" stroke="#e7e2d6" stroke-width="3" stroke-linecap="round"></path><circle cx="15" cy="15" r="2" fill="#8c8f95"></circle></svg>
+<input type="range" min="-50" max="50" value="-10" aria-label="Spotify pan" style="position: absolute; inset: 0; width: 30px; height: 30px; margin: 0; opacity: 0; cursor: ew-resize;">
+</div>
+<div style="position: relative; flex: 1; width: 56px; min-height: 0;">
+<span aria-hidden="true" style="position: absolute; left: 6px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 57%; background: linear-gradient(to top, rgba(255,138,61,0.14), #ff8a3d);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 12px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 47%; background: linear-gradient(to top, rgba(255,138,61,0.14), #ff8a3d);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; top: 0; bottom: 0; width: 2px; border-radius: 1px; background: #2a2d33;"></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; bottom: 0; width: 2px; height: 70%; border-radius: 1px; background: #8c8f95;"></span>
+<span aria-hidden="true" style="position: absolute; left: 22px; bottom: calc(70% - 7px); width: 24px; height: 14px; border-radius: 4px; background: #f4f2ee; box-shadow: 0 2px 6px rgba(0,0,0,0.55);"><span style="position: absolute; left: 5px; right: 5px; top: 6px; height: 2px; border-radius: 1px; background: #17181a;"></span></span>
+<input type="range" min="0" max="100" value="70" aria-label="Spotify volume" style="position: absolute; inset: 0; width: 56px; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+<span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf; font-variant-numeric: tabular-nums;">-0.9</span>
+<div style="display: flex; gap: 4px;">
+<button aria-pressed="false" aria-label="Mute Spotify" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">M</button>
+<button aria-pressed="false" aria-label="Solo Spotify" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">S</button>
+</div>
+</div>
+
+<div style="width: 72px; border-radius: 12px; background: #17191c; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-bottom: 8px;">
+<span aria-hidden="true" style="align-self: stretch; height: 3px; background: #4a4e55;"></span>
+<span style="font-weight: 600; font-size: 12px; max-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Discord</span>
+<div style="position: relative; width: 30px; height: 30px;" title="Pan R15">
+<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="#2a2d33" stroke-width="3"></circle><path d="M15.0 4.0 A11 11 0 0 1 21.9 6.5" fill="none" stroke="#e7e2d6" stroke-width="3" stroke-linecap="round"></path><circle cx="15" cy="15" r="2" fill="#8c8f95"></circle></svg>
+<input type="range" min="-50" max="50" value="15" aria-label="Discord pan" style="position: absolute; inset: 0; width: 30px; height: 30px; margin: 0; opacity: 0; cursor: ew-resize;">
+</div>
+<div style="position: relative; flex: 1; width: 56px; min-height: 0;">
+<span aria-hidden="true" style="position: absolute; left: 6px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 37%; background: linear-gradient(to top, rgba(255,138,61,0.14), #ff8a3d);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 12px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 39%; background: linear-gradient(to top, rgba(255,138,61,0.14), #ff8a3d);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; top: 0; bottom: 0; width: 2px; border-radius: 1px; background: #2a2d33;"></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; bottom: 0; width: 2px; height: 60%; border-radius: 1px; background: #8c8f95;"></span>
+<span aria-hidden="true" style="position: absolute; left: 22px; bottom: calc(60% - 7px); width: 24px; height: 14px; border-radius: 4px; background: #f4f2ee; box-shadow: 0 2px 6px rgba(0,0,0,0.55);"><span style="position: absolute; left: 5px; right: 5px; top: 6px; height: 2px; border-radius: 1px; background: #17181a;"></span></span>
+<input type="range" min="0" max="100" value="60" aria-label="Discord volume" style="position: absolute; inset: 0; width: 56px; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+<span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf; font-variant-numeric: tabular-nums;">-2.3</span>
+<div style="display: flex; gap: 4px;">
+<button aria-pressed="false" aria-label="Mute Discord" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">M</button>
+<button aria-pressed="false" aria-label="Solo Discord" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">S</button>
+</div>
+</div>
+
+<div style="width: 72px; border-radius: 12px; background: #17191c; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-bottom: 8px;">
+<span aria-hidden="true" style="align-self: stretch; height: 3px; background: #e7e2d6;"></span>
+<span style="font-weight: 600; font-size: 12px; max-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Mic</span>
+<div style="position: relative; width: 30px; height: 30px;" title="Pan centre">
+<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="#2a2d33" stroke-width="3"></circle><path d="" fill="none" stroke="#e7e2d6" stroke-width="3" stroke-linecap="round"></path><circle cx="15" cy="15" r="2" fill="#8c8f95"></circle></svg>
+<input type="range" min="-50" max="50" value="0" aria-label="Mic pan" style="position: absolute; inset: 0; width: 30px; height: 30px; margin: 0; opacity: 0; cursor: ew-resize;">
+</div>
+<div style="position: relative; flex: 1; width: 56px; min-height: 0;">
+<span aria-hidden="true" style="position: absolute; left: 6px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: linear-gradient(to top, rgba(255,138,61,0.14), #e7e2d6);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 12px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: 66%; background: linear-gradient(to top, rgba(255,138,61,0.14), #e7e2d6);"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; top: 0; bottom: 0; width: 2px; border-radius: 1px; background: #2a2d33;"></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; bottom: 0; width: 2px; height: 66%; border-radius: 1px; background: #8c8f95;"></span>
+<span aria-hidden="true" style="position: absolute; left: 22px; bottom: calc(66% - 7px); width: 24px; height: 14px; border-radius: 4px; background: #f4f2ee; box-shadow: 0 2px 6px rgba(0,0,0,0.55);"><span style="position: absolute; left: 5px; right: 5px; top: 6px; height: 2px; border-radius: 1px; background: #17181a;"></span></span>
+<input type="range" min="0" max="100" value="66" aria-label="Mic volume" style="position: absolute; inset: 0; width: 56px; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+<span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf; font-variant-numeric: tabular-nums;">-1.5</span>
+<div style="display: flex; gap: 4px;">
+<button aria-pressed="false" aria-label="Mute Mic" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">M</button>
+<button aria-pressed="false" aria-label="Solo Mic" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; font-weight: 700; font-size: 11px; cursor: pointer;">S</button>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="flex: 1; min-width: 0; background: #1c1e22; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: center; justify-content: space-between;"><span style="font-weight: 650; font-size: 15px;">Equalizer</span>
+<button aria-pressed="true" aria-label="Equalizer on" style="width: 36px; height: 20px; padding: 0; border-radius: 10px; border: 0; background: #ff8a3d; position: relative; cursor: pointer;"><span style="position: absolute; top: 2px; left: 18px; width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; transition: left 160ms ease-out;"></span></button></div>
+<div role="radiogroup" aria-label="Preset" style="display: flex; padding: 3px; gap: 2px; border-radius: 10px; background: #141518;">
+<button role="radio" aria-checked="false" style="flex: 1; height: 26px; padding: 0; border-radius: 7px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">Flat</button><button role="radio" aria-checked="true" style="flex: 1; height: 26px; padding: 0; border-radius: 7px; border: 0; background: #2c2f35; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.4); font-weight: 600; font-size: 12px; cursor: pointer;">Bass</button><button role="radio" aria-checked="false" style="flex: 1; height: 26px; padding: 0; border-radius: 7px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">Voice</button><button role="radio" aria-checked="false" style="flex: 1; height: 26px; padding: 0; border-radius: 7px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">Night</button>
+</div>
+<div style="position: relative; flex: 1; border-radius: 12px; background: #141518; overflow: hidden; opacity: 1;">
+<svg width="100%" height="100%" viewBox="0 0 256 220" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0;">
+<defs><linearGradient id="mxFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d" stop-opacity="0.35"></stop><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"></stop></linearGradient></defs>
+<line x1="0" y1="50" x2="256" y2="50" stroke="#202226"></line><line x1="0" y1="100" x2="256" y2="100" stroke="#33363c" stroke-dasharray="3 4"></line><line x1="0" y1="150" x2="256" y2="150" stroke="#202226"></line>
+<path d="M0 66.7 L12.8 66.7 C25.6 66.7 25.6 58.3 38.4 58.3 C51.2 58.3 51.2 75.0 64.0 75.0 C76.8 75.0 76.8 91.7 89.6 91.7 C102.4 91.7 102.4 100.0 115.2 100.0 C128.0 100.0 128.0 100.0 140.8 100.0 C153.6 100.0 153.6 100.0 166.4 100.0 C179.2 100.0 179.2 91.7 192.0 91.7 C204.8 91.7 204.8 91.7 217.6 91.7 C230.4 91.7 230.4 100.0 243.2 100.0 L256 100.0 L256 220 L0 220 Z" fill="url(#mxFill)"></path>
+<path d="M0 66.7 L12.8 66.7 C25.6 66.7 25.6 58.3 38.4 58.3 C51.2 58.3 51.2 75.0 64.0 75.0 C76.8 75.0 76.8 91.7 89.6 91.7 C102.4 91.7 102.4 100.0 115.2 100.0 C128.0 100.0 128.0 100.0 140.8 100.0 C153.6 100.0 153.6 100.0 166.4 100.0 C179.2 100.0 179.2 91.7 192.0 91.7 C204.8 91.7 204.8 91.7 217.6 91.7 C230.4 91.7 230.4 100.0 243.2 100.0 L256 100.0" fill="none" stroke="#ff8a3d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+</svg>
+<div style="position: absolute; left: 0; right: 0; top: 0; height: calc(100% * 200 / 220); display: flex;">
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 33.33333333333333%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="4" aria-label="32 hertz, 4 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 29.166666666666668%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="5" aria-label="64 hertz, 5 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 37.5%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="3" aria-label="125 hertz, 3 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 45.83333333333333%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="1" aria-label="250 hertz, 1 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="0" aria-label="500 hertz, 0 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="0" aria-label="1k hertz, 0 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="0" aria-label="2k hertz, 0 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 45.83333333333333%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="1" aria-label="4k hertz, 1 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 45.83333333333333%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="1" aria-label="8k hertz, 1 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="0" aria-label="16k hertz, 0 decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 4px; display: flex;"><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">32</span><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">64</span><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">125</span><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">250</span><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">500</span><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">1k</span><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">2k</span><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">4k</span><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">8k</span><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">16k</span></div>
+</div>
+<span style="font-size: 12px; color: #8c8f95;">Headphones keep their own curve.</span>
+</div>
+</section>
+</div></body></html>

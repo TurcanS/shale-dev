@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Shale Rack · Session</title><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&family=Martian+Mono:wght@200..700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#0e0f11}*{animation:none!important;transition:none!important}</style><style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.95)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes bMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.95)}70%{transform:scaleY(.45)}100%{transform:scaleY(.8)}}
+.b-meter{transform-origin:bottom;animation:bMeter 720ms ease-in-out infinite alternate}
+.b-ws{transition:width 220ms cubic-bezier(.2,.8,.2,1),background-color 160ms ease-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes cBlink{50%{opacity:.35}}
+.c-rec{animation:cBlink 1s steps(2) infinite}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-rec{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes cMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.9)}70%{transform:scaleY(.45)}100%{transform:scaleY(1)}}
+.c-meter{transform-origin:bottom;animation:cMeter 700ms ease-in-out infinite alternate}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
+</style>
+<style></style>
+<style>
+
+.f-ring{transition:stroke-dashoffset 900ms linear}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion: reduce){.f-ring,button{transition:none}}
+</style>
+<style>
+
+@keyframes nIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.n-in{animation:nIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes lgIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.lg-in{animation:lgIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.lg-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes lShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.l-shake{animation:lShake 300ms ease-in-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:rgba(239,236,230,0.45)}
+@media (prefers-reduced-motion: reduce){.l-shake{animation:none}button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#0b111a}
+@keyframes rIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes rSlide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes rFade{from{opacity:0}to{opacity:1}}
+@keyframes rVu{0%{transform:scaleY(.3)}35%{transform:scaleY(.9)}60%{transform:scaleY(.5)}100%{transform:scaleY(1)}}
+.r-pnl{animation:rIn 170ms cubic-bezier(.2,.8,.2,1) both}
+.r-toast{animation:rSlide 200ms cubic-bezier(.2,.8,.2,1) both}
+.r-fade{animation:rFade 180ms ease-out both}
+.r-vu{transform-origin:bottom;animation:rVu 800ms ease-in-out infinite alternate}
+.r-cable{transition:d 340ms cubic-bezier(.3,1.35,.5,1)}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.r-pnl,.r-toast,.r-fade,.r-vu{animation:none}.r-cable,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.94)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.p-bar{transition:height 240ms ease-out}
+@media (prefers-reduced-motion: reduce){.p-bar,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.m-lvl{transition:height 110ms linear}
+@media (prefers-reduced-motion: reduce){.m-lvl,button{transition:none}}
+</style>
+<style>
+
+@keyframes nSpin{to{transform:rotate(360deg)}}
+.n-spin{animation:nSpin 900ms linear infinite;transform-origin:center}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-spin{animation:none}button{transition:none}}
+</style>
+<style>
+
+.o-fill{transition:width 160ms cubic-bezier(.2,.8,.2,1)}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.o-fill,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
+@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
+@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
+@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
+@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
+.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
+.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
+.rt-down{animation:rtDown 300ms ease-in both}
+.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
+.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
+.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
+.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-wake{animation:rtWake 320ms ease-out both}
+.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:hover{background-color:#23262b}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style></head>
+<body><div style="width:760px;height:320px;padding:0;">
+<section aria-label="Session" style="width: 760px; height: 320px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+<header style="display: flex; align-items: baseline; gap: 10px; height: 26px;">
+<span style="font-weight: 650; font-size: 17px;">Session</span>
+<span style="font-size: 13px; color: #8c8f95;">Up 3 h 12 min · 2 apps have unsaved work</span>
+<span style="margin-left: auto; font-size: 12px; color: #8c8f95;">Esc to close</span>
+</header>
+<div style="flex: 1; display: flex; gap: 8px; min-height: 0;">
+
+<button aria-keyshortcuts="L" style="flex: 1; padding: 16px 14px 14px; border-radius: 16px; border: 1px solid transparent; background: #1c1e22; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer;">
+<span style="width: 44px; height: 44px; border-radius: 14px; background: #2a2d33; color: #efece6; display: grid; place-items: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11h10v9H7zM9 11V8a3 3 0 0 1 6 0v3"></path></svg></span>
+<span style="margin-top: auto; font-weight: 650; font-size: 15px;">Lock</span>
+<span style="font-size: 12px; line-height: 1.4; color: #a7a9ad;">Music keeps playing.</span>
+<span style="padding: 2px 7px; border-radius: 6px; background: #2a2d33; font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf;">L</span>
+</button>
+
+<button aria-keyshortcuts="S" style="flex: 1; padding: 16px 14px 14px; border-radius: 16px; border: 1px solid transparent; background: #1c1e22; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer;">
+<span style="width: 44px; height: 44px; border-radius: 14px; background: #2a2d33; color: #efece6; display: grid; place-items: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z"></path></svg></span>
+<span style="margin-top: auto; font-weight: 650; font-size: 15px;">Sleep</span>
+<span style="font-size: 12px; line-height: 1.4; color: #a7a9ad;">Wakes on any key.</span>
+<span style="padding: 2px 7px; border-radius: 6px; background: #2a2d33; font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf;">S</span>
+</button>
+
+<button aria-keyshortcuts="O" style="flex: 1; padding: 16px 14px 14px; border-radius: 16px; border: 1px solid transparent; background: #1c1e22; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer;">
+<span style="width: 44px; height: 44px; border-radius: 14px; background: #2a2d33; color: #efece6; display: grid; place-items: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9"></path></svg></span>
+<span style="margin-top: auto; font-weight: 650; font-size: 15px;">Sign out</span>
+<span style="font-size: 12px; line-height: 1.4; color: #a7a9ad;">Asks the 2 unsaved apps first.</span>
+<span style="padding: 2px 7px; border-radius: 6px; background: #2a2d33; font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf;">O</span>
+</button>
+
+<button aria-keyshortcuts="R" style="flex: 1; padding: 16px 14px 14px; border-radius: 16px; border: 1px solid transparent; background: #1c1e22; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer;">
+<span style="width: 44px; height: 44px; border-radius: 14px; background: #2a2d33; color: #efece6; display: grid; place-items: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.1-5M19 4v4h-4"></path></svg></span>
+<span style="margin-top: auto; font-weight: 650; font-size: 15px;">Restart</span>
+<span style="font-size: 12px; line-height: 1.4; color: #a7a9ad;">Back in about 40 s.</span>
+<span style="padding: 2px 7px; border-radius: 6px; background: #2a2d33; font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf;">R</span>
+</button>
+
+<button aria-label="Hold to power off" style="width: 150px; flex: none; padding: 14px; border-radius: 16px; border: 1px solid rgba(255,107,91,0.4); background: rgba(255,107,91,0.07); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; color: #ffb4a8;">
+<span style="position: relative; width: 76px; height: 76px;">
+<svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true"><circle cx="38" cy="38" r="33" fill="none" stroke="rgba(255,107,91,0.18)" stroke-width="5"></circle><circle cx="38" cy="38" r="33" fill="none" stroke="#ff6b5b" stroke-width="5" stroke-linecap="round" stroke-dasharray="207.3" stroke-dashoffset="207.3" transform="rotate(-90 38 38)"></circle></svg>
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 25px; top: 25px;"><path d="M12 4v7M7.8 7.2a7 7 0 1 0 8.4 0"></path></svg>
+</span>
+<span style="font-weight: 650; font-size: 15px;">Power off</span>
+<span style="font-size: 12px; color: #c99a92;">hold for 1 s</span>
+</button>
+</div>
+<div role="status" aria-live="polite" style="height: 34px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; background: #1c1e22; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #c9c6bf;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #5b5f66;"></span>Pick an action or press its letter. Power off needs a one-second hold.</div>
+</section>
+</div></body></html>

@@ -8,8 +8,10 @@ environment has no Wayland session, so you cannot run the shell here.
 1. `docs/PLAN.md`: the stages. Do only the stage the owner names, then stop.
 2. `docs/design/README.md`: the design language (tokens, controls, type, motion, words).
 3. `docs/design/PANELS.md`: what each panel contains and which QML files it maps to.
-4. The matching mockup in `docs/design/mockups/<Name>.html` is the source of truth for sizes, colours and layout.
-   Mockups are HTML with inline styles and a small JS class that computes values; read the numbers, don't port the JS.
+4. For each panel you build, look at `docs/design/previews/<Board>.png` (what it must look like) and read
+   `docs/design/previews/<Board>.html` for exact sizes, colours and text. `docs/design/mockups/<Board>.dc.html`
+   holds the interactions (a small JS class per board); read it for behaviour, don't port the JS.
+5. Before calling a panel done, compare it with its preview: same structure, spacing, colours and wording.
 
 ## Rules
 - Commits: short imperative subject in plain English, like the existing history. Never add `Co-Authored-By`,
@@ -18,6 +20,10 @@ environment has no Wayland session, so you cannot run the shell here.
   never force-push, never create tags or releases.
 - Keep behaviour: every panel keeps its existing data sources, IPC names (`ShellState.panels`, `shell` IPC target),
   settings keys and keyboard handling. This is a visual and layout redesign, not a rewrite of the logic.
+- Keep the engine, rebuild the views: `helpers/`, `services/`, `core/ShellState.qml`, `core/Backend.qml`, the lock's
+  PAM flow, IPC, install and update scripts stay as they are. A panel's QML view may be rewritten from scratch when
+  its layout differs a lot from today's (System, Activity, Clipboard, Overview, Lock, Settings); move its existing
+  bindings, models and handlers into the new layout rather than inventing new ones.
 - Read a file before changing it. Match the surrounding code style and comment density.
 - Every new animation honours `Theme.reduced` and `Theme.lowPower` (duration 0 or shorter).
 - New settings: add a default and validation in `helpers/backend.py` (`DEFAULTS`, `check_setting`) and a row in

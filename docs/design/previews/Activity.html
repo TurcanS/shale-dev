@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Shale Rack · Activity</title><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&family=Martian+Mono:wght@200..700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#0e0f11}*{animation:none!important;transition:none!important}</style><style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.95)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes bMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.95)}70%{transform:scaleY(.45)}100%{transform:scaleY(.8)}}
+.b-meter{transform-origin:bottom;animation:bMeter 720ms ease-in-out infinite alternate}
+.b-ws{transition:width 220ms cubic-bezier(.2,.8,.2,1),background-color 160ms ease-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes cBlink{50%{opacity:.35}}
+.c-rec{animation:cBlink 1s steps(2) infinite}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-rec{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes cMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.9)}70%{transform:scaleY(.45)}100%{transform:scaleY(1)}}
+.c-meter{transform-origin:bottom;animation:cMeter 700ms ease-in-out infinite alternate}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
+</style>
+<style></style>
+<style>
+
+.f-ring{transition:stroke-dashoffset 900ms linear}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion: reduce){.f-ring,button{transition:none}}
+</style>
+<style>
+
+@keyframes nIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.n-in{animation:nIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes lgIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.lg-in{animation:lgIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.lg-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes lShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.l-shake{animation:lShake 300ms ease-in-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:rgba(239,236,230,0.45)}
+@media (prefers-reduced-motion: reduce){.l-shake{animation:none}button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#0b111a}
+@keyframes rIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes rSlide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes rFade{from{opacity:0}to{opacity:1}}
+@keyframes rVu{0%{transform:scaleY(.3)}35%{transform:scaleY(.9)}60%{transform:scaleY(.5)}100%{transform:scaleY(1)}}
+.r-pnl{animation:rIn 170ms cubic-bezier(.2,.8,.2,1) both}
+.r-toast{animation:rSlide 200ms cubic-bezier(.2,.8,.2,1) both}
+.r-fade{animation:rFade 180ms ease-out both}
+.r-vu{transform-origin:bottom;animation:rVu 800ms ease-in-out infinite alternate}
+.r-cable{transition:d 340ms cubic-bezier(.3,1.35,.5,1)}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.r-pnl,.r-toast,.r-fade,.r-vu{animation:none}.r-cable,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.94)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.p-bar{transition:height 240ms ease-out}
+@media (prefers-reduced-motion: reduce){.p-bar,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.m-lvl{transition:height 110ms linear}
+@media (prefers-reduced-motion: reduce){.m-lvl,button{transition:none}}
+</style>
+<style>
+
+@keyframes nSpin{to{transform:rotate(360deg)}}
+.n-spin{animation:nSpin 900ms linear infinite;transform-origin:center}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-spin{animation:none}button{transition:none}}
+</style>
+<style>
+
+.o-fill{transition:width 160ms cubic-bezier(.2,.8,.2,1)}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.o-fill,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
+@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
+@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
+@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
+@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
+.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
+.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
+.rt-down{animation:rtDown 300ms ease-in both}
+.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
+.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
+.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
+.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-wake{animation:rtWake 320ms ease-out both}
+.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:hover{background-color:#23262b}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style></head>
+<body><div style="width:960px;height:620px;padding:0;">
+<section aria-label="Activity" style="width: 960px; height: 620px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<header style="display: flex; align-items: center; gap: 12px; height: 32px;">
+<span style="font-weight: 650; font-size: 17px;">Activity</span>
+<div role="tablist" aria-label="View" style="display: flex; padding: 3px; gap: 2px; border-radius: 10px; background: #1c1e22;">
+<button role="tab" aria-selected="true" style="height: 26px; padding: 0 14px; border-radius: 7px; border: 0; background: #2c2f35; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.4); font-weight: 600; font-size: 12px; cursor: pointer;">Overview</button><button role="tab" aria-selected="false" style="height: 26px; padding: 0 14px; border-radius: 7px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">Day</button><button role="tab" aria-selected="false" style="height: 26px; padding: 0 14px; border-radius: 7px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">Apps</button>
+</div>
+<span style="margin-left: auto; display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 14px; background: rgba(255,138,61,0.14); color: #ff8a3d; font-weight: 600; font-size: 12px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor;"></span>Active now</span>
+<button aria-pressed="false" style="height: 32px; padding: 0 12px; border-radius: 10px; border: 0; background: #1c1e22; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; cursor: pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14M16 5v14"></path></svg>Pause</button>
+<button aria-label="Close" style="width: 32px; height: 32px; border-radius: 10px; border: 0; background: #1c1e22; display: grid; place-items: center; cursor: pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</header>
+
+
+<div style="flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 0;">
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+
+<div style="padding: 12px 14px; border-radius: 16px; background: #1c1e22; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 12px; color: #8c8f95;">Today</span><span style="font-weight: 650; font-size: 24px; font-variant-numeric: tabular-nums;">5 h 12</span><span style="font-size: 12px; color: #ff8a3d;">+38 min vs usual</span></div>
+
+<div style="padding: 12px 14px; border-radius: 16px; background: #1c1e22; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 12px; color: #8c8f95;">This week</span><span style="font-weight: 650; font-size: 24px; font-variant-numeric: tabular-nums;">34 h</span><span style="font-size: 12px; color: #8c8f95;">−2 h vs last</span></div>
+
+<div style="padding: 12px 14px; border-radius: 16px; background: #1c1e22; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 12px; color: #8c8f95;">Daily average</span><span style="font-weight: 650; font-size: 24px; font-variant-numeric: tabular-nums;">4 h 52</span><span style="font-size: 12px; color: #8c8f95;">last 30 days</span></div>
+
+<div style="padding: 12px 14px; border-radius: 16px; background: #1c1e22; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 12px; color: #8c8f95;">Streak</span><span style="font-weight: 650; font-size: 24px; font-variant-numeric: tabular-nums;">12 days</span><span style="font-size: 12px; color: #8c8f95;">over 2 h a day</span></div>
+
+</div>
+<div style="flex: 1; display: flex; gap: 10px; min-height: 0;">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: baseline; gap: 8px;"><span style="font-weight: 600; font-size: 14px;">Your year</span><span style="font-size: 12px; color: #8c8f95;">each square is a day</span><span style="margin-left: auto; font-size: 12px; color: #8c8f95;">hover a day</span></div>
+<div role="img" aria-label="Active hours per day over the last year" style="display: grid; grid-template-rows: repeat(7, 9px); grid-auto-flow: column; grid-auto-columns: 9px; gap: 2px;">
+<span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span>
+</div>
+<div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: #8c8f95;"><span style="flex: 1; display: flex; justify-content: space-between; margin-right: 18px;"><span>Nov</span><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span></span>Less<span style="width: 9px; height: 9px; border-radius: 2px; background: #25272c;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #593e2e;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #855232;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #bd6b37;"></span><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff8a3d;"></span>More</div>
+</div>
+<div style="flex: 1; min-height: 0; background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; gap: 14px;">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+<span style="font-weight: 600; font-size: 14px;">When you're active</span>
+<div style="flex: 1; display: flex; align-items: flex-end; gap: 3px;">
+<span title="00:00" style="flex: 1; height: 0%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="01:00" style="flex: 1; height: 0%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="02:00" style="flex: 1; height: 0%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="03:00" style="flex: 1; height: 0%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="04:00" style="flex: 1; height: 0%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="05:00" style="flex: 1; height: 0%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="06:00" style="flex: 1; height: 0%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="07:00" style="flex: 1; height: 10%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="08:00" style="flex: 1; height: 35%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="09:00" style="flex: 1; height: 70%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="10:00" style="flex: 1; height: 85%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="11:00" style="flex: 1; height: 80%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="12:00" style="flex: 1; height: 50%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="13:00" style="flex: 1; height: 60%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="14:00" style="flex: 1; height: 90%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="15:00" style="flex: 1; height: 80%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="16:00" style="flex: 1; height: 70%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="17:00" style="flex: 1; height: 55.00000000000001%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="18:00" style="flex: 1; height: 40%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="19:00" style="flex: 1; height: 60%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="20:00" style="flex: 1; height: 85%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="21:00" style="flex: 1; height: 100%; min-height: 2px; border-radius: 3px; background: #ff8a3d;"></span><span title="22:00" style="flex: 1; height: 75%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span><span title="23:00" style="flex: 1; height: 30%; min-height: 2px; border-radius: 3px; background: #4a4e55;"></span>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 11px; color: #8c8f95;"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+</div>
+<div style="width: 170px; display: grid; grid-template-columns: 1fr; gap: 6px; align-content: start;">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 6px 10px; border-radius: 10px; background: #17191c;"><span style="font-size: 12px; color: #8c8f95;">Starts</span><span style="font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums;">09:02</span></div><div style="display: flex; justify-content: space-between; align-items: baseline; padding: 6px 10px; border-radius: 10px; background: #17191c;"><span style="font-size: 12px; color: #8c8f95;">Ends</span><span style="font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums;">23:10</span></div><div style="display: flex; justify-content: space-between; align-items: baseline; padding: 6px 10px; border-radius: 10px; background: #17191c;"><span style="font-size: 12px; color: #8c8f95;">Busiest</span><span style="font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums;">21:00</span></div><div style="display: flex; justify-content: space-between; align-items: baseline; padding: 6px 10px; border-radius: 10px; background: #17191c;"><span style="font-size: 12px; color: #8c8f95;">Since</span><span style="font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums;">3 Mar 2026</span></div>
+</div>
+</div>
+</div>
+<div style="width: 300px; flex: none; background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: baseline;"><span style="font-weight: 600; font-size: 14px;">Top apps this week</span><button style="margin-left: auto; padding: 0; border: 0; background: transparent; color: #ff8a3d; font-weight: 600; font-size: 12px; cursor: pointer;">All apps</button></div>
+
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #ff8a3d; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #17181a;">F</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;"><span style="display: flex; justify-content: space-between; font-size: 13px;"><span>Firefox</span><span style="color: #c9c6bf; font-variant-numeric: tabular-nums;">10 h 36</span></span><span style="height: 4px; border-radius: 2px; background: #2a2d33;"><span style="display: block; height: 4px; width: 100%; border-radius: 2px; background: #ff8a3d;"></span></span></span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #a7a9ad; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #17181a;">K</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;"><span style="display: flex; justify-content: space-between; font-size: 13px;"><span>kitty</span><span style="color: #c9c6bf; font-variant-numeric: tabular-nums;">7 h 06</span></span><span style="height: 4px; border-radius: 2px; background: #2a2d33;"><span style="display: block; height: 4px; width: 66.98113207547169%; border-radius: 2px; background: #8c8f95;"></span></span></span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #8c8f95; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #17181a;">O</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;"><span style="display: flex; justify-content: space-between; font-size: 13px;"><span>Obsidian</span><span style="color: #c9c6bf; font-variant-numeric: tabular-nums;">5 h 00</span></span><span style="height: 4px; border-radius: 2px; background: #2a2d33;"><span style="display: block; height: 4px; width: 47.16981132075472%; border-radius: 2px; background: #8c8f95;"></span></span></span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #7c8087; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #17181a;">S</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;"><span style="display: flex; justify-content: space-between; font-size: 13px;"><span>Steam</span><span style="color: #c9c6bf; font-variant-numeric: tabular-nums;">5 h 00</span></span><span style="height: 4px; border-radius: 2px; background: #2a2d33;"><span style="display: block; height: 4px; width: 47.16981132075472%; border-radius: 2px; background: #8c8f95;"></span></span></span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #6b6f76; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #17181a;">S</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;"><span style="display: flex; justify-content: space-between; font-size: 13px;"><span>Spotify</span><span style="color: #c9c6bf; font-variant-numeric: tabular-nums;">2 h 24</span></span><span style="height: 4px; border-radius: 2px; background: #2a2d33;"><span style="display: block; height: 4px; width: 22.641509433962266%; border-radius: 2px; background: #8c8f95;"></span></span></span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #5b5f66; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #17181a;">D</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;"><span style="display: flex; justify-content: space-between; font-size: 13px;"><span>Discord</span><span style="color: #c9c6bf; font-variant-numeric: tabular-nums;">2 h 24</span></span><span style="height: 4px; border-radius: 2px; background: #2a2d33;"><span style="display: block; height: 4px; width: 22.641509433962266%; border-radius: 2px; background: #8c8f95;"></span></span></span>
+</div>
+
+<p style="margin: auto 0 0; font-size: 12px; line-height: 1.5; color: #8c8f95;">App names and times only. Never window titles or what's on screen. It stays on this computer.</p>
+</div>
+</div>
+</div>
+
+
+
+
+
+</section>
+</div></body></html>

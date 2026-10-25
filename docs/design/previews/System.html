@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Shale Rack · System</title><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&family=Martian+Mono:wght@200..700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#0e0f11}*{animation:none!important;transition:none!important}</style><style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.95)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes bMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.95)}70%{transform:scaleY(.45)}100%{transform:scaleY(.8)}}
+.b-meter{transform-origin:bottom;animation:bMeter 720ms ease-in-out infinite alternate}
+.b-ws{transition:width 220ms cubic-bezier(.2,.8,.2,1),background-color 160ms ease-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes cBlink{50%{opacity:.35}}
+.c-rec{animation:cBlink 1s steps(2) infinite}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-rec{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes cMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.9)}70%{transform:scaleY(.45)}100%{transform:scaleY(1)}}
+.c-meter{transform-origin:bottom;animation:cMeter 700ms ease-in-out infinite alternate}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
+</style>
+<style></style>
+<style>
+
+.f-ring{transition:stroke-dashoffset 900ms linear}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion: reduce){.f-ring,button{transition:none}}
+</style>
+<style>
+
+@keyframes nIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.n-in{animation:nIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes lgIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.lg-in{animation:lgIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.lg-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes lShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.l-shake{animation:lShake 300ms ease-in-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:rgba(239,236,230,0.45)}
+@media (prefers-reduced-motion: reduce){.l-shake{animation:none}button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#0b111a}
+@keyframes rIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes rSlide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes rFade{from{opacity:0}to{opacity:1}}
+@keyframes rVu{0%{transform:scaleY(.3)}35%{transform:scaleY(.9)}60%{transform:scaleY(.5)}100%{transform:scaleY(1)}}
+.r-pnl{animation:rIn 170ms cubic-bezier(.2,.8,.2,1) both}
+.r-toast{animation:rSlide 200ms cubic-bezier(.2,.8,.2,1) both}
+.r-fade{animation:rFade 180ms ease-out both}
+.r-vu{transform-origin:bottom;animation:rVu 800ms ease-in-out infinite alternate}
+.r-cable{transition:d 340ms cubic-bezier(.3,1.35,.5,1)}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.r-pnl,.r-toast,.r-fade,.r-vu{animation:none}.r-cable,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.94)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.p-bar{transition:height 240ms ease-out}
+@media (prefers-reduced-motion: reduce){.p-bar,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.m-lvl{transition:height 110ms linear}
+@media (prefers-reduced-motion: reduce){.m-lvl,button{transition:none}}
+</style>
+<style>
+
+@keyframes nSpin{to{transform:rotate(360deg)}}
+.n-spin{animation:nSpin 900ms linear infinite;transform-origin:center}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-spin{animation:none}button{transition:none}}
+</style>
+<style>
+
+.o-fill{transition:width 160ms cubic-bezier(.2,.8,.2,1)}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.o-fill,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
+@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
+@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
+@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
+@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
+.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
+.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
+.rt-down{animation:rtDown 300ms ease-in both}
+.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
+.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
+.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
+.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-wake{animation:rtWake 320ms ease-out both}
+.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:hover{background-color:#23262b}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style></head>
+<body><div style="width:960px;height:660px;padding:0;">
+<section aria-label="System monitor" style="width: 960px; height: 660px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<header style="display: flex; align-items: center; gap: 12px; height: 32px;">
+<span style="font-weight: 650; font-size: 17px;">System monitor</span>
+<span style="font-size: 13px; color: #8c8f95;">Up 3 h 12 min · 214 processes</span>
+<div role="radiogroup" aria-label="Time range" style="margin-left: auto; display: flex; padding: 3px; gap: 2px; border-radius: 10px; background: #1c1e22;">
+<button role="radio" aria-checked="true" style="height: 26px; padding: 0 12px; border-radius: 7px; border: 0; background: #2c2f35; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.4); font-weight: 600; font-size: 12px; cursor: pointer;">1 min</button><button role="radio" aria-checked="false" style="height: 26px; padding: 0 12px; border-radius: 7px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">5 min</button>
+</div>
+<button aria-label="Close" style="width: 32px; height: 32px; border-radius: 10px; border: 0; background: #1c1e22; display: grid; place-items: center; cursor: pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</header>
+
+<div style="flex: 1; display: flex; gap: 10px; min-height: 0;">
+
+<nav aria-label="Devices" style="width: 250px; flex: none; display: flex; flex-direction: column; gap: 6px;">
+
+<button aria-current="true" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(255,138,61,0.4); background: rgba(255,138,61,0.14); display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 24.8 L2.5 27.1 L5.0 30.5 L7.4 31.7 L9.9 31.1 L12.4 30.2 L14.9 28.4 L17.4 28.1 L19.9 26.7 L22.3 27.0 L24.8 24.3 L27.3 26.8 L29.8 24.5 L32.3 25.1 L34.8 29.5 L37.2 28.7 L39.7 28.4 L42.2 31.6 L44.7 32.5 L47.2 29.1 L49.7 29.9 L52.1 28.5 L54.6 23.6 L57.1 23.7 L59.6 23.0 L62.1 27.8 L64.6 28.8 L67.0 27.4 L69.5 27.6 L72.0 32.1 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 24.8 L2.5 27.1 L5.0 30.5 L7.4 31.7 L9.9 31.1 L12.4 30.2 L14.9 28.4 L17.4 28.1 L19.9 26.7 L22.3 27.0 L24.8 24.3 L27.3 26.8 L29.8 24.5 L32.3 25.1 L34.8 29.5 L37.2 28.7 L39.7 28.4 L42.2 31.6 L44.7 32.5 L47.2 29.1 L49.7 29.9 L52.1 28.5 L54.6 23.6 L57.1 23.7 L59.6 23.0 L62.1 27.8 L64.6 28.8 L67.0 27.4 L69.5 27.6 L72.0 32.1" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">CPU</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">8% · 4.1 GHz</span></span>
+</button>
+
+<button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 23.7 L2.5 23.5 L5.0 23.7 L7.4 23.9 L9.9 24.2 L12.4 24.0 L14.9 24.1 L17.4 23.6 L19.9 23.9 L22.3 23.6 L24.8 23.5 L27.3 23.2 L29.8 23.7 L32.3 23.6 L34.8 24.0 L37.2 24.0 L39.7 23.7 L42.2 24.1 L44.7 24.1 L47.2 23.7 L49.7 23.5 L52.1 23.9 L54.6 23.5 L57.1 23.5 L59.6 23.3 L62.1 23.4 L64.6 23.5 L67.0 23.5 L69.5 23.6 L72.0 24.3 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 23.7 L2.5 23.5 L5.0 23.7 L7.4 23.9 L9.9 24.2 L12.4 24.0 L14.9 24.1 L17.4 23.6 L19.9 23.9 L22.3 23.6 L24.8 23.5 L27.3 23.2 L29.8 23.7 L32.3 23.6 L34.8 24.0 L37.2 24.0 L39.7 23.7 L42.2 24.1 L44.7 24.1 L47.2 23.7 L49.7 23.5 L52.1 23.9 L54.6 23.5 L57.1 23.5 L59.6 23.3 L62.1 23.4 L64.6 23.5 L67.0 23.5 L69.5 23.6 L72.0 24.3" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Memory</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">6.3 / 15.3 GB</span></span>
+</button>
+
+<button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 32.2 L2.5 30.3 L5.0 31.6 L7.4 35.3 L9.9 35.3 L12.4 35.3 L14.9 34.4 L17.4 31.4 L19.9 32.8 L22.3 30.7 L24.8 29.3 L27.3 27.9 L29.8 32.2 L32.3 32.3 L34.8 33.2 L37.2 35.3 L39.7 33.6 L42.2 33.1 L44.7 34.2 L47.2 34.7 L49.7 30.8 L52.1 31.4 L54.6 30.7 L57.1 27.9 L59.6 29.4 L62.1 30.6 L64.6 31.8 L67.0 33.3 L69.5 32.9 L72.0 33.7 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 32.2 L2.5 30.3 L5.0 31.6 L7.4 35.3 L9.9 35.3 L12.4 35.3 L14.9 34.4 L17.4 31.4 L19.9 32.8 L22.3 30.7 L24.8 29.3 L27.3 27.9 L29.8 32.2 L32.3 32.3 L34.8 33.2 L37.2 35.3 L39.7 33.6 L42.2 33.1 L44.7 34.2 L47.2 34.7 L49.7 30.8 L52.1 31.4 L54.6 30.7 L57.1 27.9 L59.6 29.4 L62.1 30.6 L64.6 31.8 L67.0 33.3 L69.5 32.9 L72.0 33.7" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Disk 0</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">System · 3% active</span></span>
+</button>
+
+<button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 33.4 L2.5 33.1 L5.0 34.2 L7.4 35.3 L9.9 35.3 L12.4 34.5 L14.9 35.3 L17.4 33.5 L19.9 33.9 L22.3 33.2 L24.8 32.4 L27.3 33.1 L29.8 32.6 L32.3 33.6 L34.8 34.6 L37.2 34.8 L39.7 34.5 L42.2 35.3 L44.7 35.3 L47.2 35.1 L49.7 35.2 L52.1 33.0 L54.6 33.0 L57.1 33.7 L59.6 33.6 L62.1 33.0 L64.6 34.0 L67.0 33.8 L69.5 35.0 L72.0 35.3 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 33.4 L2.5 33.1 L5.0 34.2 L7.4 35.3 L9.9 35.3 L12.4 34.5 L14.9 35.3 L17.4 33.5 L19.9 33.9 L22.3 33.2 L24.8 32.4 L27.3 33.1 L29.8 32.6 L32.3 33.6 L34.8 34.6 L37.2 34.8 L39.7 34.5 L42.2 35.3 L44.7 35.3 L47.2 35.1 L49.7 35.2 L52.1 33.0 L54.6 33.0 L57.1 33.7 L59.6 33.6 L62.1 33.0 L64.6 34.0 L67.0 33.8 L69.5 35.0 L72.0 35.3" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Disk 1</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Home · 1% active</span></span>
+</button>
+
+<button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 22.4 L2.5 24.1 L5.0 21.7 L7.4 27.8 L9.9 30.7 L12.4 24.0 L14.9 29.4 L17.4 20.7 L19.9 23.2 L22.3 16.4 L24.8 19.6 L27.3 14.3 L29.8 17.0 L32.3 19.3 L34.8 25.9 L37.2 22.4 L39.7 22.3 L42.2 25.5 L44.7 22.3 L47.2 28.0 L49.7 22.0 L52.1 17.4 L54.6 14.8 L57.1 18.0 L59.6 15.2 L62.1 15.9 L64.6 22.2 L67.0 23.1 L69.5 24.9 L72.0 26.1 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 22.4 L2.5 24.1 L5.0 21.7 L7.4 27.8 L9.9 30.7 L12.4 24.0 L14.9 29.4 L17.4 20.7 L19.9 23.2 L22.3 16.4 L24.8 19.6 L27.3 14.3 L29.8 17.0 L32.3 19.3 L34.8 25.9 L37.2 22.4 L39.7 22.3 L42.2 25.5 L44.7 22.3 L47.2 28.0 L49.7 22.0 L52.1 17.4 L54.6 14.8 L57.1 18.0 L59.6 15.2 L62.1 15.9 L64.6 22.2 L67.0 23.1 L69.5 24.9 L72.0 26.1" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Wi-Fi</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">↓ 3.0 MB/s · ↑ 146 kB/s</span></span>
+</button>
+
+<button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 36.0 L72.0 36.0 L72 36 L0 36 Z" fill="transparent"></path><path d="M0.0 36.0 L72.0 36.0" fill="none" stroke="#5b5f66" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">GPU</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Asleep</span></span>
+</button>
+
+</nav>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+<div style="flex: 1; min-height: 0; background: #1c1e22; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: baseline; gap: 10px;">
+<span style="font-weight: 650; font-size: 20px;">CPU</span>
+<span style="font-size: 13px; color: #8c8f95;">Intel Core i5-11400H · 12 threads</span>
+<span style="margin-left: auto; font-weight: 650; font-size: 22px; font-variant-numeric: tabular-nums; color: #ff8a3d;">8%</span>
+</div>
+
+<div style="position: relative; flex: 1; min-height: 0; border-radius: 12px; background: #141518; overflow: hidden;">
+<svg width="100%" height="100%" viewBox="0 0 400 140" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0;">
+<line x1="0" y1="35" x2="400" y2="35" stroke="#202226"></line><line x1="0" y1="70" x2="400" y2="70" stroke="#202226"></line><line x1="0" y1="105" x2="400" y2="105" stroke="#202226"></line>
+<path d="M0.0 87.7 L21.1 99.0 L42.1 88.7 L63.2 91.4 L84.2 110.8 L105.3 107.6 L126.3 106.0 L147.4 120.4 L168.4 124.2 L189.5 109.4 L210.5 112.9 L231.6 106.4 L252.6 84.6 L273.7 85.2 L294.7 82.1 L315.8 103.6 L336.8 107.7 L357.9 101.7 L378.9 102.5 L400.0 122.6 L400 140 L0 140 Z" fill="rgba(255,138,61,0.16)"></path>
+<path d="M0.0 87.7 L21.1 99.0 L42.1 88.7 L63.2 91.4 L84.2 110.8 L105.3 107.6 L126.3 106.0 L147.4 120.4 L168.4 124.2 L189.5 109.4 L210.5 112.9 L231.6 106.4 L252.6 84.6 L273.7 85.2 L294.7 82.1 L315.8 103.6 L336.8 107.7 L357.9 101.7 L378.9 102.5 L400.0 122.6" fill="none" stroke="#ff8a3d" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"></path>
+<path d="" fill="none" stroke="#7fb2c4" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"></path>
+</svg>
+<span style="position: absolute; left: 10px; bottom: 6px; font-size: 11px; color: #8c8f95;">1 min ago</span><span style="position: absolute; right: 10px; bottom: 6px; font-size: 11px; color: #8c8f95;">now</span>
+
+</div>
+
+
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+
+<div style="padding: 8px 10px; border-radius: 10px; background: #17191c; display: flex; flex-direction: column; gap: 2px; min-width: 0;"><span style="font-size: 12px; color: #8c8f95;">Utilisation</span><span style="font-weight: 650; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">8%</span><span style="font-size: 11px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> </span></div>
+
+<div style="padding: 8px 10px; border-radius: 10px; background: #17191c; display: flex; flex-direction: column; gap: 2px; min-width: 0;"><span style="font-size: 12px; color: #8c8f95;">Speed</span><span style="font-weight: 650; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">4.10 GHz</span><span style="font-size: 11px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">base 2.70</span></div>
+
+<div style="padding: 8px 10px; border-radius: 10px; background: #17191c; display: flex; flex-direction: column; gap: 2px; min-width: 0;"><span style="font-size: 12px; color: #8c8f95;">Temperature</span><span style="font-weight: 650; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">62 °C</span><span style="font-size: 11px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">package</span></div>
+
+<div style="padding: 8px 10px; border-radius: 10px; background: #17191c; display: flex; flex-direction: column; gap: 2px; min-width: 0;"><span style="font-size: 12px; color: #8c8f95;">Load</span><span style="font-weight: 650; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">1.20</span><span style="font-size: 11px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">0.98 · 0.71</span></div>
+
+</div>
+</div>
+
+<div style="height: 196px; flex: none; background: #1c1e22; border-radius: 16px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px;">
+<div style="display: flex; align-items: center; gap: 12px; height: 28px; padding: 0 6px; font-size: 12px; color: #8c8f95;">
+<span style="flex: 1; font-weight: 650; font-size: 14px; color: #efece6;">Processes</span>
+<button aria-pressed="true" style="width: 70px; padding: 0; border: 0; background: transparent; color: #efece6; font-weight: 600; font-size: 12px; text-align: right; cursor: pointer;">CPU ↓</button><button aria-pressed="false" style="width: 70px; padding: 0; border: 0; background: transparent; color: #8c8f95; font-weight: 600; font-size: 12px; text-align: right; cursor: pointer;">Memory </button>
+<span style="width: 74px;"></span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px; height: 30px; padding: 0 6px; border-radius: 8px; background: #17191c; font-size: 13px;">
+<span style="width: 20px; height: 20px; border-radius: 6px; background: #2a2d33; display: grid; place-items: center; font-weight: 700; font-size: 10px; color: #c9c6bf;">F</span>
+<span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Firefox</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #ff8a3d;">9.4%</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #c9c6bf;">1.4 GB</span>
+<button aria-label="End Firefox" style="width: 74px; height: 24px; padding: 0; border-radius: 7px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; cursor: pointer;">End</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px; height: 30px; padding: 0 6px; border-radius: 8px; background: transparent; font-size: 13px;">
+<span style="width: 20px; height: 20px; border-radius: 6px; background: #2a2d33; display: grid; place-items: center; font-weight: 700; font-size: 10px; color: #c9c6bf;">H</span>
+<span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Hyprland</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #c9c6bf;">3.1%</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #c9c6bf;">180 MB</span>
+<button aria-label="End Hyprland" style="width: 74px; height: 24px; padding: 0; border-radius: 7px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; cursor: pointer;">End</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px; height: 30px; padding: 0 6px; border-radius: 8px; background: #17191c; font-size: 13px;">
+<span style="width: 20px; height: 20px; border-radius: 6px; background: #2a2d33; display: grid; place-items: center; font-weight: 700; font-size: 10px; color: #c9c6bf;">Q</span>
+<span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">quickshell</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #c9c6bf;">2.2%</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #c9c6bf;">240 MB</span>
+<button aria-label="End quickshell" style="width: 74px; height: 24px; padding: 0; border-radius: 7px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; cursor: pointer;">End</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px; height: 30px; padding: 0 6px; border-radius: 8px; background: transparent; font-size: 13px;">
+<span style="width: 20px; height: 20px; border-radius: 6px; background: #2a2d33; display: grid; place-items: center; font-weight: 700; font-size: 10px; color: #c9c6bf;">S</span>
+<span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Spotify</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #c9c6bf;">1.8%</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #c9c6bf;">420 MB</span>
+<button aria-label="End Spotify" style="width: 74px; height: 24px; padding: 0; border-radius: 7px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; cursor: pointer;">End</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px; height: 30px; padding: 0 6px; border-radius: 8px; background: #17191c; font-size: 13px;">
+<span style="width: 20px; height: 20px; border-radius: 6px; background: #2a2d33; display: grid; place-items: center; font-weight: 700; font-size: 10px; color: #c9c6bf;">O</span>
+<span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Obsidian</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #c9c6bf;">1.1%</span>
+<span style="width: 70px; text-align: right; font-variant-numeric: tabular-nums; color: #c9c6bf;">310 MB</span>
+<button aria-label="End Obsidian" style="width: 74px; height: 24px; padding: 0; border-radius: 7px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; cursor: pointer;">End</button>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</div></body></html>

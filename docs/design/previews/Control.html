@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Shale Rack · Control</title><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&family=Martian+Mono:wght@200..700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#0e0f11}*{animation:none!important;transition:none!important}</style><style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.95)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes bMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.95)}70%{transform:scaleY(.45)}100%{transform:scaleY(.8)}}
+.b-meter{transform-origin:bottom;animation:bMeter 720ms ease-in-out infinite alternate}
+.b-ws{transition:width 220ms cubic-bezier(.2,.8,.2,1),background-color 160ms ease-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes cBlink{50%{opacity:.35}}
+.c-rec{animation:cBlink 1s steps(2) infinite}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-rec{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes cMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.9)}70%{transform:scaleY(.45)}100%{transform:scaleY(1)}}
+.c-meter{transform-origin:bottom;animation:cMeter 700ms ease-in-out infinite alternate}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
+</style>
+<style></style>
+<style>
+
+.f-ring{transition:stroke-dashoffset 900ms linear}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion: reduce){.f-ring,button{transition:none}}
+</style>
+<style>
+
+@keyframes nIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.n-in{animation:nIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes lgIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.lg-in{animation:lgIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.lg-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes lShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.l-shake{animation:lShake 300ms ease-in-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:rgba(239,236,230,0.45)}
+@media (prefers-reduced-motion: reduce){.l-shake{animation:none}button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#0b111a}
+@keyframes rIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes rSlide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes rFade{from{opacity:0}to{opacity:1}}
+@keyframes rVu{0%{transform:scaleY(.3)}35%{transform:scaleY(.9)}60%{transform:scaleY(.5)}100%{transform:scaleY(1)}}
+.r-pnl{animation:rIn 170ms cubic-bezier(.2,.8,.2,1) both}
+.r-toast{animation:rSlide 200ms cubic-bezier(.2,.8,.2,1) both}
+.r-fade{animation:rFade 180ms ease-out both}
+.r-vu{transform-origin:bottom;animation:rVu 800ms ease-in-out infinite alternate}
+.r-cable{transition:d 340ms cubic-bezier(.3,1.35,.5,1)}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.r-pnl,.r-toast,.r-fade,.r-vu{animation:none}.r-cable,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.94)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.p-bar{transition:height 240ms ease-out}
+@media (prefers-reduced-motion: reduce){.p-bar,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.m-lvl{transition:height 110ms linear}
+@media (prefers-reduced-motion: reduce){.m-lvl,button{transition:none}}
+</style>
+<style>
+
+@keyframes nSpin{to{transform:rotate(360deg)}}
+.n-spin{animation:nSpin 900ms linear infinite;transform-origin:center}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-spin{animation:none}button{transition:none}}
+</style>
+<style>
+
+.o-fill{transition:width 160ms cubic-bezier(.2,.8,.2,1)}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.o-fill,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
+@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
+@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
+@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
+@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
+.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
+.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
+.rt-down{animation:rtDown 300ms ease-in both}
+.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
+.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
+.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
+.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-wake{animation:rtWake 320ms ease-out both}
+.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:hover{background-color:#23262b}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style></head>
+<body><div style="width:560px;height:680px;padding:0;">
+<section aria-label="Control rack" style="width: 560px; height: 680px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<header style="display: flex; align-items: center; gap: 10px; height: 32px;">
+<span style="font-weight: 650; font-size: 17px;">Control</span>
+<span style="font-size: 13px; color: #8c8f95;">Battery 82% · 3 h 12 left</span>
+<button aria-label="Open settings" style="margin-left: auto; width: 32px; height: 32px; border-radius: 10px; border: 0; background: #1c1e22; display: grid; place-items: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8M16 4v6M10 14v6"></path></svg></button>
+</header>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+
+<button aria-pressed="true" style="height: 60px; padding: 0 12px; border-radius: 14px; border: 1px solid rgba(255,138,61,0.4); background: rgba(255,138,61,0.14); display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 11px; background: #ff8a3d; color: #17181a; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5a12 12 0 0 1 16 0M7 13a7.5 7.5 0 0 1 10 0M10 16.5a3 3 0 0 1 4 0M12 19.5h.01"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Wi-Fi</span><span style="font-size: 12px; color: #d8d5ce; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Harbour 5G</span></span>
+</button>
+
+<button aria-pressed="true" style="height: 60px; padding: 0 12px; border-radius: 14px; border: 1px solid rgba(255,138,61,0.4); background: rgba(255,138,61,0.14); display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 11px; background: #ff8a3d; color: #17181a; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7l10 10-5 4V3l5 4L7 17"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Bluetooth</span><span style="font-size: 12px; color: #d8d5ce; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">WH-1000 · 70%</span></span>
+</button>
+
+<button aria-pressed="false" style="height: 60px; padding: 0 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 11px; background: #2a2d33; color: #efece6; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Do not disturb</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Off</span></span>
+</button>
+
+<button aria-pressed="false" style="height: 60px; padding: 0 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 11px; background: #2a2d33; color: #efece6; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Night light</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Off</span></span>
+</button>
+
+</div>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;">
+
+<div style="display: flex; align-items: center; gap: 12px; height: 32px;">
+<button aria-label="Mute Volume" aria-pressed="false" style="width: 32px; height: 32px; flex: none; padding: 0; border-radius: 10px; border: 0; background: #2a2d33; color: #efece6; display: grid; place-items: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h3l5-4v12l-5-4H4zM16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"></path></svg></button>
+<div style="position: relative; flex: 1; height: 32px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 6px; border-radius: 3px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: 62%; height: 6px; border-radius: 3px; background: linear-gradient(90deg, rgba(255,138,61,0.14), #ff8a3d); box-shadow: 0 0 12px rgba(255,138,61,0.45);"></span>
+<span style="position: absolute; left: calc(62% - 8px); width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 1px 5px rgba(0,0,0,0.55);"></span>
+<input type="range" min="0" max="100" value="62" aria-label="Volume" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<span style="width: 34px; text-align: right; font-family: 'Martian Mono', monospace; font-size: 12px; color: #c9c6bf; font-variant-numeric: tabular-nums;">62</span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px; height: 32px;">
+<button aria-label="Mute Microphone" aria-pressed="false" style="width: 32px; height: 32px; flex: none; padding: 0; border-radius: 10px; border: 0; background: #2a2d33; color: #efece6; display: grid; place-items: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v3"></path></svg></button>
+<div style="position: relative; flex: 1; height: 32px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 6px; border-radius: 3px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: 70%; height: 6px; border-radius: 3px; background: #e7e2d6; box-shadow: none;"></span>
+<span style="position: absolute; left: calc(70% - 8px); width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 1px 5px rgba(0,0,0,0.55);"></span>
+<input type="range" min="0" max="100" value="70" aria-label="Microphone" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<span style="width: 34px; text-align: right; font-family: 'Martian Mono', monospace; font-size: 12px; color: #c9c6bf; font-variant-numeric: tabular-nums;">70</span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px; height: 32px;">
+<button aria-label="Mute Brightness" aria-pressed="false" style="width: 32px; height: 32px; flex: none; padding: 0; border-radius: 10px; border: 0; background: #2a2d33; color: #efece6; display: grid; place-items: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg></button>
+<div style="position: relative; flex: 1; height: 32px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 6px; border-radius: 3px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: 80%; height: 6px; border-radius: 3px; background: #e7e2d6; box-shadow: none;"></span>
+<span style="position: absolute; left: calc(80% - 8px); width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 1px 5px rgba(0,0,0,0.55);"></span>
+<input type="range" min="0" max="100" value="80" aria-label="Brightness" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<span style="width: 34px; text-align: right; font-family: 'Martian Mono', monospace; font-size: 12px; color: #c9c6bf; font-variant-numeric: tabular-nums;">80</span>
+</div>
+
+</div>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: baseline; gap: 8px;"><span style="font-weight: 600; font-size: 14px;">Output</span><span style="font-size: 12px; color: #8c8f95;">every playing app follows</span></div>
+<div role="radiogroup" aria-label="Sound output" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+
+<button role="radio" aria-checked="false" style="height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid transparent; background: #141518; color: #c9c6bf; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h3l5-4v12l-5-4H4zM16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"></path></svg>
+<span style="font-weight: 600; font-size: 13px;">Speakers</span>
+
+</button>
+
+<button role="radio" aria-checked="true" style="height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid rgba(255,138,61,0.4); background: rgba(255,138,61,0.14); color: #ffffff; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16v-4a8 8 0 0 1 16 0v4M4 15h3v5H4zM17 15h3v5h-3z"></path></svg>
+<span style="font-weight: 600; font-size: 13px;">Headphones</span>
+<span aria-hidden="true" style="margin-left: auto; display: flex; gap: 2px; align-items: flex-end; height: 14px;"><span class="c-meter" style="width: 3px; height: 14px; border-radius: 1px; background: #ff8a3d;"></span><span class="c-meter" style="width: 3px; height: 14px; border-radius: 1px; background: #ff8a3d; animation-delay: -0.3s;"></span><span class="c-meter" style="width: 3px; height: 14px; border-radius: 1px; background: #ff8a3d; animation-delay: -0.6s;"></span></span>
+</button>
+
+<button role="radio" aria-checked="false" style="height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid transparent; background: #141518; color: #c9c6bf; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v8H3zM8 19h8M12 15v4"></path></svg>
+<span style="font-weight: 600; font-size: 13px;">HDMI</span>
+
+</button>
+
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 26px;">
+<span style="width: 74px; font-size: 13px; color: #c9c6bf;">Firefox</span>
+<div style="position: relative; flex: 1; height: 26px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 4px; border-radius: 2px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: 45%; height: 4px; border-radius: 2px; background: #8c8f95;"></span>
+<span style="position: absolute; left: calc(45% - 6px); width: 12px; height: 12px; border-radius: 50%; background: #c9c6bf;"></span>
+<input type="range" min="0" max="100" value="45" aria-label="Firefox volume" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<span style="width: 34px; text-align: right; font-family: 'Martian Mono', monospace; font-size: 12px; color: #8c8f95;">45</span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 26px;">
+<span style="width: 74px; font-size: 13px; color: #c9c6bf;">Spotify</span>
+<div style="position: relative; flex: 1; height: 26px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 4px; border-radius: 2px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: 74%; height: 4px; border-radius: 2px; background: #8c8f95;"></span>
+<span style="position: absolute; left: calc(74% - 6px); width: 12px; height: 12px; border-radius: 50%; background: #c9c6bf;"></span>
+<input type="range" min="0" max="100" value="74" aria-label="Spotify volume" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<span style="width: 34px; text-align: right; font-family: 'Martian Mono', monospace; font-size: 12px; color: #8c8f95;">74</span>
+</div>
+
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 600; font-size: 14px;">Focus</span><span style="font-size: 12px; color: #8c8f95;">not running</span></div>
+<div role="radiogroup" aria-label="Focus" style="display: flex; padding: 3px; gap: 2px; border-radius: 11px; background: #141518;">
+
+<button role="radio" aria-checked="true" style="flex: 1; height: 30px; padding: 0; border-radius: 8px; border: 0; background: #2c2f35; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.4); font-weight: 600; font-size: 12px; cursor: pointer;">Off</button>
+
+<button role="radio" aria-checked="false" style="flex: 1; height: 30px; padding: 0; border-radius: 8px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">25</button>
+
+<button role="radio" aria-checked="false" style="flex: 1; height: 30px; padding: 0; border-radius: 8px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">50</button>
+
+<button role="radio" aria-checked="false" style="flex: 1; height: 30px; padding: 0; border-radius: 8px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">90</button>
+
+</div>
+</div>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 600; font-size: 14px;">Scene</span><span style="font-size: 12px; color: #8c8f95;">quiet on · balanced</span></div>
+<div role="radiogroup" aria-label="Scene" style="display: flex; padding: 3px; gap: 2px; border-radius: 11px; background: #141518;">
+
+<button role="radio" aria-checked="true" style="flex: 1; height: 30px; padding: 0; border-radius: 8px; border: 0; background: #2c2f35; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.4); font-weight: 600; font-size: 12px; cursor: pointer;">Work</button>
+
+<button role="radio" aria-checked="false" style="flex: 1; height: 30px; padding: 0; border-radius: 8px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">Game</button>
+
+<button role="radio" aria-checked="false" style="flex: 1; height: 30px; padding: 0; border-radius: 8px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">Evening</button>
+
+</div>
+</div>
+
+</div>
+
+<div style="margin-top: auto; display: flex; gap: 8px;">
+
+<button aria-label="Lock" style="flex: 1; height: 44px; border-radius: 12px; border: 0; background: #1c1e22; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11h10v9H7zM9 11V8a3 3 0 0 1 6 0v3"></path></svg><span style="font-weight: 600; font-size: 13px;">Lock</span></button>
+
+<button aria-label="Sleep" style="flex: 1; height: 44px; border-radius: 12px; border: 0; background: #1c1e22; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z"></path></svg><span style="font-weight: 600; font-size: 13px;">Sleep</span></button>
+
+<button aria-label="Restart" style="flex: 1; height: 44px; border-radius: 12px; border: 0; background: #1c1e22; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.1-5M19 4v4h-4"></path></svg><span style="font-weight: 600; font-size: 13px;">Restart</span></button>
+
+<button aria-label="Hold to power off" style="flex: 1.3; height: 44px; border-radius: 12px; border: 1px solid rgba(255,107,91,0.45); background: linear-gradient(90deg, rgba(255,107,91,0.28) 0%, transparent 0%); color: #ffb4a8; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 4v7M7.8 7.2a7 7 0 1 0 8.4 0"></path></svg><span style="font-weight: 600; font-size: 13px;">Hold to power off</span></button>
+</div>
+</section>
+</div></body></html>

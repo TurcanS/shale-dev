@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Shale Rack · Almanac</title><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&family=Martian+Mono:wght@200..700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#0e0f11}*{animation:none!important;transition:none!important}</style><style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.95)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes bMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.95)}70%{transform:scaleY(.45)}100%{transform:scaleY(.8)}}
+.b-meter{transform-origin:bottom;animation:bMeter 720ms ease-in-out infinite alternate}
+.b-ws{transition:width 220ms cubic-bezier(.2,.8,.2,1),background-color 160ms ease-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes cBlink{50%{opacity:.35}}
+.c-rec{animation:cBlink 1s steps(2) infinite}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-rec{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes cMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.9)}70%{transform:scaleY(.45)}100%{transform:scaleY(1)}}
+.c-meter{transform-origin:bottom;animation:cMeter 700ms ease-in-out infinite alternate}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
+</style>
+<style></style>
+<style>
+
+.f-ring{transition:stroke-dashoffset 900ms linear}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion: reduce){.f-ring,button{transition:none}}
+</style>
+<style>
+
+@keyframes nIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.n-in{animation:nIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes lgIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.lg-in{animation:lgIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.lg-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes lShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.l-shake{animation:lShake 300ms ease-in-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:rgba(239,236,230,0.45)}
+@media (prefers-reduced-motion: reduce){.l-shake{animation:none}button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#0b111a}
+@keyframes rIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes rSlide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes rFade{from{opacity:0}to{opacity:1}}
+@keyframes rVu{0%{transform:scaleY(.3)}35%{transform:scaleY(.9)}60%{transform:scaleY(.5)}100%{transform:scaleY(1)}}
+.r-pnl{animation:rIn 170ms cubic-bezier(.2,.8,.2,1) both}
+.r-toast{animation:rSlide 200ms cubic-bezier(.2,.8,.2,1) both}
+.r-fade{animation:rFade 180ms ease-out both}
+.r-vu{transform-origin:bottom;animation:rVu 800ms ease-in-out infinite alternate}
+.r-cable{transition:d 340ms cubic-bezier(.3,1.35,.5,1)}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.r-pnl,.r-toast,.r-fade,.r-vu{animation:none}.r-cable,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.94)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.p-bar{transition:height 240ms ease-out}
+@media (prefers-reduced-motion: reduce){.p-bar,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.m-lvl{transition:height 110ms linear}
+@media (prefers-reduced-motion: reduce){.m-lvl,button{transition:none}}
+</style>
+<style>
+
+@keyframes nSpin{to{transform:rotate(360deg)}}
+.n-spin{animation:nSpin 900ms linear infinite;transform-origin:center}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-spin{animation:none}button{transition:none}}
+</style>
+<style>
+
+.o-fill{transition:width 160ms cubic-bezier(.2,.8,.2,1)}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.o-fill,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
+@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
+@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
+@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
+@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
+.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
+.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
+.rt-down{animation:rtDown 300ms ease-in both}
+.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
+.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
+.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
+.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-wake{animation:rtWake 320ms ease-out both}
+.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:hover{background-color:#23262b}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style></head>
+<body><div style="width:440px;height:620px;padding:0;">
+<section aria-label="Calendar and weather" style="width: 440px; height: 620px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<header style="display: flex; align-items: baseline; gap: 10px; padding: 2px 4px 0;">
+<span style="font-weight: 650; font-size: 22px;">Sunday 25</span>
+<span style="font-size: 14px; color: #8c8f95;">October 2026 · week 43</span>
+</header>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 6px;">
+<span style="font-weight: 600; font-size: 14px;">October 2026</span>
+<button style="margin-left: auto; height: 26px; padding: 0 10px; border-radius: 8px; border: 0; background: #2a2d33; font-weight: 600; font-size: 12px; cursor: pointer;">Today</button>
+<button aria-label="Previous month" style="width: 26px; height: 26px; padding: 0; border-radius: 8px; border: 0; background: #2a2d33; display: grid; place-items: center; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<button aria-label="Next month" style="width: 26px; height: 26px; padding: 0; border-radius: 8px; border: 0; background: #2a2d33; display: grid; place-items: center; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, 1fr); font-size: 11px; color: #8c8f95; text-align: center;"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+<div role="grid" style="display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px;">
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">28</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">29</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">30</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 1" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">1</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 2" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">2</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 3" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">3</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: #ff8a3d;"></span></button>
+
+<button aria-label="October 4" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">4</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 5" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">5</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 6" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">6</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 7" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">7</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 8" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">8</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 9" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">9</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 10" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">10</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 11" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">11</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: #ff8a3d;"></span></button>
+
+<button aria-label="October 12" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">12</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 13" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">13</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 14" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">14</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 15" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">15</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 16" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">16</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 17" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">17</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: #ff8a3d;"></span></button>
+
+<button aria-label="October 18" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">18</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 19" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">19</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 20" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">20</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 21" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">21</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 22" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">22</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 23" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">23</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 24" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">24</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: #ff8a3d;"></span></button>
+
+<button aria-label="October 25" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #17181a;"><span style="width: 28px; height: 28px; border-radius: 9px; background: #ff8a3d; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;">25</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 26" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">26</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 27" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">27</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 28" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">28</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: #ff8a3d;"></span></button>
+
+<button aria-label="October 29" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">29</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 30" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">30</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="October 31" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #efece6;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">31</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">1</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">2</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">3</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">4</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">5</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">6</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">7</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+<button aria-label="" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: #4a4e55;"><span style="width: 28px; height: 28px; border-radius: 9px; background: transparent; box-shadow: none; display: grid; place-items: center; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;">8</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span></button>
+
+</div>
+</div>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+<span style="font-weight: 600; font-size: 14px;">Today</span>
+
+<div style="display: flex; align-items: center; gap: 10px;"><span style="width: 3px; align-self: stretch; border-radius: 2px; background: #ff8a3d;"></span><span style="width: 44px; font-size: 13px; color: #c9c6bf; font-variant-numeric: tabular-nums;">14:00</span><span style="display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 600;">Dentist</span><span style="font-size: 12px; color: #8c8f95;">Old Town clinic</span></span></div>
+
+<div style="display: flex; align-items: center; gap: 10px;"><span style="width: 3px; align-self: stretch; border-radius: 2px; background: #8c8f95;"></span><span style="width: 44px; font-size: 13px; color: #c9c6bf; font-variant-numeric: tabular-nums;">19:30</span><span style="display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 600;">Call with Dan</span><span style="font-size: 12px; color: #8c8f95;">about the bike</span></span></div>
+
+
+</div>
+
+<div style="flex: 1; min-height: 0; background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 12px;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9c6bf" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M7 15a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 6.5a4 4 0 0 1 .5 8.5zM9 18l-1 2M13 18l-1 2M17 18l-1 2"></path></svg>
+<span style="font-weight: 650; font-size: 28px; font-variant-numeric: tabular-nums;">11°</span>
+<span style="display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 600;">Light rain</span><span style="font-size: 12px; color: #8c8f95;">Feels 8° · wind 14 km/h W</span></span>
+<span style="margin-left: auto; display: flex; gap: 12px;">
+<span style="display: flex; flex-direction: column; align-items: center; gap: 1px;"><span style="font-size: 11px; color: #8c8f95;">Sun</span><span style="font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;">9°</span></span><span style="display: flex; flex-direction: column; align-items: center; gap: 1px;"><span style="font-size: 11px; color: #8c8f95;">Mon</span><span style="font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;">12°</span></span><span style="display: flex; flex-direction: column; align-items: center; gap: 1px;"><span style="font-size: 11px; color: #8c8f95;">Tue</span><span style="font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;">8°</span></span>
+</span>
+</div>
+<svg width="100%" height="58" viewBox="0 0 392 58" preserveAspectRatio="none" aria-hidden="true">
+<line x1="0" y1="52" x2="392" y2="52" stroke="#2a2d33" stroke-width="1.5"></line>
+<path d="M36 52 A160 46 0 0 1 356 52" fill="none" stroke="#2a2d33" stroke-width="2" stroke-dasharray="2 5"></path>
+<path d="M36 52 A160 46 0 0 1 218.0 6.4" fill="none" stroke="#ff8a3d" stroke-width="2.5" stroke-linecap="round"></path>
+<circle cx="218.0" cy="6.4" r="6" fill="#ff8a3d" stroke="#ff8a3d" stroke-width="2"></circle>
+</svg>
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #8c8f95; font-variant-numeric: tabular-nums;"><span>Sunrise 07:43</span><span style="color: #efece6;">Sets in 4 h 51</span><span>Sunset 18:21</span></div>
+</div>
+</section>
+</div></body></html>

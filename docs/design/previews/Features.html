@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Shale Rack · Features</title><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&family=Martian+Mono:wght@200..700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#0e0f11}*{animation:none!important;transition:none!important}</style><style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.95)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes bMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.95)}70%{transform:scaleY(.45)}100%{transform:scaleY(.8)}}
+.b-meter{transform-origin:bottom;animation:bMeter 720ms ease-in-out infinite alternate}
+.b-ws{transition:width 220ms cubic-bezier(.2,.8,.2,1),background-color 160ms ease-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes cBlink{50%{opacity:.35}}
+.c-rec{animation:cBlink 1s steps(2) infinite}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-rec{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes cMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.9)}70%{transform:scaleY(.45)}100%{transform:scaleY(1)}}
+.c-meter{transform-origin:bottom;animation:cMeter 700ms ease-in-out infinite alternate}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
+</style>
+<style></style>
+<style>
+
+.f-ring{transition:stroke-dashoffset 900ms linear}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion: reduce){.f-ring,button{transition:none}}
+</style>
+<style>
+
+@keyframes nIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.n-in{animation:nIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+@keyframes lgIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.lg-in{animation:lgIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.lg-in{animation:none}button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+@keyframes lShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.l-shake{animation:lShake 300ms ease-in-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:rgba(239,236,230,0.45)}
+@media (prefers-reduced-motion: reduce){.l-shake{animation:none}button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#0b111a}
+@keyframes rIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes rSlide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes rFade{from{opacity:0}to{opacity:1}}
+@keyframes rVu{0%{transform:scaleY(.3)}35%{transform:scaleY(.9)}60%{transform:scaleY(.5)}100%{transform:scaleY(1)}}
+.r-pnl{animation:rIn 170ms cubic-bezier(.2,.8,.2,1) both}
+.r-toast{animation:rSlide 200ms cubic-bezier(.2,.8,.2,1) both}
+.r-fade{animation:rFade 180ms ease-out both}
+.r-vu{transform-origin:bottom;animation:rVu 800ms ease-in-out infinite alternate}
+.r-cable{transition:d 340ms cubic-bezier(.3,1.35,.5,1)}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.r-pnl,.r-toast,.r-fade,.r-vu{animation:none}.r-cable,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.94)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.p-bar{transition:height 240ms ease-out}
+@media (prefers-reduced-motion: reduce){.p-bar,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.m-lvl{transition:height 110ms linear}
+@media (prefers-reduced-motion: reduce){.m-lvl,button{transition:none}}
+</style>
+<style>
+
+@keyframes nSpin{to{transform:rotate(360deg)}}
+.n-spin{animation:nSpin 900ms linear infinite;transform-origin:center}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-spin{animation:none}button{transition:none}}
+</style>
+<style>
+
+.o-fill{transition:width 160ms cubic-bezier(.2,.8,.2,1)}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.o-fill,button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+body{margin:0;background:#121316}
+@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
+@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
+@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
+@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
+@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
+.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
+.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
+.rt-down{animation:rtDown 300ms ease-in both}
+.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
+.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
+.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
+.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-wake{animation:rtWake 320ms ease-out both}
+.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:hover{background-color:#23262b}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+<style>
+
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,box-shadow 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style></head>
+<body><div style="width:1600px;height:1300px;padding:0;">
+<div style="width: 1600px; height: 1300px; box-sizing: border-box; background: #121316; padding: 52px 72px; font-family: 'Hanken Grotesk', sans-serif; color: #efece6; display: flex; flex-direction: column; gap: 22px;">
+<header style="display: flex; align-items: baseline; gap: 24px;">
+<h1 style="margin: 0; font-family: 'Martian Mono', monospace; font-weight: 200; font-size: 52px; letter-spacing: -0.05em;">Features</h1>
+<p style="margin: 0; font-size: 16px; color: #c9c6bf;">Six are planned. Twelve more are proposed: pick the ones you want and the rest stay out, so the shell does not bloat.</p>
+</header>
+
+<div style="font-weight: 650; font-size: 12px; letter-spacing: 0.2em; color: #a7a9ad;">Planned · 6</div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px;">
+
+<article style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;">
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #ff8a3d;">01</span>
+<h2 style="margin: 0; font-weight: 650; font-size: 15px;">Desktop rack</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #c9c6bf;">Clock, sky, note, system, player and agenda as modules on the wallpaper. Off until wanted; six at most.</p>
+</div>
+</article>
+
+<article style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;">
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #ff8a3d;">02</span>
+<h2 style="margin: 0; font-weight: 650; font-size: 15px;">One running note</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #c9c6bf;">note … in Find adds a line; the same note sits in the desktop rack.</p>
+</div>
+</article>
+
+<article style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;">
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #ff8a3d;">03</span>
+<h2 style="margin: 0; font-weight: 650; font-size: 15px;">Sky arc</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #c9c6bf;">Sun position between rise and set and how long is left, from the weather Shale already fetches.</p>
+</div>
+</article>
+
+<article style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;">
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #ff8a3d;">04</span>
+<h2 style="margin: 0; font-weight: 650; font-size: 15px;">Route the sound</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #c9c6bf;">Send it to speakers, headphones or HDMI in one press; every playing stream follows.</p>
+</div>
+</article>
+
+<article style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;">
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #ff8a3d;">05</span>
+<h2 style="margin: 0; font-weight: 650; font-size: 15px;">Stripes from the wallpaper</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #c9c6bf;">Four colours pulled from each wallpaper colour every module; its name can sit on the desktop.</p>
+</div>
+</article>
+
+<article style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;">
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #ff8a3d;">06</span>
+<h2 style="margin: 0; font-weight: 650; font-size: 15px;">At a glance</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #c9c6bf;">Next event, weather and battery time on the lock screen and in an empty Find.</p>
+</div>
+</article>
+
+</div>
+
+<div style="display: flex; align-items: baseline; gap: 14px; margin-top: 8px;">
+<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.2em; color: #a7a9ad;">Proposed · 12</span>
+<span style="font-size: 13px; color: #a7a9ad;">Click a module to mark it as wanted.</span>
+<span style="margin-left: auto; font-family: 'Martian Mono', monospace; font-size: 13px; color: #ff8a3d;">0 PICKED</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; flex: 1;">
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Scenes</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Work, Game, Evening: one press sets apps on workspaces, volume, quiet and power mode.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Control rack · Find</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">Uses Hyprland and power profiles already in Shale.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Meeting key</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Mutes mic and camera and turns on quiet in one press; switches itself on when a call app takes the mic.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Bar · Control rack</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">PipeWire only.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Shortcut sheet</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Hold Super for a moment and every shortcut appears over the screen.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Whole screen</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">Reads the shortcuts Shale already manages.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Drop shelf</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Drag files, screenshots or text to the bar edge to park them; drag them out later.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Bar edge</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">Drag and drop in Quickshell; needs a test.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Pinned screenshot</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Capture a region and keep it floating above windows as a reference.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Capture</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">grim and slurp, already used.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Timers in the bar</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Several named timers at once: tea 4:12, laundry 31:00. Click to pause.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Bar</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">Extends timer in Find.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Device batteries</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Headphones, mouse and controller levels, with a warning under 15 %.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Control rack · Bar</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">UPower; BlueZ battery support.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Charge care</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Stop charging at 80 % and change power mode when unplugged.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Control rack</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">Needs charge_control_end_threshold on the laptop.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Network meter</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Live down and up speed on hover, and data used today.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Bar · NET module</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">/proc counters; no extra packages.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Clipboard pins and snippets</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Keep items you reuse; type ;sig in Find to paste one.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Clipboard · Find</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">cliphist, already used.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Calendar sync</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Read local calendars so the agenda and at-a-glance show real events.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Clock and sky</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">ICS files or vdirsyncer.</span>
+</span>
+</button>
+
+<button aria-pressed="false" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid #1c1e22; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: #ff8a3d;"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3a3d42; box-shadow: none;"></span><span style="font-weight: 650; font-size: 15px;">Smart quiet</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">Quiet turns on during full-screen games and screen sharing, with a summary after.</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>Notes</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">Built on Focus, already in Shale.</span>
+</span>
+</button>
+
+</div>
+</div>
+</div></body></html>
