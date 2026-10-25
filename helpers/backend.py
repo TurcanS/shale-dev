@@ -63,6 +63,7 @@ DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
             "weatherLocation": {}, "weatherUnits": "metric", "updateCheck": True, "emojiUsage": {}, "searchEngine": "duckduckgo", "lockScreen": "builtin", "lockStyle": "particles", "bluetoothAutoConnect": [],
             "recordAudio": "none", "activityTracking": "ask", "systemWindow": 60,
             "focusMinutes": 25, "focusSession": {}, "timers": [], "runHistory": [],
+            "widgets": False, "widgetCards": ["clock", "sky", "note", "system"], "widgetCorner": "bottom-left",
             "barLayout": {}, "controlLayout": {}, "clockFormat": "date-time", "clockSeconds": False, "workspaceStyle": "dots",
             "workspaceSlots": 0, "trayIcons": -1, "batteryPercent": "auto", "barStyle": "floating", "weekStart": "locale", "terminal": "auto", "shortcuts": {},
             "screenshotDirectory": user_dir("PICTURES", "~/Pictures") + "/Screenshots",
@@ -95,6 +96,10 @@ BAR_REQUIRED = ("recording", "privacy", "control")
 CONTROL_TILES = ("wifi", "bluetooth", "dnd", "awake", "grayscale", "lid")
 CONTROL_SECTIONS = ("focus", "levels", "media")
 CONTROL_FOOTER = ("capture", "settings", "lock", "session")
+# Desktop widget cards, as features/Widgets.qml names them, and the corners they can sit in.
+WIDGET_CARDS = ("clock", "sky", "note", "system")
+WIDGET_CORNERS = ("top-left", "top-right", "bottom-left", "bottom-right")
+MAX_WIDGET_CARDS = 6
 # Personal history and state, and this computer's folders; a settings export leaves them out and an import
 # ignores them, so a file from elsewhere can't redirect where screenshots, recordings or downloads are saved.
 PRIVATE_KEYS = ("appUsage", "emojiUsage", "runHistory", "pinnedApps", "focusSession", "timers", "weatherLocation",
@@ -253,10 +258,13 @@ def check_setting(key, value):
         raise BackendError("invalid", "Choose whether to record activity.")
     if key == "focusMinutes" and value not in (25, 50, 90):
         raise BackendError("invalid", "Choose a supported focus length.")
-    # "recorded": where Activity's record already ends, for a session resumed with Undo.
-    if key == "focusSession" and value and not (set(value) in ({"started", "ends"}, {"started", "ends", "recorded"})
+    # "recorded": where Activity's record already ends, for a session resumed with Undo. "paused": when a paused
+    # session stopped counting down; "pausedFor": how long it was paused before, which its ring leaves out.
+    if key == "focusSession" and value and not ({"started", "ends"} <= set(value) <= {"started", "ends", "recorded", "paused", "pausedFor"}
                                                 and all(is_time(value[k]) for k in value) and value["started"] < value["ends"]
-                                                and value["started"] <= value.get("recorded", value["started"]) <= value["ends"]):
+                                                and value["started"] <= value.get("recorded", value["started"]) <= value["ends"]
+                                                and value["started"] <= value.get("paused", value["started"]) <= value["ends"]
+                                                and value.get("pausedFor", 0) < value["ends"] - value["started"]):
         raise BackendError("invalid", "Incorrect focus session.")
     if key == "timers" and (len(value) > 10 or not all(isinstance(t, dict) and set(t) == {"label", "ends", "seconds"}
                                                          and isinstance(t["label"], str) and len(t["label"]) <= 60
@@ -281,6 +289,11 @@ def check_setting(key, value):
             raise BackendError("invalid", "Incorrect control center sections.")
         if "settings" in value.get("hiddenFooter", []):
             raise BackendError("invalid", "The Settings button can't be hidden.")
+    if key == "widgetCards" and (len(value) > MAX_WIDGET_CARDS or not all(isinstance(card, str) and card in WIDGET_CARDS for card in value)
+                                 or len(set(value)) != len(value)):
+        raise BackendError("invalid", f"Choose up to {MAX_WIDGET_CARDS} widget cards, each once.")
+    if key == "widgetCorner" and value not in WIDGET_CORNERS:
+        raise BackendError("invalid", "Choose a corner for the widgets.")
     if key == "clockFormat" and value not in ("time", "day-time", "date-time"):
         raise BackendError("invalid", "Choose a supported clock format.")
     if key == "workspaceStyle" and value not in ("numbers", "dots"):
@@ -626,6 +639,28 @@ def pin_data(pin):
         return (CLIPBOARD_PINS / pin["file"]).read_bytes()
     except OSError:
         raise BackendError("failed", "This pin's contents are missing. Unpin it.") from None
+
+
+# The desktop Note card's one running note: lines with a done mark, readable by you only.
+NOTE = STATE / "note.json"
+MAX_NOTE_LINES = 50
+MAX_NOTE_TEXT = 200
+
+
+def note_line(line):
+    """A note line as stored, or None: one line of text and whether it is done."""
+    if not (isinstance(line, dict) and set(line) == {"text", "done"} and isinstance(line["text"], str) and type(line["done"]) is bool):
+        return None
+    text = " ".join(line["text"].split())
+    return {"text": text, "done": line["done"]} if 0 < len(text) <= MAX_NOTE_TEXT else None
+
+
+def note_lines():
+    try:
+        lines = json.loads(NOTE.read_text())
+    except (OSError, ValueError):
+        return []
+    return [line for line in map(note_line, lines) if line][-MAX_NOTE_LINES:] if isinstance(lines, list) else []
 
 
 PROPERTIES = "org.freedesktop.DBus.Properties"
@@ -1890,6 +1925,23 @@ class Backend:
             allowed = ("id", "summary", "body", "appName", "appIcon", "urgency", "timestamp")
             atomic_json(path, [{k: x[k] for k in allowed if k in x} for x in entries[:200] if isinstance(x, dict) and x.get("timestamp", 0) > cutoff])
             return {"done": True}
+        if method == "note.get":
+            return {"lines": note_lines()}
+        if method == "note.set":
+            lines = p.get("lines")
+            checked = [note_line(line) for line in lines] if isinstance(lines, list) and len(lines) <= MAX_NOTE_LINES else [None]
+            if None in checked:
+                raise BackendError("invalid", f"A note holds up to {MAX_NOTE_LINES} lines of up to {MAX_NOTE_TEXT} characters.")
+            atomic_json(NOTE, checked)
+            return {"lines": checked}
+        # A line from Find ("note …") or the card; the oldest lines make room once the note is full.
+        if method == "note.add":
+            line = note_line({"text": p.get("text"), "done": False})
+            if line is None:
+                raise BackendError("invalid", f"Write a line of up to {MAX_NOTE_TEXT} characters.")
+            lines = (note_lines() + [line])[-MAX_NOTE_LINES:]
+            atomic_json(NOTE, lines)
+            return {"lines": lines}
         if method == "power.compositor":
             return await self.compositor_saver(bool(p.get("saver")), bool(p.get("refresh", True)))
         if method.startswith("power."):
