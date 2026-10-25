@@ -130,7 +130,7 @@ ColumnLayout {
         }
     }
     C.Label {
-        text: !root.loaded ? "" : root.listing.ready ? "Choose Change, then press the new keys. Changes apply right away." : "Shortcuts come from the installed Hyprland fragment. Update Shale with ./install.sh --update to change them here; you can also copy a command to bind it yourself."
+        text: !root.loaded ? "" : root.listing.ready ? "Choose Change, then press the new keys. Keys Hyprland already uses are refused; the rest apply right away." : "Shortcuts come from the installed Hyprland fragment. Update Shale with ./install.sh --update to change them here; you can also copy a command to bind it yourself."
         visible: text !== ""
         color: Theme.textSecondary
         font.pixelSize: Theme.label
@@ -165,6 +165,7 @@ ColumnLayout {
                         C.KeyHint {
                             required property string modelData
                             text: modelData
+                            textSize: 12
                             width: Math.max(24, implicitWidth)
                             height: 24
                             color: shortcut.active ? Theme.accentSoft : Theme.key

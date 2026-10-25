@@ -6,6 +6,7 @@ Rectangle {
     id: root
     property string text: ""
     property bool mono: false
+    property int textSize: 11
     property color textColor: Theme.textSecondary
     implicitWidth: label.implicitWidth + 14
     implicitHeight: label.implicitHeight + 4
@@ -18,6 +19,6 @@ Rectangle {
         text: root.text
         color: root.textColor
         font.family: root.mono ? Theme.mono : Theme.font
-        font.pixelSize: 11
+        font.pixelSize: root.textSize
     }
 }
