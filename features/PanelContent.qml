@@ -4,7 +4,8 @@ import "../core"
 import "../components" as C
 
 // The panel case. The page decides its size and header: title, headerCount (a round count beside the title, when
-// above 0), headerNote (a short status beside the title; a page with noteClicked() makes it a button), titleSize,
+// above 0), headerChip ({text, on}: a status chip beside the title, accent when on), headerNote (a short status beside
+// the title; a page with noteClicked() makes it a button), titleSize,
 // panelWidth, panelHeight, showHeader, chromeless, canGoBack/back() and headerTools (a Component shown beside the
 // close button).
 Rectangle {
@@ -75,6 +76,40 @@ Rectangle {
                     font.pixelSize: 12
                     font.weight: 650
                     font.features: ({"tnum": 1})
+                }
+            }
+            Rectangle {
+                id: headerChip
+                readonly property var chip: root.page("headerChip", null)
+                visible: !!chip
+                implicitWidth: chipRow.implicitWidth + 18
+                implicitHeight: 24
+                radius: 12
+                color: chip && chip.on ? Theme.accentSoft : Theme.key
+                Layout.leftMargin: -2
+                Behavior on color {
+                    ColorAnimation {
+                        duration: Theme.fast
+                    }
+                }
+                RowLayout {
+                    id: chipRow
+                    anchors.centerIn: parent
+                    spacing: 6
+                    Rectangle {
+                        implicitWidth: 6
+                        implicitHeight: 6
+                        radius: 3
+                        color: chipText.color
+                    }
+                    C.Label {
+                        id: chipText
+                        text: headerChip.chip ? headerChip.chip.text : ""
+                        color: headerChip.chip && headerChip.chip.on ? Theme.accentText : Theme.textMuted
+                        font.pixelSize: 12
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideNone
+                    }
                 }
             }
             C.Label {

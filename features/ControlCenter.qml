@@ -13,7 +13,7 @@ import "../components" as C
 
 FocusScope {
     id: root
-    readonly property string title: ({wifi: "Network", bluetooth: "Network", audio: "Sound", power: "Battery & power", media: "Player", tray: "System tray", update: "Update"})[ShellState.detail] || "Control"
+    readonly property string title: ({wifi: "Network", bluetooth: "Network", audio: "Sound", power: "Battery & power", media: "Player", tray: "System tray", update: "Update", focus: "Focus"})[ShellState.detail] || "Control"
     // Beside the title on the main page: the battery, or the power mode; it opens Battery & power.
     readonly property string headerNote: {
         if (ShellState.detail !== "")
@@ -78,8 +78,9 @@ FocusScope {
     function back() {
         ShellState.detail = "";
     }
-    // The Player is laid out wider, at its own 460 px.
-    readonly property int panelWidth: ShellState.detail === "media" ? 460 : 420
+    // The Player is laid out wider, at its own 460 px, and Focus at 440.
+    readonly property int panelWidth: ShellState.detail === "media" ? 460 : ShellState.detail === "focus" ? 440 : 420
+    readonly property var headerChip: ShellState.detail === "focus" ? focusView.chip : null
     // Fits the page, header and padding included, within a 620 px ceiling.
     readonly property int panelHeight: preferredContentHeight > 0 ? Math.max(200, Math.min(620, preferredContentHeight + 70)) : 620
     readonly property Component headerTools: ShellState.detail === "" ? settingsTool : ["wifi", "power", "update"].indexOf(ShellState.detail) >= 0 ? refreshTool : null
@@ -1072,19 +1073,41 @@ FocusScope {
                             anchors.topMargin: 10
                             anchors.bottomMargin: 10
                             spacing: Theme.gapS
-                            ColumnLayout {
+                            // The name and state open the Focus page: its ring, Pause, and what came in.
+                            C.Button {
+                                id: focusOpen
+                                flat: true
+                                hint: "Focus page"
+                                Accessible.name: "Focus, " + focusState.text
                                 Layout.fillWidth: true
-                                spacing: 0
-                                C.Label {
-                                    text: "Focus"
-                                    font.weight: Font.DemiBold
-                                    Layout.fillWidth: true
-                                }
-                                C.Label {
-                                    text: Focus.active ? Focus.minutesText(Focus.remainingSeconds) + " left · held" : "not running"
-                                    color: Theme.textDim
-                                    font.pixelSize: 12
-                                    Layout.fillWidth: true
+                                Layout.leftMargin: -6
+                                implicitHeight: 40
+                                leftPadding: 6
+                                rightPadding: 6
+                                onClicked: ShellState.detail = "focus"
+                                contentItem: RowLayout {
+                                    spacing: 6
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 0
+                                        C.Label {
+                                            text: "Focus"
+                                            font.weight: Font.DemiBold
+                                            Layout.fillWidth: true
+                                        }
+                                        C.Label {
+                                            id: focusState
+                                            text: Focus.paused ? "paused · " + Focus.minutesText(Focus.remainingSeconds) + " left" : Focus.active ? Focus.minutesText(Focus.remainingSeconds) + " left · held" : "not running"
+                                            color: Theme.textDim
+                                            font.pixelSize: 12
+                                            Layout.fillWidth: true
+                                        }
+                                    }
+                                    C.Icon {
+                                        name: "chevron"
+                                        size: 14
+                                        color: focusOpen.hovered || focusOpen.visualFocus ? Theme.textSecondary : Theme.textDim
+                                    }
                                 }
                             }
                             SmallKey {
@@ -1858,6 +1881,11 @@ FocusScope {
                     visible: ShellState.detail === "media"
                     Layout.fillWidth: true
                     active: visible
+                }
+                FocusView {
+                    id: focusView
+                    visible: ShellState.detail === "focus"
+                    Layout.fillWidth: true
                 }
                 ColumnLayout {
                     visible: ShellState.detail === "tray"
