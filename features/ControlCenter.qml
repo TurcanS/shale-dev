@@ -55,7 +55,7 @@ FocusScope {
         const toggle = ({
                 dnd: {text: "Do not disturb", glyph: "bell-off", on: ShellState.setting("dnd", false), subtitle: "Popups hidden", busy: false},
                 awake: {text: "Stay awake", glyph: "moon", on: ShellState.presentation, subtitle: "Screen stays on", busy: false},
-                grayscale: {text: "Grayscale", glyph: "palette", on: ShellState.grayscale, subtitle: "Colors off", busy: ShellState.grayscaleBusy},
+                grayscale: {text: "Greyscale", glyph: "palette", on: ShellState.grayscale, subtitle: "Colours off", busy: ShellState.grayscaleBusy},
                 lid: {text: "Lid closed", glyph: "laptop", on: ShellState.lidAwake, subtitle: "Stays awake", busy: ShellState.lidBusy}
             })[id];
         return {text: toggle.text, glyph: toggle.glyph, selected: toggle.on, subtitle: toggle.on ? toggle.subtitle : "Off", hint: "",

@@ -488,7 +488,7 @@ QtObject {
             if (method === "capture.record.start")
                 root.refreshRecording();
             else if (r && r.color)
-                root.message("Color copied · " + r.color, "success");
+                root.message("Colour copied · " + r.color, "success");
             else if (r && r.path) {
                 const path = r.path;
                 root.message((r.copied ? "Screenshot copied and saved · " : "Screenshot saved · ") + root.fileName(path), "success", {label: "Open", run: () => root.openPath(path)});

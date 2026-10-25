@@ -177,7 +177,7 @@ FocusScope {
             return Focus.active ? "End focus · " + Focus.minutesText(Focus.remainingSeconds) + " left" : "Focus for " + Focus.lastMinutes + " minutes";
         if (key === "dnd")
             return ShellState.setting("dnd", false) ? "Turn off" : "Turn on";
-        return key.startsWith("page:") ? "Control center" : key.startsWith("settings:") ? "Settings" : "Shale";
+        return key.startsWith("page:") ? "Control" : key.startsWith("settings:") ? "Settings" : "Shale";
     }
     function runAction(key) {
         const [kind, name] = key.split(":");
@@ -660,7 +660,7 @@ FocusScope {
                 anchors.fill: parent
                 anchors.margins: 8
                 anchors.leftMargin: 12
-                text: "Emoji are shown without color. Install noto-fonts-emoji for full-color emoji."
+                text: "Emoji are shown without colour. Install noto-fonts-emoji for full-colour emoji."
                 color: Theme.textMuted
                 font.pixelSize: Theme.small
                 wrapMode: Text.WordWrap

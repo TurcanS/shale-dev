@@ -193,17 +193,17 @@ function noteQuery(text) {
 // menu, whose hold-to-confirm buttons stay the only way to log out, restart or shut down.
 var ACTIONS = [
     {key: "lock", name: "Lock screen", keywords: ["lock"], glyph: "lock"},
-    {key: "suspend", name: "Suspend", keywords: ["sleep", "suspend"], glyph: "moon"},
-    {key: "power:logout", name: "Log out", keywords: ["logout", "sign out", "exit"], glyph: "logout"},
+    {key: "suspend", name: "Sleep", keywords: ["sleep", "suspend"], glyph: "moon"},
+    {key: "power:logout", name: "Sign out", keywords: ["sign out", "logout", "log out", "exit"], glyph: "logout"},
     {key: "power:reboot", name: "Restart", keywords: ["reboot", "restart"], glyph: "refresh"},
-    {key: "power:shutdown", name: "Shut down", keywords: ["shutdown", "power off", "poweroff", "turn off"], glyph: "power"},
+    {key: "power:shutdown", name: "Power off", keywords: ["power off", "shutdown", "shut down", "poweroff", "turn off"], glyph: "power"},
     {key: "page:wifi", name: "Wi-Fi", keywords: ["wifi", "wireless", "network", "vpn"], glyph: "wifi"},
     {key: "page:bluetooth", name: "Bluetooth", keywords: ["bluetooth", "headphones"], glyph: "bluetooth"},
     {key: "page:audio", name: "Sound", keywords: ["sound", "audio", "volume", "microphone"], glyph: "volume"},
     {key: "page:power", name: "Power mode", keywords: ["battery", "power mode", "performance", "saver"], glyph: "battery"},
     {key: "panel:settings", name: "Shale settings", keywords: ["settings", "preferences", "config"], glyph: "settings"},
     {key: "settings:Bar", name: "Bar settings", keywords: ["bar", "taskbar", "panel layout", "clock format"], glyph: "window"},
-    {key: "settings:Control center", name: "Control center layout", keywords: ["control center", "quick settings", "tiles"], glyph: "settings"},
+    {key: "settings:Control center", name: "Control layout", keywords: ["control", "control center", "quick settings", "tiles"], glyph: "settings"},
     {key: "settings:Shortcuts", name: "Keyboard shortcuts", keywords: ["shortcuts", "keybinds", "keybindings", "hotkeys"], glyph: "grid"},
     {key: "settings:Backup", name: "Back up settings", keywords: ["backup", "export settings", "import settings"], glyph: "folder"},
     {key: "panel:system", name: "System monitor", keywords: ["task manager", "processes", "cpu", "memory"], glyph: "gauge"},
@@ -211,7 +211,7 @@ var ACTIONS = [
     {key: "panel:wallpaper", name: "Wallpapers", keywords: ["wallpaper", "background"], glyph: "palette"},
     {key: "panel:activity", name: "Activity", keywords: ["screen time", "usage"], glyph: "activity"},
     {key: "screenshot", name: "Screenshot", keywords: ["screenshot", "capture", "print screen"], glyph: "region"},
-    {key: "color", name: "Pick a color", keywords: ["color picker", "colour", "eyedropper"], glyph: "palette"},
+    {key: "color", name: "Pick a colour", keywords: ["colour picker", "color picker", "eyedropper"], glyph: "palette"},
     {key: "focus", name: "Focus", keywords: ["focus", "do not disturb", "pomodoro"], glyph: "focus"},
     {key: "dnd", name: "Do not disturb", keywords: ["dnd", "notifications", "quiet"], glyph: "bell-off"}
 ];

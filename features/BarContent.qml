@@ -372,7 +372,7 @@ Item {
             rightPadding: 8
             // Leaves room for the clock in the middle.
             implicitWidth: Math.min(Math.max(120, Math.min(340, bar.width / 2 - 460)), implicitContentWidth + leftPadding + rightPadding)
-            hint: title || "Workspace overview"
+            hint: title || "Pages"
             onClicked: ShellState.toggle("overview", bar.outputName)
             contentItem: RowLayout {
                 spacing: Theme.gapS

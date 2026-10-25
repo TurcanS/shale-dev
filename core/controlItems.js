@@ -6,7 +6,7 @@ const tiles = [
     {id: "bluetooth", title: "Bluetooth", icon: "bluetooth", description: "Opens devices from its arrow"},
     {id: "dnd", title: "Do not disturb", icon: "bell-off"},
     {id: "awake", title: "Stay awake", icon: "moon"},
-    {id: "grayscale", title: "Grayscale", icon: "palette"},
+    {id: "grayscale", title: "Greyscale", icon: "palette"},
     {id: "lid", title: "Lid closed", icon: "laptop", description: "On laptops"}
 ];
 const sections = [
