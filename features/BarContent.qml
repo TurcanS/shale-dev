@@ -12,7 +12,7 @@ import "../components" as C
 // The bar's items in their zones. Bar.qml puts it in a layer-shell window; previews put it in a plain one.
 Item {
     id: bar
-    // A key on the bar, 32 px tall. Flat keys show a light wash on hover; the Search pill and the status key rest on
+    // A key on the bar, 28 px tall. Flat keys show a light wash on hover; the Search pill and the status key rest on
     // `module`. A key whose panel is open on this screen turns keySelected.
     component BarKey: C.Button {
         id: key
@@ -22,7 +22,7 @@ Item {
         labelSize: 13
         // Control's own measure of the content, which follows text that is measured late (bundled fonts loading).
         implicitWidth: Math.max(28, implicitContentWidth + leftPadding + rightPadding)
-        implicitHeight: 32
+        implicitHeight: 28
         topPadding: 0
         bottomPadding: 0
         cornerRadius: Theme.radiusKey
@@ -50,8 +50,8 @@ Item {
     }
     // Something live or on (listening, recording, a focus session): a round accentSoft chip with accent text.
     component LiveChip: BarKey {
-        implicitHeight: 28
-        cornerRadius: 14
+        implicitHeight: 24
+        cornerRadius: 12
         rest: Theme.accentSoft
         leftPadding: 10
         rightPadding: 10
@@ -67,8 +67,8 @@ Item {
         background: Item {
             Rectangle {
                 anchors.fill: parent
-                anchors.topMargin: 3
-                anchors.bottomMargin: 3
+                anchors.topMargin: 2
+                anchors.bottomMargin: 2
                 radius: Theme.radiusSegment
                 color: part.selected ? Theme.keySelected : part.hovered || part.down || part.visualFocus ? part.wash : "transparent"
                 Behavior on color {
@@ -94,7 +94,7 @@ Item {
             launcher: launcherItem, workspaces: workspacesItem, windowTitle: windowTitleItem, clock: clockItem, media: mediaItem,
             tray: trayItem, recording: recordingItem, privacy: privacyItem, focus: focusItem, timer: timerItem, stayAwake: stayAwakeItem,
             keyboard: keyboardItem, vpn: vpnItem, wifi: wifiItem, audio: audioItem, battery: batteryItem, notifications: notificationsItem,
-            control: controlItem, wallpapers: wallpapersItem, lock: lockItem
+            control: controlItem
         })
     // The now-playing button while it exists, for the hover card.
     property Item mediaButton: null
@@ -147,7 +147,7 @@ Item {
     // The case: floating, it is a rounded strip with a hairline edge; edge to edge, a hairline under it.
     Rectangle {
         anchors.fill: parent
-        radius: bar.edge ? 0 : 14
+        radius: bar.edge ? 0 : 12
         color: Theme.caseColor
         border.width: bar.edge ? 0 : 1
         border.color: Theme.hairline
@@ -166,7 +166,7 @@ Item {
         required property string name
         anchors.verticalCenter: parent.verticalCenter
         height: parent.height
-        spacing: 6
+        spacing: 5
         Repeater {
             model: BarItems.runs(bar.layout[zoneRow.name])
             Loader {
@@ -184,19 +184,19 @@ Item {
     Zone {
         id: leftZone
         name: "left"
-        x: 6
+        x: 5
     }
     Zone {
         id: rightZone
         name: "right"
-        x: bar.width - width - 6
+        x: bar.width - width - 5
     }
     // Room between the side zones. The middle zone stays centred while it fits there, and moves aside rather than
     // run into a busy side; the clock drops the weather, then the date, when even that is too tight.
     readonly property real centerRoom: rightZone.x - leftZone.x - leftZone.width - 12
     Zone {
         name: "center"
-        x: Math.round(Math.max(leftZone.x + leftZone.width + 6, Math.min((bar.width - width) / 2, rightZone.x - 6 - width)))
+        x: Math.round(Math.max(leftZone.x + leftZone.width + 5, Math.min((bar.width - width) / 2, rightZone.x - 6 - width)))
     }
     Component {
         id: statusKey
@@ -205,7 +205,7 @@ Item {
             readonly property var ids: parent && parent.run ? parent.run.ids : []
             readonly property bool shown: parts.implicitWidth > 0
             implicitWidth: parts.implicitWidth + 12
-            implicitHeight: 32
+            implicitHeight: 28
             radius: Theme.radiusKey
             color: Theme.module
             Row {
@@ -245,13 +245,13 @@ Item {
                 spacing: Theme.gapS
                 C.Icon {
                     name: "search"
-                    size: 15
+                    size: 14
                     color: Theme.textSecondary
                 }
                 C.Label {
                     visible: !bar.compact
                     text: "Search"
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                     color: Theme.textSecondary
                     elide: Text.ElideNone
                 }
@@ -259,7 +259,7 @@ Item {
                     visible: bar.width > 1300 && searchKey.keys !== ""
                     Layout.leftMargin: 10
                     implicitWidth: keysLabel.implicitWidth + 12
-                    implicitHeight: 17
+                    implicitHeight: 16
                     radius: 5
                     color: Theme.key
                     C.Label {
@@ -286,7 +286,7 @@ Item {
             readonly property int stretch: dots ? 18 : 8
             readonly property real naturalWidth: workspaceModel.count * slotWidth + (strip.currentIndex >= 0 ? stretch : 0)
             implicitWidth: Math.min(naturalWidth, Math.max(60, Math.min(bar.width / 2 - 260, 300))) + 15
-            implicitHeight: 32
+            implicitHeight: 28
             radius: Theme.radiusKey
             color: Theme.module
             ListView {
@@ -339,7 +339,7 @@ Item {
                     readonly property bool current: strip.activeId === workspaceId
                     readonly property color tint: current ? Theme.accent : urgent ? Theme.warning : page.hovered ? Theme.textSecondary : empty ? bar.emptyPage : Theme.textDim
                     // The current page stretches into a lit pill.
-                    property real markWidth: pages.dots ? (current ? 26 : 8) : (current ? 26 : 18)
+                    property real markWidth: pages.dots ? (current ? 22 : 7) : (current ? 22 : 16)
                     width: markWidth + 5
                     height: strip.height
                     padding: 0
@@ -367,7 +367,7 @@ Item {
                             x: 2
                             anchors.verticalCenter: parent.verticalCenter
                             width: page.markWidth
-                            height: pages.dots ? 8 : 18
+                            height: pages.dots ? 7 : 16
                             radius: pages.dots ? 4 : 6
                             color: pages.dots || page.current ? page.tint : "transparent"
                             Behavior on color {
@@ -381,7 +381,7 @@ Item {
                                 text: page.workspaceName
                                 color: page.current ? Theme.accentInk : page.tint
                                 font.family: Theme.mono
-                                font.pixelSize: 11
+                                font.pixelSize: 10
                                 font.weight: page.current ? Font.DemiBold : Font.Normal
                                 elide: Text.ElideNone
                             }
@@ -432,15 +432,15 @@ Item {
                 spacing: Theme.gapS
                 Rectangle {
                     visible: titleKey.app !== ""
-                    Layout.preferredWidth: 20
-                    Layout.preferredHeight: 20
-                    radius: 6
+                    Layout.preferredWidth: 18
+                    Layout.preferredHeight: 18
+                    radius: 5
                     color: Theme.key
                     C.Label {
                         anchors.centerIn: parent
                         text: titleKey.app.charAt(0).toUpperCase()
                         color: Theme.textSecondary
-                        font.pixelSize: 11
+                        font.pixelSize: 10
                         font.weight: Font.Bold
                         elide: Text.ElideNone
                     }
@@ -448,7 +448,7 @@ Item {
                 C.Label {
                     visible: titleKey.app !== ""
                     text: titleKey.app
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                     font.weight: Font.DemiBold
                     Layout.maximumWidth: 140
                 }
@@ -457,7 +457,7 @@ Item {
                     visible: text !== ""
                     text: titleKey.app === "" ? (titleKey.title || "Shale") : titleKey.title && titleKey.title !== titleKey.app ? " · " + titleKey.title : ""
                     color: Theme.textDim
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                     Layout.fillWidth: true
                     Layout.leftMargin: titleKey.app === "" ? 0 : -Theme.gapS
                 }
@@ -478,12 +478,12 @@ Item {
             readonly property real timeWidth: Math.ceil(timeMetrics.advanceWidth) + leftPadding + rightPadding
             readonly property real dayWidth: day !== "" ? Math.ceil(dayMetrics.advanceWidth) + 10 : 0
             readonly property bool showDay: day !== "" && timeWidth + dayWidth <= room
-            readonly property bool showWeather: temperature !== "" && (day === "" || showDay) && timeWidth + dayWidth + Math.ceil(weatherMetrics.advanceWidth) + 28 <= room
+            readonly property bool showWeather: temperature !== "" && (day === "" || showDay) && timeWidth + dayWidth + Math.ceil(weatherMetrics.advanceWidth) + 26 <= room
             TextMetrics {
                 id: timeMetrics
                 text: clockKey.time
                 font.family: Theme.font
-                font.pixelSize: 14
+                font.pixelSize: 13
                 font.weight: 650
                 font.features: ({"tnum": 1})
             }
@@ -491,17 +491,17 @@ Item {
                 id: dayMetrics
                 text: clockKey.day
                 font.family: Theme.font
-                font.pixelSize: 13
+                font.pixelSize: 12
             }
             TextMetrics {
                 id: weatherMetrics
                 text: clockKey.temperature
                 font.family: Theme.font
-                font.pixelSize: 13
+                font.pixelSize: 12
                 font.features: ({"tnum": 1})
             }
-            leftPadding: 14
-            rightPadding: 14
+            leftPadding: 12
+            rightPadding: 12
             selected: ShellState.panel === "calendar" && ShellState.screenName === bar.outputName
             hint: Qt.formatDateTime(clock.date, "dddd, d MMMM yyyy") + (temperature ? "\n" + bar.weather.current.label + " · " + temperature : "")
             tooltip: bar.tooltip
@@ -509,10 +509,10 @@ Item {
             onClicked: ShellState.toggle("calendar", bar.outputName)
             // Labels without eliding, so their implicit widths stay the full text.
             contentItem: RowLayout {
-                spacing: 10
+                spacing: 8
                 C.Label {
                     text: clockKey.time
-                    font.pixelSize: 14
+                    font.pixelSize: 13
                     font.weight: 650
                     font.features: ({"tnum": 1})
                     elide: Text.ElideNone
@@ -521,7 +521,7 @@ Item {
                     visible: clockKey.showDay
                     text: clockKey.day
                     color: Theme.textMuted
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                     elide: Text.ElideNone
                 }
                 RowLayout {
@@ -529,13 +529,13 @@ Item {
                     spacing: Theme.gapXs
                     C.Icon {
                         name: bar.weather ? bar.weather.current.icon : "cloud"
-                        size: 14
+                        size: 13
                         color: Theme.textMuted
                     }
                     C.Label {
                         text: clockKey.temperature
                         color: Theme.textMuted
-                        font.pixelSize: 13
+                        font.pixelSize: 12
                         font.features: ({"tnum": 1})
                         elide: Text.ElideNone
                     }
@@ -554,7 +554,7 @@ Item {
             shown: !!player && bar.width > 1100 && ShellState.setting("barMedia", true)
             leftPadding: 8
             rightPadding: wide ? 12 : 8
-            implicitWidth: Math.min(implicitContentWidth + leftPadding + rightPadding, wide ? 320 : 38)
+            implicitWidth: Math.min(implicitContentWidth + leftPadding + rightPadding, wide ? 300 : 36)
             hint: "Media controls"
             Accessible.name: player ? "Player, " + (player.trackTitle || player.identity) + (artist ? " by " + artist : "") : "Media controls"
             selected: bar.controlActive("media")
@@ -568,14 +568,14 @@ Item {
                 onHoveredChanged: bar.mediaHovered = hovered
             }
             contentItem: RowLayout {
-                spacing: 9
+                spacing: 8
                 C.CoverArt {
                     id: cover
                     // Moves while playing: the live spectrum when the visualizer runs, otherwise three bars on a loop.
                     readonly property bool live: bar.onScreen && mediaButton.visible && NowPlaying.playing && ShellState.setting("visualizer", true) && !Theme.reduced && !Theme.lowPower
-                    Layout.preferredWidth: 22
-                    Layout.preferredHeight: 22
-                    radius: 6
+                    Layout.preferredWidth: 20
+                    Layout.preferredHeight: 20
+                    radius: 5
                     glyphSize: 12
                     source: NowPlaying.artFile
                     // Darkens the cover under the bars; without a cover it hides the placeholder note.
@@ -634,7 +634,7 @@ Item {
                 C.Label {
                     visible: mediaButton.wide
                     text: mediaButton.player ? mediaButton.player.trackTitle || mediaButton.player.identity : ""
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                     font.weight: Font.DemiBold
                     Layout.maximumWidth: 170
                 }
@@ -642,10 +642,10 @@ Item {
                     visible: mediaButton.wide && mediaButton.artist !== ""
                     text: " · " + mediaButton.artist
                     color: Theme.textDim
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                     Layout.fillWidth: true
                     Layout.maximumWidth: 130
-                    Layout.leftMargin: -9
+                    Layout.leftMargin: -8
                 }
             }
         }
@@ -666,7 +666,7 @@ Item {
                 BarKey {
                     id: trayButton
                     required property var modelData
-                    implicitWidth: 32
+                    implicitWidth: 28
                     hint: modelData.tooltipTitle || modelData.title || modelData.id
                     tooltip: bar.tooltip
                     contentItem: Item {
@@ -709,7 +709,7 @@ Item {
             }
             BarKey {
                 visible: Services.trayItems.length > tray.count
-                implicitWidth: 32
+                implicitWidth: 28
                 glyph: "tray"
                 hint: "System tray"
                 tooltip: bar.tooltip
@@ -732,14 +732,14 @@ Item {
                 spacing: 6
                 C.Icon {
                     name: "record"
-                    size: 13
+                    size: 12
                     color: Theme.accentText
                 }
                 // Tabular digits keep the chip from jittering every second.
                 C.Label {
                     text: recordingChip.elapsed
                     color: Theme.accentText
-                    font.pixelSize: 12
+                    font.pixelSize: 11
                     font.weight: Font.DemiBold
                     font.features: ({"tnum": 1})
                     elide: Text.ElideNone
@@ -764,15 +764,15 @@ Item {
             onClicked: bar.toggleControl("audio")
             contentItem: RowLayout {
                 spacing: 6
-                C.Icon { visible: privacyButton.mic; name: "mic"; size: 13; color: Theme.accentText }
-                C.Icon { visible: privacyButton.camera; name: "camera"; size: 13; color: Theme.accentText }
-                C.Icon { visible: privacyButton.sharing; name: "cast"; size: 13; color: Theme.accentText }
+                C.Icon { visible: privacyButton.mic; name: "mic"; size: 12; color: Theme.accentText }
+                C.Icon { visible: privacyButton.camera; name: "camera"; size: 12; color: Theme.accentText }
+                C.Icon { visible: privacyButton.sharing; name: "cast"; size: 12; color: Theme.accentText }
                 // Names the app; more than one shows as "+N".
                 C.Label {
                     visible: !bar.compact && privacyButton.apps.length > 0
                     text: privacyButton.apps.length ? privacyButton.apps[0] + (privacyButton.apps.length > 1 ? " +" + (privacyButton.apps.length - 1) : "") : ""
                     color: Theme.accentText
-                    font.pixelSize: 12
+                    font.pixelSize: 11
                     font.weight: Font.DemiBold
                     elide: Text.ElideNone
                 }
@@ -819,7 +819,7 @@ Item {
                 C.Label {
                     text: focusButton.remaining
                     color: Theme.accentText
-                    font.pixelSize: 12
+                    font.pixelSize: 11
                     font.weight: Font.DemiBold
                     font.features: ({"tnum": 1})
                     elide: Text.ElideNone
@@ -848,7 +848,7 @@ Item {
                 spacing: 6
                 C.Icon {
                     name: "timer"
-                    size: 15
+                    size: 14
                     color: timerButton.foreground
                 }
                 C.Label {
@@ -865,7 +865,7 @@ Item {
         id: stayAwakeItem
         LiveChip {
             shown: ShellState.presentation
-            implicitWidth: 28
+            implicitWidth: 24
             padding: 0
             leftPadding: 0
             rightPadding: 0
@@ -876,7 +876,7 @@ Item {
                 C.Icon {
                     anchors.centerIn: parent
                     name: "moon"
-                    size: 14
+                    size: 13
                     color: Theme.accentText
                 }
             }
@@ -975,9 +975,9 @@ Item {
                 }
                 // A small battery that empties with the charge.
                 Rectangle {
-                    Layout.preferredWidth: 22
-                    Layout.preferredHeight: 11
-                    radius: 3.5
+                    Layout.preferredWidth: 20
+                    Layout.preferredHeight: 10
+                    radius: 3
                     color: "transparent"
                     border.width: 1.5
                     border.color: batteryButton.low ? batteryButton.level : Theme.textSecondary
@@ -1015,7 +1015,7 @@ Item {
                 visible: Updates.available
                 z: 2
                 x: parent.width - width - 3
-                y: 5
+                y: 4
                 width: 6
                 height: 6
                 radius: 3
@@ -1029,7 +1029,7 @@ Item {
             id: bell
             readonly property int count: Services.notifications.length
             readonly property bool dnd: ShellState.setting("dnd", false)
-            implicitWidth: 36
+            implicitWidth: 32
             // Do not disturb swaps the bell so suppressed popups are never a surprise.
             glyph: dnd ? "bell-off" : "bell"
             selected: ShellState.panel === "notifications" && ShellState.screenName === bar.outputName
@@ -1041,10 +1041,10 @@ Item {
                 visible: bell.count > 0
                 z: 2
                 x: parent.width - width - 4
-                y: 3
-                width: Math.max(15, badge.implicitWidth + 6)
-                height: 15
-                radius: 7.5
+                y: 1
+                width: Math.max(14, badge.implicitWidth + 6)
+                height: 14
+                radius: 7
                 color: Theme.accent
                 C.Label {
                     id: badge
@@ -1057,27 +1057,6 @@ Item {
                     elide: Text.ElideNone
                 }
             }
-        }
-    }
-    Component {
-        id: wallpapersItem
-        BarKey {
-            implicitWidth: 36
-            glyph: "image"
-            selected: ShellState.panel === "wallpaper" && ShellState.screenName === bar.outputName
-            hint: "Wallpapers"
-            tooltip: bar.tooltip
-            onClicked: ShellState.toggle("wallpaper", bar.outputName)
-        }
-    }
-    Component {
-        id: lockItem
-        BarKey {
-            implicitWidth: 36
-            glyph: "lock"
-            hint: "Lock"
-            tooltip: bar.tooltip
-            onClicked: ShellState.action("lock")
         }
     }
 }

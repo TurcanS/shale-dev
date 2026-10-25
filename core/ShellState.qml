@@ -28,7 +28,7 @@ QtObject {
     // 0 is Sunday. Settings → General may choose instead of the locale.
     readonly property int firstDayOfWeek: ({monday: 1, sunday: 0, saturday: 6})[setting("weekStart", "locale")] ?? Qt.locale().firstDayOfWeek % 7
     // Where the bar ends (its height plus its gap from the screen edge); panels and popups open below it.
-    readonly property int barBottom: setting("barStyle", "floating") === "edge" ? 44 : 52
+    readonly property int barBottom: setting("barStyle", "floating") === "edge" ? 38 : 46
     property bool lidAwake: false
     property bool lidBusy: false
     function toggleLidAwake() {

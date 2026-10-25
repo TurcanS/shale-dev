@@ -86,7 +86,7 @@ RECORD_AUDIO = {"none": None, "system": "@DEFAULT_MONITOR@", "microphone": "@DEF
 # Bar items and control center parts, as core/barItems.js and core/controlItems.js name them. A layout lists
 # only what the user arranged; the shell puts anything it doesn't mention in its default place.
 BAR_ITEMS = ("launcher", "workspaces", "windowTitle", "clock", "media", "tray", "recording", "privacy", "focus", "timer",
-             "stayAwake", "keyboard", "vpn", "wifi", "audio", "battery", "notifications", "control", "wallpapers", "lock")
+             "stayAwake", "keyboard", "vpn", "wifi", "audio", "battery", "notifications", "control")
 # Never hidden: what is recording or listening stays visible, and the control center leads back to Settings.
 BAR_REQUIRED = ("recording", "privacy", "control")
 CONTROL_TILES = ("wifi", "bluetooth", "dnd", "awake", "grayscale", "lid")

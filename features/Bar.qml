@@ -26,7 +26,7 @@ PanelWindow {
         left: bar.edge ? 0 : 8
         right: bar.edge ? 0 : 8
     }
-    implicitHeight: 44
+    implicitHeight: 38
     color: "transparent"
     WlrLayershell.namespace: "shale-bar"
     WlrLayershell.layer: WlrLayer.Top

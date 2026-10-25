@@ -1,9 +1,9 @@
 .pragma library
-// What the bar can show, in its default places and order. helpers/backend.py (BAR_ITEMS) checks saved layouts
+// What the bar can show, in its default places and order ("hidden": off until Settings → Bar places it). helpers/backend.py (BAR_ITEMS) checks saved layouts
 // against these IDs. Required items can move but never hide: what is recording or listening stays visible, and the
 // Control button always leads back to Settings.
 const items = [
-    {id: "launcher", title: "Search", icon: "search", zone: "left", description: "Opens Find"},
+    {id: "launcher", title: "Search", icon: "search", zone: "hidden", description: "Opens Find"},
     {id: "workspaces", title: "Pages", icon: "grid", zone: "left", description: "The pages on this screen"},
     {id: "windowTitle", title: "Window title", icon: "window", zone: "left", description: "On screens wider than 1400 px"},
     {id: "clock", title: "Clock", icon: "clock", zone: "center", description: "Opens Clock and sky"},
@@ -20,9 +20,7 @@ const items = [
     {id: "audio", title: "Volume", icon: "volume", zone: "right", description: "Scroll to change, middle-click to mute"},
     {id: "battery", title: "Battery", icon: "battery", zone: "right", description: "On laptops"},
     {id: "control", title: "Control", icon: "sliders", zone: "right", required: true},
-    {id: "notifications", title: "Notifications", icon: "bell", zone: "right"},
-    {id: "wallpapers", title: "Wallpapers", icon: "image", zone: "right", description: "Opens the wallpaper picker"},
-    {id: "lock", title: "Lock", icon: "lock", zone: "right", description: "Locks the screen"}
+    {id: "notifications", title: "Notifications", icon: "bell", zone: "right"}
 ];
 // Status items next to each other in a zone share one key on the bar; each keeps its own click and scroll.
 const status = ["vpn", "wifi", "audio", "battery", "control"];
