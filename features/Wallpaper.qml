@@ -656,10 +656,18 @@ FocusScope {
                                 font.weight: Font.DemiBold
                             }
                         }
+                        // Colours are read once the tile has stayed a moment: the grid makes and drops tiles while it
+                        // scrolls to the wallpaper in use, and a loader dropped half-way warns of an invalid context.
+                        Timer {
+                            interval: 80
+                            running: true
+                            onTriggered: tileColors.settled = true
+                        }
                         LazyLoader {
                             id: tileColors
+                            property bool settled: false
                             readonly property string image: tile.action ? "" : tile.modelData.thumb || tile.savedCopy
-                            active: image !== ""
+                            active: settled && image !== ""
                             ColorQuantizer {
                                 source: tileColors.image
                                 depth: 3
