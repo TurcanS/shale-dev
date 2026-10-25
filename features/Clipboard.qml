@@ -509,7 +509,7 @@ FocusScope {
                         Rectangle {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            radius: 10
+                            radius: Theme.radiusKey
                             color: root.current && root.current.color ? root.current.color : "transparent"
                             border.width: 1
                             border.color: Theme.edge

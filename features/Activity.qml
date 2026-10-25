@@ -822,7 +822,7 @@ FocusScope {
                                                 required property var modelData
                                                 Layout.fillWidth: true
                                                 Layout.preferredHeight: 30
-                                                radius: 10
+                                                radius: Theme.radiusKey
                                                 color: Theme.moduleAlt
                                                 RowLayout {
                                                     anchors.fill: parent
@@ -964,7 +964,7 @@ FocusScope {
                                 id: timeline
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 44
-                                radius: 10
+                                radius: Theme.radiusKey
                                 color: Theme.well
                                 clip: true
                                 property int picked: -1
@@ -1270,7 +1270,7 @@ FocusScope {
                                     readonly property bool current: appList.activeFocus && ListView.isCurrentItem
                                     width: appList.width
                                     height: 42
-                                    radius: 10
+                                    radius: Theme.radiusKey
                                     color: current ? Theme.accentSoft : rowArea.containsMouse ? Theme.mix(Theme.moduleAlt, Theme.text, 0.04) : index % 2 === 0 ? Theme.moduleAlt : "transparent"
                                     Behavior on color { ColorAnimation { duration: Theme.fast } }
                                     Accessible.role: Accessible.ListItem

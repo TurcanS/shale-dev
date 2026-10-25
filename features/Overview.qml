@@ -296,7 +296,7 @@ FocusScope {
                         onClicked: root.go(cell.modelData)
                         ClippingRectangle {
                             anchors.fill: parent
-                            radius: 12
+                            radius: Theme.radiusCard
                             color: Theme.well
                             Rectangle {
                                 anchors.fill: parent
@@ -468,7 +468,7 @@ FocusScope {
                             // The current page carries the accent ring; the rest a hairline.
                             Rectangle {
                                 anchors.fill: parent
-                                radius: 12
+                                radius: Theme.radiusCard
                                 color: "transparent"
                                 border.width: cell.current ? 2 : 1
                                 border.color: cell.current ? Theme.accent : Theme.separator

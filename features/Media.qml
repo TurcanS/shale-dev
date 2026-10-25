@@ -461,9 +461,9 @@ ColumnLayout {
         id: key
         implicitWidth: 38
         implicitHeight: 38
-        cornerRadius: 12
+        cornerRadius: Theme.radiusCard
         background: Rectangle {
-            radius: 12
+            radius: Theme.radiusCard
             color: key.hovered || key.down || key.visualFocus ? Theme.mix(Theme.module, Theme.text, 0.06) : Theme.module
             opacity: key.enabled ? 1 : Theme.disabledOpacity
             Behavior on color {

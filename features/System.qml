@@ -466,7 +466,7 @@ FocusScope {
                         visible: !!root.current && !root.current.asleep
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        radius: 12
+                        radius: Theme.radiusCard
                         color: Theme.well
                         clip: true
                         Repeater {
@@ -551,7 +551,7 @@ FocusScope {
                         visible: !!root.current && !!root.current.asleep
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        radius: 12
+                        radius: Theme.radiusCard
                         color: Theme.well
                         ColumnLayout {
                             anchors.centerIn: parent
@@ -613,7 +613,7 @@ FocusScope {
                                 required property string modelData
                                 required property int index
                                 readonly property var entry: root.stats[index] || ({})
-                                radius: 10
+                                radius: Theme.radiusKey
                                 inset: 9
                                 valueSize: 16
                                 Layout.preferredHeight: 62

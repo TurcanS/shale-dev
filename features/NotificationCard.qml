@@ -152,7 +152,7 @@ Rectangle {
             Layout.preferredWidth: size
             Layout.preferredHeight: size
             Layout.alignment: Qt.AlignTop
-            radius: 10
+            radius: Theme.radiusKey
             color: root.urgent ? Theme.accent : Theme.key
             Image {
                 id: appIcon
