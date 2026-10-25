@@ -12,7 +12,7 @@ import "../components" as C
 // The bar's items in their zones. Bar.qml puts it in a layer-shell window; previews put it in a plain one.
 Item {
     id: bar
-    // A key on the bar, 28 px tall. Flat keys show a light wash on hover; the Search pill and the status key rest on
+    // A key on the bar, 28 px tall. Flat keys show a light wash on hover; the status key rests on
     // `module`. A key whose panel is open on this screen turns keySelected.
     component BarKey: C.Button {
         id: key
@@ -91,7 +91,7 @@ Item {
     // Settings → Bar arranges the items; anything the saved layout doesn't mention keeps its default place.
     readonly property var layout: BarItems.layout(ShellState.setting("barLayout", {}))
     readonly property var items: ({
-            launcher: launcherItem, workspaces: workspacesItem, windowTitle: windowTitleItem, clock: clockItem, media: mediaItem,
+            workspaces: workspacesItem, windowTitle: windowTitleItem, clock: clockItem, media: mediaItem,
             tray: trayItem, recording: recordingItem, privacy: privacyItem, focus: focusItem, timer: timerItem, stayAwake: stayAwakeItem,
             keyboard: keyboardItem, vpn: vpnItem, wifi: wifiItem, audio: audioItem, battery: batteryItem, notifications: notificationsItem,
             control: controlItem
@@ -218,58 +218,6 @@ Item {
                         required property string modelData
                         sourceComponent: bar.items[modelData] || null
                         visible: !!item && item.shown
-                    }
-                }
-            }
-        }
-    }
-    Component {
-        id: launcherItem
-        BarKey {
-            id: searchKey
-            // The shortcut that opens Find, unless Settings → Shortcuts turned it off.
-            readonly property string keys: {
-                const custom = ShellState.setting("shortcuts", {}).launcher;
-                const keys = custom === undefined ? "SUPER + SPACE" : custom || "";
-                return keys.split("+").map(part => part.trim()).filter(part => part).map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(" ");
-            }
-            rest: Theme.module
-            leftPadding: 10
-            rightPadding: bar.compact ? 10 : 12
-            selected: ShellState.panel === "launcher" && ShellState.screenName === bar.outputName
-            hint: "Find"
-            tooltip: bar.tooltip
-            Accessible.name: "Search"
-            onClicked: ShellState.toggle("launcher", bar.outputName)
-            contentItem: RowLayout {
-                spacing: Theme.gapS
-                C.Icon {
-                    name: "search"
-                    size: 14
-                    color: Theme.textSecondary
-                }
-                C.Label {
-                    visible: !bar.compact
-                    text: "Search"
-                    font.pixelSize: 12
-                    color: Theme.textSecondary
-                    elide: Text.ElideNone
-                }
-                Rectangle {
-                    visible: bar.width > 1300 && searchKey.keys !== ""
-                    Layout.leftMargin: 10
-                    implicitWidth: keysLabel.implicitWidth + 12
-                    implicitHeight: 16
-                    radius: 5
-                    color: Theme.key
-                    C.Label {
-                        id: keysLabel
-                        anchors.centerIn: parent
-                        text: searchKey.keys
-                        font.family: Theme.mono
-                        font.pixelSize: 10
-                        color: Theme.textMuted
-                        elide: Text.ElideNone
                     }
                 }
             }

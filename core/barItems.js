@@ -1,9 +1,8 @@
 .pragma library
-// What the bar can show, in its default places and order ("hidden": off until Settings → Bar places it). helpers/backend.py (BAR_ITEMS) checks saved layouts
+// What the bar can show, in its default places and order. helpers/backend.py (BAR_ITEMS) checks saved layouts
 // against these IDs. Required items can move but never hide: what is recording or listening stays visible, and the
 // Control button always leads back to Settings.
 const items = [
-    {id: "launcher", title: "Search", icon: "search", zone: "hidden", description: "Opens Find"},
     {id: "workspaces", title: "Pages", icon: "grid", zone: "left", description: "The pages on this screen"},
     {id: "windowTitle", title: "Window title", icon: "window", zone: "left", description: "On screens wider than 1400 px"},
     {id: "clock", title: "Clock", icon: "clock", zone: "center", description: "Opens Clock and sky"},
