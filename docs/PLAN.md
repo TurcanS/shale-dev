@@ -70,9 +70,17 @@ Prompt:
 > Do stage 5 of docs/PLAN.md on branch `redesign`: Find, Notifications, toasts and the OSD, per PANELS.md and the
 > Launcher, Inbox, Osd and Main mockups. Keep every search provider and keyboard path. Push and summarise.
 
+Carry-over from stage 4: new components exist and must be reused: `Chip`, `KeyHint`, `Ring`, `Switch`, and
+`Segmented` has a proportional option. Panels already get the case and entrance from PanelContent/PanelHost; don't
+add their own. Not built for lack of data, candidates for a later backend stage: Wi-Fi band, link speed and live
+↓/↑ rates, a hidden-network action, the "N apps have unsaved work" note, real per-app and mic meters (the mixer
+estimates them from cava), and Scenes.
+
 ## Stage 6: Clock and sky, Player, Wallpapers
 Files: `features/Calendar.qml`, `features/WeatherCard.qml`, `features/Media.qml`, `features/MediaHoverCard.qml`,
 `components/CoverArt.qml`, `features/Wallpaper.qml`.
+
+Also decide with the owner whether the Player page keeps its own equalizer (it now lives in the mixer too).
 
 Prompt:
 > Do stage 6 of docs/PLAN.md on branch `redesign`: Clock and sky, Player and Wallpapers per PANELS.md and the
