@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import "../core"
+import "." as C
 
 TextField {
     id: root
@@ -32,5 +33,10 @@ TextField {
                 duration: Theme.fast
             }
         }
+    }
+    // Reached with Tab: the same 2 px ring as every other control (search fields that open focused keep their edge).
+    C.FocusRing {
+        visible: root.activeFocus && (root.focusReason === Qt.TabFocusReason || root.focusReason === Qt.BacktabFocusReason)
+        radius: Theme.radiusKey
     }
 }

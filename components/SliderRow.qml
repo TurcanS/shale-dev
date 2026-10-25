@@ -140,6 +140,10 @@ RowLayout {
                 radius: width / 2
                 color: Qt.rgba(0, 0, 0, 0.35)
             }
+            C.FocusRing {
+                visible: slider.visualFocus
+                inset: 3
+            }
             Rectangle {
                 id: knob
                 anchors.centerIn: parent

@@ -305,6 +305,10 @@ ColumnLayout {
                     color: Theme.knob
                     border.width: 1
                     border.color: Qt.rgba(0, 0, 0, 0.35)
+                    C.FocusRing {
+                        visible: seek.visualFocus
+                        inset: 4
+                    }
                     scale: seek.pressed && !Theme.reduced ? 1.2 : 1
                     Behavior on scale {
                         NumberAnimation {

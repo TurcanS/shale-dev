@@ -621,6 +621,10 @@ FocusScope {
                 height: width
                 radius: width / 2
                 color: Theme.textSecondary
+                C.FocusRing {
+                    visible: appSlider.visualFocus
+                    inset: 4
+                }
             }
         }
         C.Label {
@@ -852,6 +856,11 @@ FocusScope {
                             height: 2
                             radius: 1
                             color: Theme.accentInk
+                        }
+                        C.FocusRing {
+                            visible: fader.visualFocus
+                            inset: 3
+                            radius: 7
                         }
                     }
                 }

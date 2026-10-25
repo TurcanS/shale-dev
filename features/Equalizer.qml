@@ -292,6 +292,10 @@ Rectangle {
                                 color: Theme.knob
                                 border.width: 2
                                 border.color: Theme.well
+                                C.FocusRing {
+                                    visible: slider.visualFocus
+                                    inset: 3
+                                }
                                 Behavior on width {
                                     NumberAnimation {
                                         duration: Theme.fast
