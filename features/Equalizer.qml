@@ -40,10 +40,6 @@ Rectangle {
         return from + (value - from) * glide;
     })
 
-    function presetLabel(key) {
-        const entry = presetLabels.find(item => item[0] === key);
-        return entry ? entry[1] : "Custom";
-    }
     function matchingPreset(values) {
         return Object.keys(presets).find(key => presets[key].every((value, i) => value === values[i])) || "custom";
     }

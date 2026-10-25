@@ -9,7 +9,6 @@ Item {
     id: root
     required property var context
     readonly property alias masked: field.masked
-    readonly property alias fieldFocus: field.activeFocus
     // Room on the left for something drawn over the field.
     property int leftInset: 18
     // Any key reaching the field, for styles that wake on activity.

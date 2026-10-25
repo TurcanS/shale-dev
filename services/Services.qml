@@ -353,10 +353,6 @@ QtObject {
         if (record && record.original)
             record.original.dismiss();
     }
-    function dismissAllNotifications() {
-        for (const item of notifications.slice())
-            dismissNotification(item.id);
-    }
     function dismissApplication(appName) {
         for (const item of notifications.slice())
             if (item.appName === appName)
