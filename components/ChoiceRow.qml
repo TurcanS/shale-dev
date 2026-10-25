@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
 import "../core"
 import "." as C
 

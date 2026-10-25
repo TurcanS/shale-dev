@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import "../core"
 import "." as C
 
 // Hold to put a page's settings back; it can be used again once the hold has finished.
