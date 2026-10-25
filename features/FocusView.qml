@@ -67,7 +67,8 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         spacing: 20
-        // The ring empties as the session runs out; a soft halo of the accent stands in for its glow.
+        // The ring empties as the session runs out; a soft halo of the accent stands in for its glow. The ring's
+        // centre line has an 86 px radius, as the design's, so the halo stays inside the 196 px box.
         Item {
             readonly property real fraction: Focus.active ? Focus.progress : 1
             implicitWidth: 196
@@ -78,7 +79,7 @@ ColumnLayout {
             C.Ring {
                 anchors.centerIn: parent
                 visible: !Theme.lowPower
-                size: 196 + 8
+                size: 182 + 8
                 thickness: 18
                 value: parent.fraction
                 color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.12)
@@ -87,15 +88,15 @@ ColumnLayout {
             C.Ring {
                 anchors.centerIn: parent
                 visible: !Theme.lowPower
-                size: 196 + 4
+                size: 182 + 4
                 thickness: 14
                 value: parent.fraction
                 color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.18)
                 trackColor: "transparent"
             }
             C.Ring {
-                anchors.fill: parent
-                size: 196
+                anchors.centerIn: parent
+                size: 182
                 thickness: 10
                 value: parent.fraction
                 trackColor: Theme.module
