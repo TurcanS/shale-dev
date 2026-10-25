@@ -118,9 +118,17 @@ PanelWindow {
         visible: false
         layer.enabled: true
         readonly property real cx: width / 2
-        readonly property real cy: height * (root.particles ? 0.4 : 0.47)
+        // The particle clock sits at 40% of the height; the classic one is the 168 px box under the date line,
+        // placed as LockClassic places it.
+        readonly property real cy: root.particles ? height * 0.4 : Math.round(height * 0.145) + dateLine.height + 6 + 84
         readonly property real reach: Math.hypot(Math.max(cx, width - cx), Math.max(cy, height - cy))
         readonly property real feather: reach * 0.3
+        FontMetrics {
+            id: dateLine
+            font.family: Theme.font
+            font.pixelSize: 22
+            font.weight: Font.Medium
+        }
         readonly property real inner: root.open * (reach + feather) - feather
         Shape {
             anchors.fill: parent
