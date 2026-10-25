@@ -152,6 +152,19 @@ Prompt:
 > Do stage 10 of docs/PLAN.md on branch `redesign`: Settings and all settings pages per PANELS.md and
 > previews/Settings.png. Push and summarise.
 
+Carry-over from stage 10: settings rows are `components/SettingRow.qml` (label and description on the left, the control
+on the right, or under the label with `stacked`; `descriptionColor` for a row's own error or "Saved") on a `C.Group`,
+with `C.Toggle { flat: true }` for switches; `ChoiceRow` is now a SettingRow with a Segmented. Settings draws its own
+header (the sidebar title) and is 1060×680. Motion is part of Appearance (its Behaviour group), Audio is now Sound and
+Control center is now Control; the old names still open their page (`shale settings motion`, `audio`,
+`control-center`, Find's "settings:Control center"). Find a setting reads the rows from the pages themselves: every
+item with a `description` and a `label` or `text` is found, under the page whose `objectName` is the category name, so
+the stage 11 Desktop page needs a `categories` entry and that `objectName`, and nothing else, for its rows to be found.
+Sound's equalizer button now opens Control → Sound (it opened the Player, which lost its equalizer in stage 6). Not
+built for lack of settings: the preview's wallpaper tint slider, start-up and lock animations, soft clicks and the
+wallpaper name on the desktop, and its Power page. For stage 12: `SectionHeader` keeps a 28 px minimum height, so the
+gaps around section titles are a few pixels larger than in the preview.
+
 Carry-over from stage 9: the helper now lists processes (`system.sample` takes `processes: "cpu" | "memory"` and returns
 the top 30 with pid, start, name, CPU share of the whole processor, resident memory, `own` and `protected`) and ends one
 with `system.end {pid, start}` (SIGTERM through `quit_process`, only the user's own, never the shell, its ancestors,
