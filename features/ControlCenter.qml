@@ -1826,7 +1826,7 @@ FocusScope {
                     C.Label {
                         visible: !(ShellState.profiles.profiles || []).length
                         text: root.busy ? "Loading power modes…" : "Power modes are unavailable on this device."
-                        color: Theme.muted
+                        color: Theme.textMuted
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                     }
@@ -1863,7 +1863,7 @@ FocusScope {
                         text: "Using the stock tuned profiles. For the full effect, run " + (scriptFound
                             ? "sudo python3 " + (/^[\w\/.+-]+$/.test(script) ? script : "'" + script.replace(/'/g, "'\\''") + "'") + " --apply"
                             : "this from the Shale repository: sudo python3 \"$PWD/scripts/install-power.py\" --apply")
-                        color: Theme.muted
+                        color: Theme.textMuted
                         font.pixelSize: Theme.small
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true

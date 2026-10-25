@@ -21,8 +21,8 @@ Item {
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0; color: Theme.mix(Theme.background, Theme.selection, 0.55) }
-            GradientStop { position: 1; color: Theme.background }
+            GradientStop { position: 0; color: Theme.mix(Theme.backdrop, Theme.selection, 0.55) }
+            GradientStop { position: 1; color: Theme.backdrop }
         }
     }
     // Cropped like the desktop's wallpaper, so the hand-off lines up.

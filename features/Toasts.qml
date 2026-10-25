@@ -393,7 +393,7 @@ Scope {
                 C.CoverArt {
                     Layout.preferredWidth: 44
                     Layout.preferredHeight: 44
-                    radius: Theme.radiusSmall + 2
+                    radius: Theme.radiusKey
                     source: NowPlaying.artFile
                 }
                 ColumnLayout {
@@ -407,7 +407,7 @@ Scope {
                     }
                     C.Label {
                         text: trackWindow.artist
-                        color: Theme.muted
+                        color: Theme.textMuted
                         font.pixelSize: Theme.small
                         elide: Text.ElideRight
                         Layout.fillWidth: true
@@ -513,7 +513,7 @@ Scope {
                                 visible: !digestIcon.visible
                                 name: "bell"
                                 size: 16
-                                color: Theme.muted
+                                color: Theme.textMuted
                             }
                         }
                         ColumnLayout {
@@ -537,7 +537,7 @@ Scope {
                             text: String(digestRow.modelData.count)
                             font.family: Theme.mono
                             font.pixelSize: Theme.small
-                            color: Theme.muted
+                            color: Theme.textMuted
                         }
                     }
                 }
