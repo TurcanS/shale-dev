@@ -25,13 +25,12 @@ button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
 </style>
 <style>
-body{margin:0;background:#121316}
-@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
-.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
-button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
-button:hover{filter:brightness(1.15)}
-button:active{transform:scale(.98)}
-button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+body{margin:0;background:#0e0f11}
+@keyframes bdIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 200ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:disabled{cursor:default}
 button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
 </style>
@@ -62,7 +61,13 @@ button:active{transform:scale(.97)}
 button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
 </style>
-<style></style>
+<style>
+body{margin:0;background:#0e0f11}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.99)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
 <style>
 
 .f-ring{transition:stroke-dashoffset 900ms linear}
@@ -167,29 +172,24 @@ input::placeholder{color:#6b6f76}
 @media (prefers-reduced-motion: reduce){button{transition:none}}
 </style>
 <style>
-body{margin:0;background:#121316}
-@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
-@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
-@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
-@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
-@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
-@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+body{margin:0;background:#0e0f11}
+@keyframes rtBoot{0%{opacity:0;transform:translateY(10px) scale(.97)}60%{opacity:1;box-shadow:0 0 0 1px rgba(255,138,61,.6),0 0 24px rgba(255,138,61,.35)}100%{opacity:1;transform:none}}
+@keyframes rtDown{0%{opacity:1;transform:none}100%{opacity:0;transform:translateY(6px) scale(.97)}}
+@keyframes rtWake{0%{opacity:.25}100%{opacity:1}}
+@keyframes rtBreathe{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes rtIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
-.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
-.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
-.rt-down{animation:rtDown 300ms ease-in both}
-.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
-.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
-.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
-.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-down{animation:rtDown 260ms ease-in both}
+.rt-off{opacity:0}
+.rt-sleep{opacity:.18;transition:opacity 900ms ease-out}
+.rt-keep{opacity:.55;transition:opacity 900ms ease-out}
+.rt-keep .rt-dot{animation:rtBreathe 2.4s ease-in-out infinite}
 .rt-wake{animation:rtWake 320ms ease-out both}
-.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
-button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
-button:hover{filter:brightness(1.15)}
+.rt-in{animation:rtIn 240ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
 button:active{transform:scale(.98)}
 button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
-@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-in,.rt-keep .rt-dot{animation:none}.rt-sleep,.rt-keep{transition:none}}
 </style>
 <style>
 
@@ -348,10 +348,10 @@ button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 <svg width="100%" height="58" viewBox="0 0 392 58" preserveAspectRatio="none" aria-hidden="true">
 <line x1="0" y1="52" x2="392" y2="52" stroke="#2a2d33" stroke-width="1.5"></line>
 <path d="M36 52 A160 46 0 0 1 356 52" fill="none" stroke="#2a2d33" stroke-width="2" stroke-dasharray="2 5"></path>
-<path d="M36 52 A160 46 0 0 1 218.0 6.4" fill="none" stroke="#ff8a3d" stroke-width="2.5" stroke-linecap="round"></path>
-<circle cx="218.0" cy="6.4" r="6" fill="#ff8a3d" stroke="#ff8a3d" stroke-width="2"></circle>
+<path d="M36 52 A160 46 0 0 1 279.2 12.7" fill="none" stroke="#ff8a3d" stroke-width="2.5" stroke-linecap="round"></path>
+<circle cx="279.2" cy="12.7" r="6" fill="#ff8a3d" stroke="#ff8a3d" stroke-width="2"></circle>
 </svg>
-<div style="display: flex; justify-content: space-between; font-size: 12px; color: #8c8f95; font-variant-numeric: tabular-nums;"><span>Sunrise 07:43</span><span style="color: #efece6;">Sets in 4 h 51</span><span>Sunset 18:21</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #8c8f95; font-variant-numeric: tabular-nums;"><span>Sunrise 07:43</span><span style="color: #efece6;">Sets in 3 h 28</span><span>Sunset 18:21</span></div>
 </div>
 </section>
 </div></body></html>
