@@ -7,13 +7,13 @@ QtObject {
     readonly property var surfaceTones: ({
         charcoal: {backdrop: "#0e0f11", caseColor: "#121316", module: "#1c1e22", moduleAlt: "#17191c", group: "#1f2125", well: "#141518",
                    key: "#2a2d33", keyTile: "#24272c", keySelected: "#2c2f35", keyHover: "#34373d",
-                   text: "#efece6", textSecondary: "#c9c6bf", textMuted: "#a7a9ad", textDim: "#8c8f95", textFaint: "#6b6f76"},
+                   text: "#efece6", textSecondary: "#c9c6bf", textMuted: "#a7a9ad", textDim: "#8e9196", textFaint: "#6b6f76"},
         midnight: {backdrop: "#0b0e13", caseColor: "#0f131a", module: "#182029", moduleAlt: "#131921", group: "#1b232e", well: "#11161d",
-                   key: "#263140", keyTile: "#212b38", keySelected: "#2a3545", keyHover: "#313e4f",
-                   text: "#edf1f5", textSecondary: "#c5cdd6", textMuted: "#a3aebb", textDim: "#8792a0", textFaint: "#66717f"},
+                   key: "#263140", keyTile: "#212b38", keySelected: "#2a3545", keyHover: "#2e3a4a",
+                   text: "#edf1f5", textSecondary: "#c5cdd6", textMuted: "#a3aebb", textDim: "#8893a0", textFaint: "#66717f"},
         warm: {backdrop: "#100e0c", caseColor: "#151210", module: "#201c18", moduleAlt: "#1a1714", group: "#231f1b", well: "#171411",
-               key: "#302a25", keyTile: "#2a2520", keySelected: "#342e28", keyHover: "#3c352e",
-               text: "#f1ede6", textSecondary: "#ccc5bb", textMuted: "#aea69c", textDim: "#928a80", textFaint: "#716a61"}
+               key: "#302a25", keyTile: "#2a2520", keySelected: "#342e28", keyHover: "#3b342e",
+               text: "#f1ede6", textSecondary: "#ccc5bb", textMuted: "#aea69c", textDim: "#968e84", textFaint: "#716a61"}
     })
     // The same tones under their old names, for code that still reads them (the tone swatches in Colours).
     readonly property var surfacePalettes: {
