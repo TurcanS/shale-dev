@@ -25,13 +25,12 @@ button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
 </style>
 <style>
-body{margin:0;background:#121316}
-@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
-.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
-button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
-button:hover{filter:brightness(1.15)}
-button:active{transform:scale(.98)}
-button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+body{margin:0;background:#0e0f11}
+@keyframes bdIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 200ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:disabled{cursor:default}
 button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
 </style>
@@ -62,7 +61,13 @@ button:active{transform:scale(.97)}
 button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
 </style>
-<style></style>
+<style>
+body{margin:0;background:#0e0f11}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.99)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
 <style>
 
 .f-ring{transition:stroke-dashoffset 900ms linear}
@@ -167,29 +172,24 @@ input::placeholder{color:#6b6f76}
 @media (prefers-reduced-motion: reduce){button{transition:none}}
 </style>
 <style>
-body{margin:0;background:#121316}
-@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
-@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
-@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
-@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
-@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
-@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+body{margin:0;background:#0e0f11}
+@keyframes rtBoot{0%{opacity:0;transform:translateY(10px) scale(.97)}60%{opacity:1;box-shadow:0 0 0 1px rgba(255,138,61,.6),0 0 24px rgba(255,138,61,.35)}100%{opacity:1;transform:none}}
+@keyframes rtDown{0%{opacity:1;transform:none}100%{opacity:0;transform:translateY(6px) scale(.97)}}
+@keyframes rtWake{0%{opacity:.25}100%{opacity:1}}
+@keyframes rtBreathe{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes rtIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
-.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
-.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
-.rt-down{animation:rtDown 300ms ease-in both}
-.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
-.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
-.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
-.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-down{animation:rtDown 260ms ease-in both}
+.rt-off{opacity:0}
+.rt-sleep{opacity:.18;transition:opacity 900ms ease-out}
+.rt-keep{opacity:.55;transition:opacity 900ms ease-out}
+.rt-keep .rt-dot{animation:rtBreathe 2.4s ease-in-out infinite}
 .rt-wake{animation:rtWake 320ms ease-out both}
-.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
-button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
-button:hover{filter:brightness(1.15)}
+.rt-in{animation:rtIn 240ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
 button:active{transform:scale(.98)}
 button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
-@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-in,.rt-keep .rt-dot{animation:none}.rt-sleep,.rt-keep{transition:none}}
 </style>
 <style>
 
@@ -238,28 +238,28 @@ button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 <nav aria-label="Devices" style="width: 250px; flex: none; display: flex; flex-direction: column; gap: 6px;">
 
 <button aria-current="true" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(255,138,61,0.4); background: rgba(255,138,61,0.14); display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
-<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 24.8 L2.5 27.1 L5.0 30.5 L7.4 31.7 L9.9 31.1 L12.4 30.2 L14.9 28.4 L17.4 28.1 L19.9 26.7 L22.3 27.0 L24.8 24.3 L27.3 26.8 L29.8 24.5 L32.3 25.1 L34.8 29.5 L37.2 28.7 L39.7 28.4 L42.2 31.6 L44.7 32.5 L47.2 29.1 L49.7 29.9 L52.1 28.5 L54.6 23.6 L57.1 23.7 L59.6 23.0 L62.1 27.8 L64.6 28.8 L67.0 27.4 L69.5 27.6 L72.0 32.1 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 24.8 L2.5 27.1 L5.0 30.5 L7.4 31.7 L9.9 31.1 L12.4 30.2 L14.9 28.4 L17.4 28.1 L19.9 26.7 L22.3 27.0 L24.8 24.3 L27.3 26.8 L29.8 24.5 L32.3 25.1 L34.8 29.5 L37.2 28.7 L39.7 28.4 L42.2 31.6 L44.7 32.5 L47.2 29.1 L49.7 29.9 L52.1 28.5 L54.6 23.6 L57.1 23.7 L59.6 23.0 L62.1 27.8 L64.6 28.8 L67.0 27.4 L69.5 27.6 L72.0 32.1" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
-<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">CPU</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">8% · 4.1 GHz</span></span>
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 27.8 L2.5 26.8 L5.0 30.7 L7.4 27.8 L9.9 28.9 L12.4 28.0 L14.9 29.7 L17.4 27.3 L19.9 26.0 L22.3 26.9 L24.8 25.6 L27.3 22.7 L29.8 24.5 L32.3 26.4 L34.8 26.4 L37.2 29.6 L39.7 28.5 L42.2 30.3 L44.7 32.2 L47.2 29.4 L49.7 29.2 L52.1 25.5 L54.6 24.2 L57.1 26.7 L59.6 26.1 L62.1 27.8 L64.6 27.2 L67.0 27.6 L69.5 30.4 L72.0 28.2 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 27.8 L2.5 26.8 L5.0 30.7 L7.4 27.8 L9.9 28.9 L12.4 28.0 L14.9 29.7 L17.4 27.3 L19.9 26.0 L22.3 26.9 L24.8 25.6 L27.3 22.7 L29.8 24.5 L32.3 26.4 L34.8 26.4 L37.2 29.6 L39.7 28.5 L42.2 30.3 L44.7 32.2 L47.2 29.4 L49.7 29.2 L52.1 25.5 L54.6 24.2 L57.1 26.7 L59.6 26.1 L62.1 27.8 L64.6 27.2 L67.0 27.6 L69.5 30.4 L72.0 28.2" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">CPU</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">16% · 4.1 GHz</span></span>
 </button>
 
 <button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
-<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 23.7 L2.5 23.5 L5.0 23.7 L7.4 23.9 L9.9 24.2 L12.4 24.0 L14.9 24.1 L17.4 23.6 L19.9 23.9 L22.3 23.6 L24.8 23.5 L27.3 23.2 L29.8 23.7 L32.3 23.6 L34.8 24.0 L37.2 24.0 L39.7 23.7 L42.2 24.1 L44.7 24.1 L47.2 23.7 L49.7 23.5 L52.1 23.9 L54.6 23.5 L57.1 23.5 L59.6 23.3 L62.1 23.4 L64.6 23.5 L67.0 23.5 L69.5 23.6 L72.0 24.3 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 23.7 L2.5 23.5 L5.0 23.7 L7.4 23.9 L9.9 24.2 L12.4 24.0 L14.9 24.1 L17.4 23.6 L19.9 23.9 L22.3 23.6 L24.8 23.5 L27.3 23.2 L29.8 23.7 L32.3 23.6 L34.8 24.0 L37.2 24.0 L39.7 23.7 L42.2 24.1 L44.7 24.1 L47.2 23.7 L49.7 23.5 L52.1 23.9 L54.6 23.5 L57.1 23.5 L59.6 23.3 L62.1 23.4 L64.6 23.5 L67.0 23.5 L69.5 23.6 L72.0 24.3" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 23.4 L2.5 23.4 L5.0 23.8 L7.4 24.2 L9.9 23.9 L12.4 24.0 L14.9 24.2 L17.4 23.6 L19.9 23.4 L22.3 23.3 L24.8 23.5 L27.3 23.4 L29.8 23.5 L32.3 23.4 L34.8 24.0 L37.2 23.9 L39.7 23.9 L42.2 24.0 L44.7 24.1 L47.2 23.7 L49.7 23.7 L52.1 23.8 L54.6 23.3 L57.1 23.4 L59.6 23.3 L62.1 23.6 L64.6 23.5 L67.0 23.5 L69.5 23.6 L72.0 24.1 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 23.4 L2.5 23.4 L5.0 23.8 L7.4 24.2 L9.9 23.9 L12.4 24.0 L14.9 24.2 L17.4 23.6 L19.9 23.4 L22.3 23.3 L24.8 23.5 L27.3 23.4 L29.8 23.5 L32.3 23.4 L34.8 24.0 L37.2 23.9 L39.7 23.9 L42.2 24.0 L44.7 24.1 L47.2 23.7 L49.7 23.7 L52.1 23.8 L54.6 23.3 L57.1 23.4 L59.6 23.3 L62.1 23.6 L64.6 23.5 L67.0 23.5 L69.5 23.6 L72.0 24.1" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
 <span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Memory</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">6.3 / 15.3 GB</span></span>
 </button>
 
 <button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
-<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 32.2 L2.5 30.3 L5.0 31.6 L7.4 35.3 L9.9 35.3 L12.4 35.3 L14.9 34.4 L17.4 31.4 L19.9 32.8 L22.3 30.7 L24.8 29.3 L27.3 27.9 L29.8 32.2 L32.3 32.3 L34.8 33.2 L37.2 35.3 L39.7 33.6 L42.2 33.1 L44.7 34.2 L47.2 34.7 L49.7 30.8 L52.1 31.4 L54.6 30.7 L57.1 27.9 L59.6 29.4 L62.1 30.6 L64.6 31.8 L67.0 33.3 L69.5 32.9 L72.0 33.7 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 32.2 L2.5 30.3 L5.0 31.6 L7.4 35.3 L9.9 35.3 L12.4 35.3 L14.9 34.4 L17.4 31.4 L19.9 32.8 L22.3 30.7 L24.8 29.3 L27.3 27.9 L29.8 32.2 L32.3 32.3 L34.8 33.2 L37.2 35.3 L39.7 33.6 L42.2 33.1 L44.7 34.2 L47.2 34.7 L49.7 30.8 L52.1 31.4 L54.6 30.7 L57.1 27.9 L59.6 29.4 L62.1 30.6 L64.6 31.8 L67.0 33.3 L69.5 32.9 L72.0 33.7" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
-<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Disk 0</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">System · 3% active</span></span>
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 32.2 L2.5 33.6 L5.0 31.3 L7.4 34.8 L9.9 35.2 L12.4 34.9 L14.9 35.3 L17.4 31.5 L19.9 30.9 L22.3 31.5 L24.8 29.1 L27.3 31.5 L29.8 31.0 L32.3 32.6 L34.8 31.8 L37.2 34.6 L39.7 35.3 L42.2 35.0 L44.7 35.3 L47.2 31.8 L49.7 33.4 L52.1 32.7 L54.6 31.7 L57.1 29.4 L59.6 28.0 L62.1 29.8 L64.6 30.7 L67.0 32.6 L69.5 33.5 L72.0 35.3 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 32.2 L2.5 33.6 L5.0 31.3 L7.4 34.8 L9.9 35.2 L12.4 34.9 L14.9 35.3 L17.4 31.5 L19.9 30.9 L22.3 31.5 L24.8 29.1 L27.3 31.5 L29.8 31.0 L32.3 32.6 L34.8 31.8 L37.2 34.6 L39.7 35.3 L42.2 35.0 L44.7 35.3 L47.2 31.8 L49.7 33.4 L52.1 32.7 L54.6 31.7 L57.1 29.4 L59.6 28.0 L62.1 29.8 L64.6 30.7 L67.0 32.6 L69.5 33.5 L72.0 35.3" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Disk 0</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">System · 1% active</span></span>
 </button>
 
 <button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
-<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 33.4 L2.5 33.1 L5.0 34.2 L7.4 35.3 L9.9 35.3 L12.4 34.5 L14.9 35.3 L17.4 33.5 L19.9 33.9 L22.3 33.2 L24.8 32.4 L27.3 33.1 L29.8 32.6 L32.3 33.6 L34.8 34.6 L37.2 34.8 L39.7 34.5 L42.2 35.3 L44.7 35.3 L47.2 35.1 L49.7 35.2 L52.1 33.0 L54.6 33.0 L57.1 33.7 L59.6 33.6 L62.1 33.0 L64.6 34.0 L67.0 33.8 L69.5 35.0 L72.0 35.3 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 33.4 L2.5 33.1 L5.0 34.2 L7.4 35.3 L9.9 35.3 L12.4 34.5 L14.9 35.3 L17.4 33.5 L19.9 33.9 L22.3 33.2 L24.8 32.4 L27.3 33.1 L29.8 32.6 L32.3 33.6 L34.8 34.6 L37.2 34.8 L39.7 34.5 L42.2 35.3 L44.7 35.3 L47.2 35.1 L49.7 35.2 L52.1 33.0 L54.6 33.0 L57.1 33.7 L59.6 33.6 L62.1 33.0 L64.6 34.0 L67.0 33.8 L69.5 35.0 L72.0 35.3" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 32.3 L2.5 33.7 L5.0 34.0 L7.4 35.3 L9.9 35.3 L12.4 35.3 L14.9 35.1 L17.4 33.7 L19.9 34.0 L22.3 33.5 L24.8 32.2 L27.3 32.1 L29.8 33.6 L32.3 34.4 L34.8 34.4 L37.2 34.9 L39.7 35.3 L42.2 35.0 L44.7 35.3 L47.2 34.5 L49.7 34.7 L52.1 33.8 L54.6 33.8 L57.1 33.3 L59.6 32.6 L62.1 33.4 L64.6 33.5 L67.0 34.7 L69.5 35.3 L72.0 35.3 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 32.3 L2.5 33.7 L5.0 34.0 L7.4 35.3 L9.9 35.3 L12.4 35.3 L14.9 35.1 L17.4 33.7 L19.9 34.0 L22.3 33.5 L24.8 32.2 L27.3 32.1 L29.8 33.6 L32.3 34.4 L34.8 34.4 L37.2 34.9 L39.7 35.3 L42.2 35.0 L44.7 35.3 L47.2 34.5 L49.7 34.7 L52.1 33.8 L54.6 33.8 L57.1 33.3 L59.6 32.6 L62.1 33.4 L64.6 33.5 L67.0 34.7 L69.5 35.3 L72.0 35.3" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
 <span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Disk 1</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Home · 1% active</span></span>
 </button>
 
 <button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
-<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 22.4 L2.5 24.1 L5.0 21.7 L7.4 27.8 L9.9 30.7 L12.4 24.0 L14.9 29.4 L17.4 20.7 L19.9 23.2 L22.3 16.4 L24.8 19.6 L27.3 14.3 L29.8 17.0 L32.3 19.3 L34.8 25.9 L37.2 22.4 L39.7 22.3 L42.2 25.5 L44.7 22.3 L47.2 28.0 L49.7 22.0 L52.1 17.4 L54.6 14.8 L57.1 18.0 L59.6 15.2 L62.1 15.9 L64.6 22.2 L67.0 23.1 L69.5 24.9 L72.0 26.1 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 22.4 L2.5 24.1 L5.0 21.7 L7.4 27.8 L9.9 30.7 L12.4 24.0 L14.9 29.4 L17.4 20.7 L19.9 23.2 L22.3 16.4 L24.8 19.6 L27.3 14.3 L29.8 17.0 L32.3 19.3 L34.8 25.9 L37.2 22.4 L39.7 22.3 L42.2 25.5 L44.7 22.3 L47.2 28.0 L49.7 22.0 L52.1 17.4 L54.6 14.8 L57.1 18.0 L59.6 15.2 L62.1 15.9 L64.6 22.2 L67.0 23.1 L69.5 24.9 L72.0 26.1" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
-<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Wi-Fi</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">↓ 3.0 MB/s · ↑ 146 kB/s</span></span>
+<svg width="72" height="36" viewBox="0 0 72 36" preserveAspectRatio="none" aria-hidden="true" style="flex: none; border-radius: 6px; background: #141518;"><path d="M0.0 16.4 L2.5 21.9 L5.0 24.5 L7.4 23.5 L9.9 22.7 L12.4 26.2 L14.9 22.1 L17.4 22.1 L19.9 23.4 L22.3 20.3 L24.8 17.6 L27.3 18.6 L29.8 17.2 L32.3 21.9 L34.8 21.5 L37.2 21.1 L39.7 22.5 L42.2 28.4 L44.7 26.7 L47.2 28.3 L49.7 21.8 L52.1 16.2 L54.6 14.3 L57.1 18.3 L59.6 14.7 L62.1 14.3 L64.6 19.9 L67.0 21.9 L69.5 25.7 L72.0 23.5 L72 36 L0 36 Z" fill="rgba(255,138,61,0.16)"></path><path d="M0.0 16.4 L2.5 21.9 L5.0 24.5 L7.4 23.5 L9.9 22.7 L12.4 26.2 L14.9 22.1 L17.4 22.1 L19.9 23.4 L22.3 20.3 L24.8 17.6 L27.3 18.6 L29.8 17.2 L32.3 21.9 L34.8 21.5 L37.2 21.1 L39.7 22.5 L42.2 28.4 L44.7 26.7 L47.2 28.3 L49.7 21.8 L52.1 16.2 L54.6 14.3 L57.1 18.3 L59.6 14.7 L62.1 14.3 L64.6 19.9 L67.0 21.9 L69.5 25.7 L72.0 23.5" fill="none" stroke="#ff8a3d" stroke-width="1.5" vector-effect="non-scaling-stroke"></path></svg>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">Wi-Fi</span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">↓ 3.7 MB/s · ↑ 106 kB/s</span></span>
 </button>
 
 <button aria-current="false" style="flex: 1; min-height: 0; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; background: #1c1e22; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
@@ -274,14 +274,14 @@ button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 <div style="display: flex; align-items: baseline; gap: 10px;">
 <span style="font-weight: 650; font-size: 20px;">CPU</span>
 <span style="font-size: 13px; color: #8c8f95;">Intel Core i5-11400H · 12 threads</span>
-<span style="margin-left: auto; font-weight: 650; font-size: 22px; font-variant-numeric: tabular-nums; color: #ff8a3d;">8%</span>
+<span style="margin-left: auto; font-weight: 650; font-size: 22px; font-variant-numeric: tabular-nums; color: #ff8a3d;">16%</span>
 </div>
 
 <div style="position: relative; flex: 1; min-height: 0; border-radius: 12px; background: #141518; overflow: hidden;">
 <svg width="100%" height="100%" viewBox="0 0 400 140" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0;">
 <line x1="0" y1="35" x2="400" y2="35" stroke="#202226"></line><line x1="0" y1="70" x2="400" y2="70" stroke="#202226"></line><line x1="0" y1="105" x2="400" y2="105" stroke="#202226"></line>
-<path d="M0.0 87.7 L21.1 99.0 L42.1 88.7 L63.2 91.4 L84.2 110.8 L105.3 107.6 L126.3 106.0 L147.4 120.4 L168.4 124.2 L189.5 109.4 L210.5 112.9 L231.6 106.4 L252.6 84.6 L273.7 85.2 L294.7 82.1 L315.8 103.6 L336.8 107.7 L357.9 101.7 L378.9 102.5 L400.0 122.6 L400 140 L0 140 Z" fill="rgba(255,138,61,0.16)"></path>
-<path d="M0.0 87.7 L21.1 99.0 L42.1 88.7 L63.2 91.4 L84.2 110.8 L105.3 107.6 L126.3 106.0 L147.4 120.4 L168.4 124.2 L189.5 109.4 L210.5 112.9 L231.6 106.4 L252.6 84.6 L273.7 85.2 L294.7 82.1 L315.8 103.6 L336.8 107.7 L357.9 101.7 L378.9 102.5 L400.0 122.6" fill="none" stroke="#ff8a3d" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"></path>
+<path d="M0.0 93.3 L21.1 80.6 L42.1 88.6 L63.2 96.9 L84.2 97.3 L105.3 111.4 L126.3 106.6 L147.4 114.4 L168.4 122.9 L189.5 110.7 L210.5 109.8 L231.6 93.1 L252.6 87.1 L273.7 98.3 L294.7 95.9 L315.8 103.3 L336.8 100.7 L357.9 102.3 L378.9 114.8 L400.0 105.3 L400 140 L0 140 Z" fill="rgba(255,138,61,0.16)"></path>
+<path d="M0.0 93.3 L21.1 80.6 L42.1 88.6 L63.2 96.9 L84.2 97.3 L105.3 111.4 L126.3 106.6 L147.4 114.4 L168.4 122.9 L189.5 110.7 L210.5 109.8 L231.6 93.1 L252.6 87.1 L273.7 98.3 L294.7 95.9 L315.8 103.3 L336.8 100.7 L357.9 102.3 L378.9 114.8 L400.0 105.3" fill="none" stroke="#ff8a3d" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"></path>
 <path d="" fill="none" stroke="#7fb2c4" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"></path>
 </svg>
 <span style="position: absolute; left: 10px; bottom: 6px; font-size: 11px; color: #8c8f95;">1 min ago</span><span style="position: absolute; right: 10px; bottom: 6px; font-size: 11px; color: #8c8f95;">now</span>
@@ -291,7 +291,7 @@ button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 
 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
 
-<div style="padding: 8px 10px; border-radius: 10px; background: #17191c; display: flex; flex-direction: column; gap: 2px; min-width: 0;"><span style="font-size: 12px; color: #8c8f95;">Utilisation</span><span style="font-weight: 650; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">8%</span><span style="font-size: 11px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> </span></div>
+<div style="padding: 8px 10px; border-radius: 10px; background: #17191c; display: flex; flex-direction: column; gap: 2px; min-width: 0;"><span style="font-size: 12px; color: #8c8f95;">Utilisation</span><span style="font-weight: 650; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">16%</span><span style="font-size: 11px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> </span></div>
 
 <div style="padding: 8px 10px; border-radius: 10px; background: #17191c; display: flex; flex-direction: column; gap: 2px; min-width: 0;"><span style="font-size: 12px; color: #8c8f95;">Speed</span><span style="font-weight: 650; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">4.10 GHz</span><span style="font-size: 11px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">base 2.70</span></div>
 

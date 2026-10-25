@@ -25,13 +25,12 @@ button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
 </style>
 <style>
-body{margin:0;background:#121316}
-@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
-.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
-button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
-button:hover{filter:brightness(1.15)}
-button:active{transform:scale(.98)}
-button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+body{margin:0;background:#0e0f11}
+@keyframes bdIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 200ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:disabled{cursor:default}
 button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
 </style>
@@ -62,7 +61,13 @@ button:active{transform:scale(.97)}
 button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
 </style>
-<style></style>
+<style>
+body{margin:0;background:#0e0f11}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.99)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
 <style>
 
 .f-ring{transition:stroke-dashoffset 900ms linear}
@@ -167,29 +172,24 @@ input::placeholder{color:#6b6f76}
 @media (prefers-reduced-motion: reduce){button{transition:none}}
 </style>
 <style>
-body{margin:0;background:#121316}
-@keyframes rtBoot{0%{filter:brightness(.1) saturate(0);opacity:.4}55%{filter:brightness(1.6) saturate(1.2);opacity:1}100%{filter:none;opacity:1}}
-@keyframes rtLed{0%{background:#ffffff;box-shadow:0 0 10px #ffffff}30%{background:#e7e2d6}60%{background:#ff8a3d}100%{}}
-@keyframes rtStripe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes rtDown{0%{filter:none;opacity:1}40%{filter:brightness(1.4)}100%{filter:brightness(.1) saturate(0);opacity:.4}}
-@keyframes rtWake{0%{filter:brightness(.2) saturate(.2)}60%{filter:brightness(1.3)}100%{filter:none}}
-@keyframes rtBreathe{0%,100%{opacity:.25}50%{opacity:1}}
-@keyframes rtLock{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+body{margin:0;background:#0e0f11}
+@keyframes rtBoot{0%{opacity:0;transform:translateY(10px) scale(.97)}60%{opacity:1;box-shadow:0 0 0 1px rgba(255,138,61,.6),0 0 24px rgba(255,138,61,.35)}100%{opacity:1;transform:none}}
+@keyframes rtDown{0%{opacity:1;transform:none}100%{opacity:0;transform:translateY(6px) scale(.97)}}
+@keyframes rtWake{0%{opacity:.25}100%{opacity:1}}
+@keyframes rtBreathe{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes rtIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .rt-boot{animation:rtBoot 520ms cubic-bezier(.2,.8,.2,1) both}
-.rt-boot .rt-led{animation:rtLed 600ms steps(3) both;animation-delay:inherit}
-.rt-boot .rt-stripe{transform-origin:left;animation:rtStripe 320ms cubic-bezier(.2,.8,.2,1) both;animation-delay:inherit}
-.rt-down{animation:rtDown 300ms ease-in both}
-.rt-off{filter:brightness(.1) saturate(0);opacity:.4}
-.rt-sleep{filter:brightness(.22) saturate(.3);transition:filter 900ms ease-out}
-.rt-keep{filter:brightness(.55) saturate(.6);transition:filter 900ms ease-out}
-.rt-keep .rt-led{animation:rtBreathe 2.4s ease-in-out infinite}
+.rt-down{animation:rtDown 260ms ease-in both}
+.rt-off{opacity:0}
+.rt-sleep{opacity:.18;transition:opacity 900ms ease-out}
+.rt-keep{opacity:.55;transition:opacity 900ms ease-out}
+.rt-keep .rt-dot{animation:rtBreathe 2.4s ease-in-out infinite}
 .rt-wake{animation:rtWake 320ms ease-out both}
-.rt-lockmod{animation:rtLock 220ms cubic-bezier(.2,.8,.2,1) both}
-button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
-button:hover{filter:brightness(1.15)}
+.rt-in{animation:rtIn 240ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
 button:active{transform:scale(.98)}
 button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
-@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-lockmod,.rt-boot .rt-led,.rt-boot .rt-stripe,.rt-keep .rt-led{animation:none}.rt-sleep,.rt-keep{transition:none}}
+@media (prefers-reduced-motion: reduce){.rt-boot,.rt-down,.rt-wake,.rt-in,.rt-keep .rt-dot{animation:none}.rt-sleep,.rt-keep{transition:none}}
 </style>
 <style>
 
@@ -222,228 +222,200 @@ button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){button{transition:none}}
 </style></head>
 <body><div style="width:1600px;height:900px;padding:0;">
-<div style="width: 1600px; height: 900px; box-sizing: border-box; background: #121316; padding: 28px 32px; display: flex; gap: 28px; font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+<div style="width: 1600px; height: 900px; box-sizing: border-box; padding: 32px; display: flex; flex-direction: column; gap: 20px; background: #0e0f11; font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
 
-<main style="flex: 1; display: flex; flex-direction: column; gap: 18px; min-width: 0;">
-<div style="display: flex; align-items: flex-end; gap: 24px;">
-<div>
-<div style="font-weight: 650; font-size: 12px; letter-spacing: 0.2em; color: #a7a9ad;">Character · 2</div>
-<h1 style="margin: 4px 0 0; font-family: 'Martian Mono', monospace; font-weight: 250; font-size: 34px; letter-spacing: -0.05em;">Build your own rack</h1>
-</div>
-<p style="margin: 0 0 4px; max-width: 520px; font-size: 14px; line-height: 1.5; color: #c9c6bf;">Your desktop and your bar are two rows of modules. Pull modules from the drawer, move them, take them out. The whole layout is saved as a patch sheet you can switch with one press.</p>
-</div>
+<header style="display: flex; align-items: flex-end; gap: 40px;">
+<div><div style="font-size: 13px; color: #8c8f95;">Character · 2</div><h1 style="margin: 4px 0 0; font-weight: 650; font-size: 32px; letter-spacing: -0.02em;">Build your own rack</h1></div>
+<p style="margin: 0; max-width: 640px; font-size: 14px; line-height: 1.55; color: #c9c6bf;">Your desktop and your bar are two rows of parts. Add them from the list, move them, take them out. Save the whole setup as a layout and switch layouts in one press, or from Find with <span style="font-family: 'Martian Mono', monospace; font-size: 12px;">layout evening</span>.</p>
+</header>
 
-<section aria-label="Bar row" style="display: flex; flex-direction: column; gap: 6px;">
-<div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Bar</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #a7a9ad;">7 / 16 HP</span></div>
-<div style="display: flex; flex-direction: column; width: 372px;">
-<div style="display: flex; gap: 3px; background: #121316; padding: 3px; height: 50px; box-sizing: content-box;">
+<div style="flex: 1; min-height: 0; display: flex; gap: 20px;">
 
-<div class="bd-mod" style="position: relative; width: 85px; background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 6px; overflow: hidden; display: flex; align-items: center; gap: 6px; padding: 4px 6px 0 8px; box-sizing: border-box;">
+<div style="width: 1000px; flex: none; display: flex; flex-direction: column; gap: 12px;">
+<div style="position: relative; height: 562px; border-radius: 18px; overflow: hidden; background: #05070a; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 30px 60px rgba(0,0,0,0.45);">
+<svg width="1000" height="562" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0;">
+<defs><linearGradient id="bdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#090f1a"></stop><stop offset="0.62" stop-color="#14233a"></stop><stop offset="1" stop-color="#1f3149"></stop></linearGradient></defs>
+<rect width="1600" height="900" fill="url(#bdSky)"></rect>
+<circle cx="1244" cy="186" r="34" fill="#e7e1d1" opacity="0.9"></circle>
+<path d="M0 520 L120 460 L220 490 L340 410 L460 480 L560 430 L700 500 L820 390 L940 460 L1060 420 L1180 480 L1300 400 L1420 460 L1520 430 L1600 460 L1600 900 L0 900 Z" fill="#192739"></path>
+<path d="M0 610 L160 550 L280 590 L420 530 L560 600 L700 560 L860 620 L1000 550 L1140 610 L1280 570 L1440 630 L1600 580 L1600 900 L0 900 Z" fill="#111c2a"></path>
+<path d="M0 720 L200 680 L380 710 L560 660 L760 720 L980 680 L1180 730 L1400 690 L1600 720 L1600 900 L0 900 Z" fill="#0a111a"></path>
+</svg>
 
-<span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em;">Timers</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf; white-space: nowrap;">Tea 4:12</span></span>
-<button aria-label="Remove Timers from the bar" style="margin-left: auto; flex: none; width: 24px; height: 24px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#efece6" stroke-width="1.8"></path></svg></button>
-</div>
+<section aria-label="Bar row" style="position: absolute; left: 8px; right: 8px; top: 8px; height: 36px; box-sizing: border-box; padding: 0 6px; border-radius: 12px; background: #121316; box-shadow: 0 0 0 1px rgba(255,255,255,0.06); display: flex; align-items: center; gap: 6px; font-size: 12px;">
+<span style="height: 26px; padding: 0 10px; border-radius: 9px; background: #1c1e22; color: #c9c6bf; display: flex; align-items: center;">Search</span>
+<span style="height: 26px; padding: 0 10px; border-radius: 9px; background: #1c1e22; color: #8c8f95; display: flex; align-items: center;">● ● ● ●</span>
+<span style="position: absolute; left: 50%; transform: translateX(-50%); color: #efece6;">21:44 · Sat 25 Oct</span>
+<span style="margin-left: auto;"></span>
 
-<div class="bd-mod" style="position: relative; width: 63px; background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 6px; overflow: hidden; display: flex; align-items: center; gap: 6px; padding: 4px 6px 0 8px; box-sizing: border-box;">
+<span class="bd-mod" style="height: 26px; padding: 0 4px 0 10px; border-radius: 9px; background: rgba(255,138,61,0.14); box-shadow: inset 0 0 0 1px rgba(255,138,61,0.4); color: #efece6; display: flex; align-items: center; gap: 6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff8a3d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4l2 2M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM10 2h4"></path></svg>Tea 4:12<button aria-label="Remove Timers from the bar" style="width: 18px; height: 18px; padding: 0; border-radius: 5px; border: 0; background: transparent; color: #a7a9ad; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></span>
 
-<span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em;">Net</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf; white-space: nowrap;">↓4.2 MB/s</span></span>
-<button aria-label="Remove Net from the bar" style="margin-left: auto; flex: none; width: 24px; height: 24px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#efece6" stroke-width="1.8"></path></svg></button>
-</div>
+<span class="bd-mod" style="height: 26px; padding: 0 4px 0 10px; border-radius: 9px; background: rgba(255,138,61,0.14); box-shadow: inset 0 0 0 1px rgba(255,138,61,0.4); color: #efece6; display: flex; align-items: center; gap: 6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff8a3d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4v16M4 16l4 4 4-4M16 20V4M12 8l4-4 4 4"></path></svg>↓ 4.2 MB/s<button aria-label="Remove Network from the bar" style="width: 18px; height: 18px; padding: 0; border-radius: 5px; border: 0; background: transparent; color: #a7a9ad; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></span>
 
-</div>
-</div>
+<span style="height: 26px; padding: 0 10px; border-radius: 9px; background: #1c1e22; color: #efece6; display: flex; align-items: center;">Wi-Fi · 82%</span>
 </section>
 
-<section aria-label="Desktop row" style="display: flex; flex-direction: column; gap: 6px;">
-<div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Desktop</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #a7a9ad;">32 / 42 HP</span></div>
-<div style="display: flex; flex-direction: column; width: 936px;">
-<div style="display: flex; gap: 3px; background: #121316; padding: 3px; height: 190px;">
+<section aria-label="Desktop row" style="position: absolute; left: 14px; right: 14px; bottom: 14px; display: flex; gap: 8px; align-items: flex-end;">
 
-<div class="bd-mod" style="position: relative; width: 173px; flex: none; background: #1c1e22; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
-<span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em;">Clock</span>
-<span style="font-family: 'Martian Mono', monospace; font-weight: 250; font-size: 30px; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden;">21:44</span>
-<span style="font-size: 12px; color: #a7a9ad; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Time, date, how much of the day is done</span>
-<span style="margin-top: auto; display: flex; gap: 4px;">
-<button aria-label="Move Clock left" disabled="true" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">‹</button>
-<button aria-label="Move Clock right" disabled="false" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">›</button>
-<button aria-label="Remove Clock" style="margin-left: auto; width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#efece6" stroke-width="1.8"></path></svg></button>
+<div class="bd-mod" style="width: 168px; height: 150px; flex: none; box-sizing: border-box; padding: 12px; border-radius: 16px; background: rgba(18,19,22,0.82); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 4px;">
+<div style="display: flex; align-items: center; gap: 6px;">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a7a9ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path></svg>
+<span style="font-size: 12px; color: #a7a9ad;">Clock</span>
+<span style="margin-left: auto; display: flex; gap: 2px;">
+<button aria-label="Move Clock left" disabled="true" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; opacity: 0.35; display: grid; place-items: center; cursor: pointer;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<button aria-label="Move Clock right" disabled="false" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; opacity: 1; display: grid; place-items: center; cursor: pointer;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+<button aria-label="Remove Clock" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
 </span>
 </div>
+<span style="font-weight: 600; font-size: 28px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden;">21:44</span>
+<span style="margin-top: auto; font-size: 12px; line-height: 1.35; color: #8c8f95;">Time, date, how much of the day is done</span>
 </div>
 
-<div class="bd-mod" style="position: relative; width: 217px; flex: none; background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
-<span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em;">Sky</span>
-<span style="font-family: 'Martian Mono', monospace; font-weight: 250; font-size: 30px; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden;">11°</span>
-<span style="font-size: 12px; color: #a7a9ad; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Weather and the sun's arc</span>
-<span style="margin-top: auto; display: flex; gap: 4px;">
-<button aria-label="Move Sky left" disabled="false" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">‹</button>
-<button aria-label="Move Sky right" disabled="false" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">›</button>
-<button aria-label="Remove Sky" style="margin-left: auto; width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#efece6" stroke-width="1.8"></path></svg></button>
+<div class="bd-mod" style="width: 212px; height: 150px; flex: none; box-sizing: border-box; padding: 12px; border-radius: 16px; background: rgba(18,19,22,0.82); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 4px;">
+<div style="display: flex; align-items: center; gap: 6px;">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a7a9ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4 4 0 0 1 .5 8.5z"></path></svg>
+<span style="font-size: 12px; color: #a7a9ad;">Sky</span>
+<span style="margin-left: auto; display: flex; gap: 2px;">
+<button aria-label="Move Sky left" disabled="false" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; opacity: 1; display: grid; place-items: center; cursor: pointer;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<button aria-label="Move Sky right" disabled="false" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; opacity: 1; display: grid; place-items: center; cursor: pointer;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+<button aria-label="Remove Sky" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
 </span>
 </div>
+<span style="font-weight: 600; font-size: 28px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden;">11°</span>
+<span style="margin-top: auto; font-size: 12px; line-height: 1.35; color: #8c8f95;">Weather and the sun's path</span>
 </div>
 
-<div class="bd-mod" style="position: relative; width: 173px; flex: none; background: #1c1e22; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
-<span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em;">Note</span>
-<span style="font-family: 'Martian Mono', monospace; font-weight: 250; font-size: 30px; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden;">3 lines</span>
-<span style="font-size: 12px; color: #a7a9ad; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">The running note</span>
-<span style="margin-top: auto; display: flex; gap: 4px;">
-<button aria-label="Move Note left" disabled="false" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">‹</button>
-<button aria-label="Move Note right" disabled="false" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">›</button>
-<button aria-label="Remove Note" style="margin-left: auto; width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#efece6" stroke-width="1.8"></path></svg></button>
+<div class="bd-mod" style="width: 168px; height: 150px; flex: none; box-sizing: border-box; padding: 12px; border-radius: 16px; background: rgba(18,19,22,0.82); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 4px;">
+<div style="display: flex; align-items: center; gap: 6px;">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a7a9ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h9l4 4v12H6zM14 4v5h5M9 13h7M9 17h5"></path></svg>
+<span style="font-size: 12px; color: #a7a9ad;">Note</span>
+<span style="margin-left: auto; display: flex; gap: 2px;">
+<button aria-label="Move Note left" disabled="false" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; opacity: 1; display: grid; place-items: center; cursor: pointer;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<button aria-label="Move Note right" disabled="false" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; opacity: 1; display: grid; place-items: center; cursor: pointer;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+<button aria-label="Remove Note" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
 </span>
 </div>
+<span style="font-weight: 600; font-size: 28px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden;">3 items</span>
+<span style="margin-top: auto; font-size: 12px; line-height: 1.35; color: #8c8f95;">The running note</span>
 </div>
 
-<div class="bd-mod" style="position: relative; width: 129px; flex: none; background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
-<span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em;">System</span>
-<span style="font-family: 'Martian Mono', monospace; font-weight: 250; font-size: 30px; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden;">12%</span>
-<span style="font-size: 12px; color: #a7a9ad; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">CPU, memory, temperature</span>
-<span style="margin-top: auto; display: flex; gap: 4px;">
-<button aria-label="Move System left" disabled="false" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">‹</button>
-<button aria-label="Move System right" disabled="true" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">›</button>
-<button aria-label="Remove System" style="margin-left: auto; width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#efece6" stroke-width="1.8"></path></svg></button>
+<div class="bd-mod" style="width: 124px; height: 150px; flex: none; box-sizing: border-box; padding: 12px; border-radius: 16px; background: rgba(18,19,22,0.82); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 4px;">
+<div style="display: flex; align-items: center; gap: 6px;">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a7a9ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10H7zM10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"></path></svg>
+<span style="font-size: 12px; color: #a7a9ad;">System</span>
+<span style="margin-left: auto; display: flex; gap: 2px;">
+<button aria-label="Move System left" disabled="false" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; opacity: 1; display: grid; place-items: center; cursor: pointer;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<button aria-label="Move System right" disabled="true" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; opacity: 0.35; display: grid; place-items: center; cursor: pointer;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+<button aria-label="Remove System" style="width: 22px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: #24272c; color: #a7a9ad; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
 </span>
 </div>
+<span style="font-weight: 600; font-size: 28px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden;">12%</span>
+<span style="margin-top: auto; font-size: 12px; line-height: 1.35; color: #8c8f95;">CPU, memory, temperature</span>
 </div>
 
 
-<div style="flex: 1; border: 1px dashed #45484e; border-radius: 6px; display: grid; place-items: center; font-family: 'Martian Mono', monospace; font-size: 12px; color: #8c8f95;">10 HP free</div>
+<div style="flex: 1; height: 150px; box-sizing: border-box; border-radius: 16px; border: 1.5px dashed rgba(239,236,230,0.18); display: grid; place-items: center; font-size: 13px; color: rgba(239,236,230,0.5);">10 free</div>
 
-</div>
-</div>
 </section>
-
-<section aria-label="Module drawer" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0;">
-<div style="display: flex; align-items: center; gap: 10px;">
-<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Drawer</span>
-<span style="font-size: 13px; color: #a7a9ad;">Add to</span>
-<div role="group" aria-label="Add to which row" style="display: flex; gap: 4px;">
-
-<button aria-pressed="true" style="height: 30px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #2c2f35; color: #ffffff; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Desktop</button>
-
-<button aria-pressed="false" style="height: 30px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: transparent; color: #a7a9ad; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Bar</button>
-
-</div>
-</div>
-<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;">
-
-<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
-<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Clock</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">8 HP</span></div>
-<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">Time, date, how much of the day is done</span>
-<button disabled="true" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Installed</button>
-</div>
 </div>
 
-<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
-<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Sky</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">10 HP</span></div>
-<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">Weather and the sun's arc</span>
-<button disabled="true" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Installed</button>
-</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+
+<div style="padding: 12px 14px; border-radius: 14px; background: #1c1e22; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: baseline;"><span style="font-weight: 600; font-size: 14px;">Desktop room</span><span style="margin-left: auto; font-size: 13px; color: #c9c6bf; font-variant-numeric: tabular-nums;">32 of 42 used</span></div>
+<span style="height: 6px; border-radius: 3px; background: #2a2d33;"><span style="display: block; height: 6px; width: 76.19047619047619%; border-radius: 3px; background: #ff8a3d;"></span></span>
 </div>
 
-<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
-<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Note</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">8 HP</span></div>
-<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">The running note</span>
-<button disabled="true" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Installed</button>
-</div>
-</div>
-
-<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
-<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">System</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">6 HP</span></div>
-<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">CPU, memory, temperature</span>
-<button disabled="true" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Installed</button>
-</div>
-</div>
-
-<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
-<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Player</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">10 HP</span></div>
-<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">What's playing, with keys</span>
-<button disabled="false" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Add</button>
-</div>
-</div>
-
-<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
-<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Agenda</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">8 HP</span></div>
-<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">Next three events</span>
-<button disabled="false" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Add</button>
-</div>
-</div>
-
-<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
-<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Timers</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">6 HP</span></div>
-<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">Named countdowns</span>
-<button disabled="false" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Add</button>
-</div>
-</div>
-
-<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
-<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Batteries</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">6 HP</span></div>
-<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">Headphones, mouse, pad</span>
-<button disabled="false" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Add</button>
-</div>
-</div>
-
-<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
-<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
-<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Net</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">6 HP</span></div>
-<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">Speed and data used today</span>
-<button disabled="false" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">Add</button>
-</div>
+<div style="padding: 12px 14px; border-radius: 14px; background: #1c1e22; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: baseline;"><span style="font-weight: 600; font-size: 14px;">Bar room</span><span style="margin-left: auto; font-size: 13px; color: #c9c6bf; font-variant-numeric: tabular-nums;">7 of 16 used</span></div>
+<span style="height: 6px; border-radius: 3px; background: #2a2d33;"><span style="display: block; height: 6px; width: 43.75%; border-radius: 3px; background: #ff8a3d;"></span></span>
 </div>
 
 </div>
-</section>
-</main>
+</div>
 
-<aside aria-label="Patch sheets" style="width: 300px; display: flex; flex-direction: column; gap: 12px;">
-<div style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 16px; overflow: hidden;">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px;">
+<div style="padding: 14px; border-radius: 16px; background: #1c1e22; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: center;"><span style="font-weight: 600; font-size: 15px;">Layouts</span><button style="margin-left: auto; height: 30px; padding: 0 12px; border-radius: 9px; border: 0; background: #ff8a3d; color: #17181a; font-weight: 650; font-size: 12px; cursor: pointer;">Save as Mine</button></div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
 
-<div style="padding: 12px; display: flex; flex-direction: column; gap: 8px;">
-<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Patch sheets</span>
-<span style="font-size: 13px; color: #c9c6bf;">A sheet remembers both rows. Switch the whole rack in one press, or from Find: sheet evening.</span>
+<button aria-pressed="true" disabled="false" style="padding: 10px; border-radius: 12px; border: 1px solid rgba(255,138,61,0.4); background: rgba(255,138,61,0.14); color: #ff8a3d; opacity: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; cursor: pointer;"><span style="font-weight: 600; font-size: 13px;">Work</span><span style="font-size: 11px; color: #8c8f95;">clock, note, timers</span></button>
 
-<button aria-pressed="true" disabled="true" style="height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,138,61,0.4); background: rgba(255,138,61,0.14); color: #ff8a3d; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
-<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Work</span>
-<span style="margin-left: auto; font-size: 12px;">nothing saved yet</span>
-</button>
+<button aria-pressed="false" disabled="false" style="padding: 10px; border-radius: 12px; border: 1px solid transparent; background: #24272c; color: #efece6; opacity: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; cursor: pointer;"><span style="font-weight: 600; font-size: 13px;">Game</span><span style="font-size: 11px; color: #8c8f95;">system, player, pads</span></button>
 
-<button aria-pressed="false" disabled="true" style="height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid transparent; background: #272a2f; color: #efece6; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
-<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Game</span>
-<span style="margin-left: auto; font-size: 12px;">nothing saved yet</span>
-</button>
+<button aria-pressed="false" disabled="false" style="padding: 10px; border-radius: 12px; border: 1px solid transparent; background: #24272c; color: #efece6; opacity: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; cursor: pointer;"><span style="font-weight: 600; font-size: 13px;">Evening</span><span style="font-size: 11px; color: #8c8f95;">sky, music, quiet</span></button>
 
-<button aria-pressed="false" disabled="true" style="height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid transparent; background: #272a2f; color: #efece6; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
-<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Evening</span>
-<span style="margin-left: auto; font-size: 12px;">nothing saved yet</span>
-</button>
+<button aria-pressed="false" disabled="true" style="padding: 10px; border-radius: 12px; border: 1px solid transparent; background: #24272c; color: #efece6; opacity: 0.55; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; cursor: pointer;"><span style="font-weight: 600; font-size: 13px;">Mine</span><span style="font-size: 11px; color: #8c8f95;">nothing saved</span></button>
 
-<button aria-pressed="false" disabled="true" style="height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid transparent; background: #272a2f; color: #efece6; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
-<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Mine</span>
-<span style="margin-left: auto; font-size: 12px;">nothing saved yet</span>
-</button>
-
-<button style="height: 40px; border-radius: 10px; border: 0; background: #ff8a3d; color: #17181a; font-weight: 650; font-size: 12px; letter-spacing: 0.01em; cursor: pointer;">Save as mine</button>
 </div>
 </div>
-<div style="flex: 1; background: #141518; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
-<span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em; color: #a7a9ad;">The rack says</span>
-<div role="log" aria-live="polite" style="display: flex; flex-direction: column; gap: 6px; font-family: 'Martian Mono', monospace; font-size: 12px; line-height: 1.5;">
-<div style="color: #c9c6bf;">› Patch sheet WORK loaded · 6 modules</div>
+
+<div style="flex: 1; min-height: 0; padding: 14px; border-radius: 16px; background: #1c1e22; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 10px; padding-bottom: 4px;"><span style="font-weight: 600; font-size: 15px;">Add parts</span>
+<div role="radiogroup" aria-label="Add to" style="margin-left: auto; display: flex; padding: 3px; gap: 2px; border-radius: 10px; background: #141518;">
+<button role="radio" aria-checked="true" style="height: 26px; padding: 0 12px; border-radius: 7px; border: 0; background: #2c2f35; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.4); font-weight: 600; font-size: 12px; cursor: pointer;">Desktop</button><button role="radio" aria-checked="false" style="height: 26px; padding: 0 12px; border-radius: 7px; border: 0; background: transparent; color: #a7a9ad; box-shadow: none; font-weight: 600; font-size: 12px; cursor: pointer;">Bar</button>
+</div></div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 40px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #2a2d33; color: #c9c6bf; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">Clock <span style="font-weight: 400; color: #6b6f76;">· 8 wide</span></span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Time, date, how much of the day is done</span></span>
+<button disabled="true" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: #6b6f76; font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer;">Added</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 40px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #2a2d33; color: #c9c6bf; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4 4 0 0 1 .5 8.5z"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">Sky <span style="font-weight: 400; color: #6b6f76;">· 10 wide</span></span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Weather and the sun's path</span></span>
+<button disabled="true" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: #6b6f76; font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer;">Added</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 40px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #2a2d33; color: #c9c6bf; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h9l4 4v12H6zM14 4v5h5M9 13h7M9 17h5"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">Note <span style="font-weight: 400; color: #6b6f76;">· 8 wide</span></span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">The running note</span></span>
+<button disabled="true" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: #6b6f76; font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer;">Added</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 40px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #2a2d33; color: #c9c6bf; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10H7zM10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">System <span style="font-weight: 400; color: #6b6f76;">· 6 wide</span></span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">CPU, memory, temperature</span></span>
+<button disabled="true" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: #6b6f76; font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer;">Added</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 40px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #2a2d33; color: #c9c6bf; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V6l10-2v12M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM19 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">Player <span style="font-weight: 400; color: #6b6f76;">· 10 wide</span></span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">What's playing, with controls</span></span>
+<button disabled="false" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer;">Add</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 40px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #2a2d33; color: #c9c6bf; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 6h14v13H5zM5 10h14M9 4v4M15 4v4"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">Agenda <span style="font-weight: 400; color: #6b6f76;">· 8 wide</span></span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">The next three events</span></span>
+<button disabled="false" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer;">Add</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 40px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #2a2d33; color: #c9c6bf; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4l2 2M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM10 2h4"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">Timers <span style="font-weight: 400; color: #6b6f76;">· 6 wide</span></span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Named countdowns</span></span>
+<button disabled="false" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer;">Add</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 40px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #2a2d33; color: #c9c6bf; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h16v8H3zM21 11v2"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">Batteries <span style="font-weight: 400; color: #6b6f76;">· 6 wide</span></span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Headphones, mouse, controller</span></span>
+<button disabled="false" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer;">Add</button>
+</div>
+
+<div style="display: flex; align-items: center; gap: 10px; height: 40px;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #2a2d33; color: #c9c6bf; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4v16M4 16l4 4 4-4M16 20V4M12 8l4-4 4 4"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">Network <span style="font-weight: 400; color: #6b6f76;">· 6 wide</span></span><span style="font-size: 12px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Speed and data used today</span></span>
+<button disabled="false" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: #2a2d33; color: #efece6; font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer;">Add</button>
+</div>
+
+</div>
+
+<div style="height: 92px; flex: none; padding: 10px 14px; border-radius: 14px; background: #121316; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 3px; overflow: hidden;">
+<span style="font-size: 12px; color: #efece6;">Work layout loaded · 6 parts</span>
 </div>
 </div>
-</aside>
+</div>
 </div>
 </div></body></html>
