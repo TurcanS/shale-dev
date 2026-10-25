@@ -13,7 +13,7 @@ import "../components" as C
 
 FocusScope {
     id: root
-    readonly property string title: ({wifi: "Network", bluetooth: "Network", audio: "Sound", power: "Battery & power", media: "Now playing", tray: "System tray", update: "Update"})[ShellState.detail] || "Control"
+    readonly property string title: ({wifi: "Network", bluetooth: "Network", audio: "Sound", power: "Battery & power", media: "Player", tray: "System tray", update: "Update"})[ShellState.detail] || "Control"
     // Beside the title on the main page: the battery, or the power mode; it opens Battery & power.
     readonly property string headerNote: {
         if (ShellState.detail !== "")
@@ -78,7 +78,8 @@ FocusScope {
     function back() {
         ShellState.detail = "";
     }
-    readonly property int panelWidth: 420
+    // The Player is laid out wider, at its own 460 px.
+    readonly property int panelWidth: ShellState.detail === "media" ? 460 : 420
     // Fits the page, header and padding included, within a 620 px ceiling.
     readonly property int panelHeight: preferredContentHeight > 0 ? Math.max(200, Math.min(620, preferredContentHeight + 70)) : 620
     readonly property Component headerTools: ShellState.detail === "" ? settingsTool : ["wifi", "power", "update"].indexOf(ShellState.detail) >= 0 ? refreshTool : null
@@ -1107,9 +1108,9 @@ FocusScope {
                         visible: root.arrangement.sections.media
                         Layout.fillWidth: true
                         text: Services.player ? (Services.player.trackTitle || "Now playing") : "Nothing playing"
-                        subtitle: Services.player ? (Services.player.trackArtist || Services.player.identity) : "Media"
+                        subtitle: Services.player ? (Services.player.trackArtist || Services.player.identity) : "Player"
                         glyph: "music"
-                        hint: "Media"
+                        hint: "Player"
                         onClicked: ShellState.detail = "media"
                         trailing: C.Button {
                             implicitWidth: 36

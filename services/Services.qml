@@ -408,13 +408,13 @@ QtObject {
         }
     }
     // The helper reports an equalizer filter it gave up restarting (at login or after a crash). The setting
-    // stays on: PipeWire may only have been slow, and the equalizer starts again when Media is opened.
+    // stays on: PipeWire may only have been slow, and the equalizer starts again when Sound is opened.
     property Connections backendEvents: Connections {
         target: Backend
         function onEventReceived(name, data) {
             if (name !== "eq" || !data || data.enabled || !ShellState.setting("eqEnabled", false))
                 return;
-            ShellState.message("The equalizer could not start. Open Media in the control center to try again.", "error");
+            ShellState.message("The equalizer could not start. Open Sound in Control to try again.", "error");
         }
     }
 }
