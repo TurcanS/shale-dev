@@ -10,8 +10,8 @@ FocusScope {
     id: root
     readonly property string title: "Session"
     readonly property string headerNote: [uptime, ShellState.recording.active ? "recording in progress" : ""].filter(part => part).join(" · ")
-    readonly property int panelWidth: 760
-    readonly property int panelHeight: Theme.body >= 18 ? 360 : 320
+    readonly property int panelWidth: 600
+    readonly property int panelHeight: Theme.body >= 18 ? 300 : 264
 
     property bool leaving: false
     // The action waiting for its second press: "logout", "reboot" or none.
@@ -90,10 +90,10 @@ FocusScope {
         Layout.fillHeight: true
         Layout.preferredWidth: 1
         Layout.minimumWidth: 0
-        topPadding: 16
-        leftPadding: 14
-        rightPadding: 14
-        bottomPadding: 14
+        topPadding: 12
+        leftPadding: 12
+        rightPadding: 12
+        bottomPadding: 12
         cornerRadius: Theme.radiusModule
         enabled: root.ready
         Accessible.description: note + " Key " + key + "."
@@ -109,9 +109,9 @@ FocusScope {
             }
         }
         contentItem: ColumnLayout {
-            spacing: 6
+            spacing: 4
             C.GlyphTile {
-                size: 44
+                size: 36
                 glyph: tile.glyph
                 selected: tile.selected
             }
@@ -120,7 +120,7 @@ FocusScope {
             }
             C.Label {
                 text: tile.text
-                font.pixelSize: 15
+                font.pixelSize: 14
                 font.weight: 650
                 Layout.fillWidth: true
             }
@@ -128,9 +128,9 @@ FocusScope {
                 text: tile.note
                 color: Theme.textMuted
                 font.pixelSize: 12
-                lineHeight: 1.15
                 wrapMode: Text.WordWrap
                 maximumLineCount: 2
+                Layout.bottomMargin: 2
                 Layout.fillWidth: true
             }
             C.KeyHint {
@@ -161,7 +161,7 @@ FocusScope {
                 glyph: "moon"
                 key: "S"
                 sessionAction: "suspend"
-                note: "Locks first, then sleeps."
+                note: "Locks first."
             }
             SessionTile {
                 text: root.picked === "logout" ? "Sign out?" : "Sign out"
@@ -177,17 +177,17 @@ FocusScope {
                 key: "R"
                 sessionAction: "reboot"
                 selected: root.picked === "reboot"
-                note: root.picked === "reboot" ? "Press again to restart." : "Closes every app first."
+                note: root.picked === "reboot" ? "Press again to restart." : "Closes every app."
             }
             // Power off: hold for a second while the ring fills.
             C.HoldButton {
                 id: powerOff
                 text: "Power off"
                 destructive: true
-                Layout.preferredWidth: 150
+                Layout.preferredWidth: 124
                 Layout.fillHeight: true
-                implicitHeight: 200
-                padding: 14
+                implicitHeight: 150
+                padding: 12
                 armed: root.ready
                 onConfirmed: root.endSession("shutdown")
                 background: Rectangle {
@@ -202,18 +202,18 @@ FocusScope {
                     }
                 }
                 contentItem: ColumnLayout {
-                    spacing: 10
+                    spacing: 6
                     Item {
                         Layout.fillHeight: true
                     }
                     Item {
                         Layout.alignment: Qt.AlignHCenter
-                        implicitWidth: 76
-                        implicitHeight: 76
+                        implicitWidth: 60
+                        implicitHeight: 60
                         C.Ring {
                             anchors.fill: parent
-                            size: 76
-                            thickness: 5
+                            size: 60
+                            thickness: 4
                             value: powerOff.progress
                             color: Theme.danger
                             trackColor: Qt.rgba(1, 0.42, 0.357, 0.18)
@@ -221,14 +221,14 @@ FocusScope {
                         C.Icon {
                             anchors.centerIn: parent
                             name: "power"
-                            size: 26
+                            size: 22
                             color: Theme.dangerText
                         }
                     }
                     C.Label {
                         text: powerOff.progress > 0 ? "Keep holding" : "Power off"
                         color: Theme.dangerText
-                        font.pixelSize: 15
+                        font.pixelSize: 14
                         font.weight: 650
                         horizontalAlignment: Text.AlignHCenter
                         Layout.fillWidth: true
@@ -251,7 +251,7 @@ FocusScope {
             id: statusLine
             readonly property string mode: powerOff.progress > 0 ? "hold" : root.picked !== "" ? "picked" : ShellState.recording.active ? "recording" : ""
             Layout.fillWidth: true
-            implicitHeight: 34
+            implicitHeight: 30
             radius: Theme.radiusKey
             color: Theme.module
             Accessible.role: Accessible.StatusBar
@@ -276,7 +276,7 @@ FocusScope {
                             recording: "Recording in progress · save it before ending your session."
                         })[statusLine.mode] || "Pick an action or press its letter. Power off needs a one-second hold."
                     color: statusLine.mode === "recording" ? Theme.warning : Theme.textSecondary
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                     Layout.fillWidth: true
                 }
             }
