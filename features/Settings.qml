@@ -120,6 +120,7 @@ FocusScope {
         {name: "Displays", icon: "monitor", description: "Resolution, refresh rate and scale for each screen."},
         {name: "Bar", icon: "bar", description: "Put bar items in order, and choose how the bar looks."},
         {name: "Control", icon: "sliders", aliases: ["control center"], description: "What the Control panel shows, and in which order."},
+        {name: "Desktop", icon: "widgets", aliases: ["widgets"], description: "Widgets on the desktop: which cards, their order and their corner."},
         {name: "Shortcuts", icon: "keyboard", description: "Keyboard shortcuts and what they open."},
         {name: "General", icon: "settings", description: "Time, units, search, the terminal and updates."},
         {name: "Notifications", icon: "bell", description: "History and focus sessions."},
@@ -136,6 +137,7 @@ FocusScope {
             Bar: ["hideFullscreen", "barMedia", "trackChangeCard", "hiddenOutputs", "barLayout", "barStyle", "clockFormat", "clockSeconds",
                   "workspaceStyle", "workspaceSlots", "trayIcons", "batteryPercent"],
             Control: ["controlLayout"],
+            Desktop: ["widgets", "widgetCards", "widgetCorner"],
             General: ["clock24h", "weekStart", "weatherUnits", "searchEngine", "terminal", "updateCheck"],
             Notifications: ["persistNotifications", "focusMinutes"],
             Sound: ["amplification", "mediaRemaining"],
@@ -630,6 +632,11 @@ FocusScope {
                         }
                         ControlSettings {
                             objectName: "Control"
+                            visible: root.category === objectName
+                            Layout.fillWidth: true
+                        }
+                        DesktopSettings {
+                            objectName: "Desktop"
                             visible: root.category === objectName
                             Layout.fillWidth: true
                         }

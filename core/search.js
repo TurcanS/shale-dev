@@ -182,6 +182,13 @@ function focusQuery(text) {
     return seconds >= 60 && minutes <= 240 ? minutes : null;
 }
 
+// "note buy filters" → "buy filters", a line for the desktop Note card; null for anything else. Lines hold up to
+// 200 characters.
+function noteQuery(text) {
+    const match = /^\s*note\s+(\S.*?)\s*$/i.exec(String(text || ""));
+    return match ? match[1].replace(/\s+/g, " ").slice(0, 200) : null;
+}
+
 // Things the launcher can do besides opening apps. Session actions that end the session open the session
 // menu, whose hold-to-confirm buttons stay the only way to log out, restart or shut down.
 var ACTIONS = [

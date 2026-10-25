@@ -9,8 +9,8 @@ import "../components" as C
 import "../core/paths.js" as Paths
 import "../core/search.js" as Search
 
-// Find: one field for apps, open windows, actions, sums and conversions, timers, and the prefixed searches
-// (: emoji, / files, ? web, > commands). Results come in groups; chips narrow everything to one kind.
+// Find: one field for apps, open windows, actions, sums and conversions, timers, lines for the desktop note, and the
+// prefixed searches (: emoji, / files, ? web, > commands). Results come in groups; chips narrow everything to one kind.
 FocusScope {
     id: root
     readonly property string title: "Find"
@@ -116,7 +116,7 @@ FocusScope {
                 groups.sort((a, b) => (b[1].length ? b[1][0].rank + boost(b[1][0]) : -1) - (a[1].length ? a[1][0].rank + boost(a[1][0]) : -1));
         }
         if (commandResults.length)
-            groups.unshift([commandResults[0].kind === "timer" ? "Timer" : "Focus", commandResults]);
+            groups.unshift([({timer: "Timer", focus: "Focus", note: "Note"})[commandResults[0].kind], commandResults]);
         return grouped(groups);
     }
     // [[title, rows], …] → one list with the title on each group's first row.
@@ -126,7 +126,7 @@ FocusScope {
             items.forEach((item, index) => rows.push(Object.assign(item, {header: index === 0 ? title : ""})));
         return rows;
     }
-    // "timer 10m tea" and "focus 40" become one row each, above everything else.
+    // "timer 10m tea", "focus 40" and "note buy filters" become one row each, above everything else.
     readonly property var commandResults: {
         if (mode !== "apps")
             return [];
@@ -138,8 +138,14 @@ FocusScope {
         if (minutes)
             return [{kind: "focus", key: "focus", name: "Focus for " + minutes + " min", subtitle: "Holds notifications, then sums them up",
                      fallback: "focus", minutes: minutes}];
+        const line = Search.noteQuery(query);
+        if (line)
+            return [{kind: "note", key: "note", name: line, fallback: "note", text: line,
+                     subtitle: noteShown ? "Add to the note on the desktop" : "Add to the note · Settings → Desktop shows it"}];
         return [];
     }
+    // Whether the desktop shows the Note card, for the footer hint and the note row's line.
+    readonly property bool noteShown: ShellState.setting("widgets", false) && ShellState.setting("widgetCards", ["clock", "sky", "note", "system"]).indexOf("note") >= 0
     // Open windows by their app and title; with no search, all of them, the most recently used first.
     function windowResults(folded) {
         const results = [];
@@ -346,6 +352,8 @@ FocusScope {
             Focus.addTimer(item.seconds, item.label);
         } else if (item.kind === "focus") {
             Focus.start(item.minutes);
+        } else if (item.kind === "note") {
+            Note.add(item.text, () => ShellState.message("Added to the note", "success"));
         } else if (item.kind === "run") {
             if (!runCommand(item.command, modifiers & Qt.ShiftModifier))
                 return;
@@ -429,7 +437,21 @@ FocusScope {
                 root.weather = r;
         });
     }
-    Component.onCompleted: refreshWeather()
+    // The Note card opens Find with "note " typed (as ShellState.detail), so Enter adds the line.
+    function prefill() {
+        if (ShellState.panel === "launcher" && ShellState.detail !== "")
+            search.text = ShellState.detail;
+    }
+    Component.onCompleted: {
+        refreshWeather();
+        prefill();
+    }
+    Connections {
+        target: ShellState
+        function onDetailChanged() {
+            root.prefill();
+        }
+    }
     readonly property var glance: {
         const items = [{glyph: "calendar", text: Qt.formatDate(new Date(), "dddd d MMMM")}];
         const current = weather && weather.current;
@@ -449,7 +471,7 @@ FocusScope {
     function verb(item) {
         if (!item)
             return "Open";
-        return ({window: "Switch", emoji: "Copy", run: "Run", timer: "Start", focus: "Start"})[item.kind] || "Open";
+        return ({window: "Switch", emoji: "Copy", run: "Run", timer: "Start", focus: "Start", note: "Add"})[item.kind] || "Open";
     }
     readonly property var current: mode === "emoji" ? results[grid.currentIndex] : results[list.currentIndex]
     // Footer key hints for the mode, with the prefixes on an empty query.
@@ -943,6 +965,7 @@ FocusScope {
                     Repeater {
                         model: [{prefix: "=", text: "= sums", label: "Calculate"}, {prefix: "?", text: "? web", label: "Web"}, {prefix: "/", text: "/ files", label: "Files"},
                                 {prefix: ":", text: ": emoji", label: "Emoji"}, {prefix: ">", text: "> run", label: "Run"}]
+                            .concat(root.noteShown ? [{prefix: "note ", text: "note …", label: "Add to the note"}] : [])
                         AbstractButton {
                             id: prefixButton
                             required property var modelData

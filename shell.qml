@@ -120,6 +120,14 @@ ShellRoot {
                 screen: output.modelData
                 outputName: output.modelData.name
             }
+            // Desktop widgets: no window at all until Settings → Desktop turns them on.
+            LazyLoader {
+                active: ShellState.setting("widgets", false)
+                Widgets {
+                    screen: output.modelData
+                    outputName: output.modelData.name
+                }
+            }
             PanelHost {
                 screen: output.modelData
                 outputName: output.modelData.name
