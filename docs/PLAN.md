@@ -152,6 +152,19 @@ Prompt:
 > Do stage 10 of docs/PLAN.md on branch `redesign`: Settings and all settings pages per PANELS.md and
 > previews/Settings.png. Push and summarise.
 
+Carry-over from stage 9: the helper now lists processes (`system.sample` takes `processes: "cpu" | "memory"` and returns
+the top 30 with pid, start, name, CPU share of the whole processor, resident memory, `own` and `protected`) and ends one
+with `system.end {pid, start}` (SIGTERM through `quit_process`, only the user's own, never the shell, its ancestors,
+Hyprland, systemd or D-Bus; the start time guards against a reused pid). `activity.overview` insights gained `hours`
+(active seconds per hour over the last 30 days). `Stat` takes `valueSize`, `noteSize`, `noteColor` and `inset`;
+`Sparkline` draws its second line in `Theme.second` and has `filled`. `Button` rounds its content width up, which fixes
+labels eliding by a fraction of a pixel (it showed in `Segmented` with `fill: false`); check other panels' segmented
+controls still look right. System and Activity are both 960×660 (Activity's Clear history sits in a footer row under the
+views). Activity's Day view no longer has the month calendar or the Day/Week toggle with its hour grid: days are picked
+from the year grid or with ‹ › and Left/Right. Not built for lack of data: memory type and speed, a disk's full size and
+kind (NVMe/SATA), Wi-Fi network name, data used today and signal in System's tiles, a GPU's driver and memory while
+asleep, and which GPU is drawing the screen.
+
 ## Stage 11 (optional): Widgets and Focus view
 Files: `shell.qml` (bottom-layer window per output), new `features/Widgets*.qml`, a Focus view, `helpers/backend.py`
 (settings), `features/Settings.qml` (Desktop page).
