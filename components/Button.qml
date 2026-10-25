@@ -92,8 +92,9 @@ AbstractButton {
     }
     contentItem: Item {
         // Summed from the parts rather than read from the layout, which only measures again on its next polish.
-        implicitWidth: (root.glyph !== "" ? glyphIcon.implicitWidth : 0) + (root.text !== "" ? label.implicitWidth : 0)
-                       + (root.glyph !== "" && root.text !== "" ? contents.spacing : 0)
+        // Rounded up: the layout gives the label whole pixels, and a fraction short would elide it.
+        implicitWidth: Math.ceil((root.glyph !== "" ? glyphIcon.implicitWidth : 0) + (root.text !== "" ? label.implicitWidth : 0)
+                       + (root.glyph !== "" && root.text !== "" ? contents.spacing : 0))
         implicitHeight: Math.max(root.glyph !== "" ? glyphIcon.implicitHeight : 0, root.text !== "" ? label.implicitHeight : 0)
         RowLayout {
             id: contents
