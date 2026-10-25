@@ -14,8 +14,33 @@ PRIVATE=(':!docs/design' ':!docs/PLAN.md' ':!docs/DEV.md' ':!CLAUDE.md' ':!.clau
 say() { printf '\033[1m%s\033[0m\n' "$*"; }
 die() { printf 'dev: %s\n' "$*" >&2; exit 1; }
 
+# Points every Shale shortcut (the binds described "Shale: <action>", with the keys they have now, Settings' changes
+# included) at the given command. Only the running Hyprland changes; its config files stay as they are.
+rebind() {
+  command -v hyprctl >/dev/null || return 0
+  local code
+  code=$(hyprctl binds -j | python3 -c '
+import json, sys
+command = sys.argv[1]
+names = [(64, "SUPER"), (4, "CTRL"), (8, "ALT"), (1, "SHIFT")]
+code = []
+for bind in json.load(sys.stdin):
+    description = bind.get("description") or ""
+    if bind.get("submap") or not description.startswith("Shale: "):
+        continue
+    action = description.removeprefix("Shale: ")
+    keys = " + ".join([name for bit, name in names if bind.get("modmask", 0) & bit] + [bind["key"]])
+    code.append(f"pcall(hl.unbind, {json.dumps(keys)}) hl.bind({json.dumps(keys)}, "
+                f"hl.dsp.exec_cmd({json.dumps(command + " " + action)}), {{description = {json.dumps(description)}}})")
+print(" ".join(code))
+' "$1") || return 0
+  [ -n "$code" ] && hyprctl eval "$code" >/dev/null || true
+}
+
 restore() {
   trap - EXIT INT TERM
+  say "Pointing your Shale shortcuts back at the installed Shale"
+  rebind "$HOME/.local/bin/shale"
   say "Starting the installed Shale again"
   if command -v shale >/dev/null; then shale start >/dev/null 2>&1 || systemctl --user start shale.service
   else systemctl --user start shale.service; fi
@@ -37,6 +62,8 @@ cmd_run() {
   say "Stopping the installed Shale"
   systemctl --user stop shale.service || true
   trap restore EXIT INT TERM
+  # Your Shale shortcuts drive this copy while it runs.
+  rebind "env SHALE_CONFIG=$DEV $DEV/scripts/shale"
   say "Running $DEV ($(git -C "$DEV" rev-parse --short HEAD) on $(git -C "$DEV" branch --show-current))"
   say "Ctrl+C to stop. Log: $log"
   quickshell --path "$DEV" --no-duplicate 2>&1 | tee "$log"

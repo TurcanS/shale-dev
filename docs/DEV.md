@@ -14,8 +14,9 @@
    git fetch && git switch redesign && git pull --ff-only   # first time: git switch -c redesign origin/redesign
    scripts/dev run          # Ctrl+C to stop; the installed Shale comes back by itself
    ```
-3. While it runs, in another terminal: `scripts/dev open control`, `scripts/dev open launcher`, … Your Hyprland
-   keybinds still point at the installed shell, so use `dev open` for the dev copy.
+3. While it runs, your Shale shortcuts (Super+Space, Super+A, Print, …) drive the dev copy: `dev run` points them at
+   it in the running Hyprland and back at the installed shell when it stops; no config file changes. `scripts/dev open
+   control` and friends work too. Idle locking still goes through the installed command, so it uses hyprlock then.
 4. If something broke: `scripts/dev errors` → paste that, plus a screenshot, as the first message of the next session.
 5. Optional checks: `scripts/dev lint`, `scripts/dev tests` (borrows the local tests from the public checkout).
 
