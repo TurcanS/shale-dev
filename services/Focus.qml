@@ -83,7 +83,7 @@ QtObject {
     function end(early) {
         if (!active)
             return;
-        const started = startedAt, ends = endsAt, pauses = pausedFor;
+        const started = startedAt, ends = endsAt, pauses = pausedFor, heldAt = pausedAt;
         const finished = Math.min(paused ? pausedAt : Date.now(), ends);
         const from = Math.max(started, recordedUntil);
         let recorded = recordedUntil;
@@ -115,17 +115,20 @@ QtObject {
                 ShellState.message(minutes + " min of focus · Nothing missed", "success");
         }
         if (early)
-            ShellState.message("Focus ended", "info", {label: "Undo", run: () => root.resume(started, ends, recorded)});
+            ShellState.message("Focus ended", "info", {label: "Undo", run: () => root.resume(started, ends, recorded, pauses, heldAt)});
         else
             chime();
     }
-    function resume(started, ends, recorded) {
-        if (active || ends <= Date.now())
+    // Undo after ending early: the session comes back as it was, paused again if it was paused.
+    function resume(started, ends, recorded, pauses, heldAt) {
+        if (active || ends <= (heldAt || Date.now()))
             return;
         digest = null;
         startedAt = started;
         endsAt = ends;
         recordedUntil = recorded || 0;
+        pausedFor = pauses || 0;
+        pausedAt = heldAt || 0;
         now = Date.now();
         persist();
     }
