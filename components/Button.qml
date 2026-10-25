@@ -26,8 +26,10 @@ AbstractButton {
     property color foreground: !enabled ? Theme.textFaint : danger || tone === "danger" ? Theme.dangerText : tone === "warning" ? Theme.warning : accent ? Theme.accentInk : selected ? Theme.accentText : Theme.text
     // Hover and press tints for keys without a fill of their own; translucent so they work on any surface.
     readonly property color wash: Qt.rgba(1, 1, 1, down ? 0.1 : 0.06)
-    implicitWidth: iconOnly ? Math.max(implicitHeight, contentItem.implicitWidth + leftPadding + rightPadding)
-                            : Math.max(28, contentItem.implicitWidth + leftPadding + rightPadding)
+    // implicitContentWidth is the control's own measure of its content item: it follows a custom content item and
+    // text measured late (the bundled fonts load after the first layout), where a binding through contentItem doesn't.
+    implicitWidth: iconOnly ? Math.max(implicitHeight, implicitContentWidth + leftPadding + rightPadding)
+                            : Math.max(28, implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Theme.controlHeight
     Layout.minimumWidth: 0
     padding: iconOnly ? 8 : height > 32 ? 16 : 12
@@ -89,20 +91,24 @@ AbstractButton {
         opacity: 0.85
     }
     contentItem: Item {
-        implicitWidth: contents.implicitWidth
-        implicitHeight: contents.implicitHeight
+        // Summed from the parts rather than read from the layout, which only measures again on its next polish.
+        implicitWidth: (root.glyph !== "" ? glyphIcon.implicitWidth : 0) + (root.text !== "" ? label.implicitWidth : 0)
+                       + (root.glyph !== "" && root.text !== "" ? contents.spacing : 0)
+        implicitHeight: Math.max(root.glyph !== "" ? glyphIcon.implicitHeight : 0, root.text !== "" ? label.implicitHeight : 0)
         RowLayout {
             id: contents
             anchors.centerIn: parent
             width: Math.min(parent.width, implicitWidth)
             spacing: Theme.gapS
             C.Icon {
+                id: glyphIcon
                 visible: root.glyph !== ""
                 name: root.glyph
                 color: root.foreground
                 Layout.alignment: Qt.AlignVCenter
             }
             C.Label {
+                id: label
                 visible: root.text !== ""
                 text: root.text
                 font.pixelSize: root.labelSize

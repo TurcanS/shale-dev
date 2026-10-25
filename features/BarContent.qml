@@ -20,8 +20,6 @@ Item {
         property bool shown: true
         property color rest: "transparent"
         labelSize: 13
-        // Control's own measure of the content, which follows text that is measured late (bundled fonts loading).
-        implicitWidth: Math.max(28, implicitContentWidth + leftPadding + rightPadding)
         implicitHeight: 28
         topPadding: 0
         bottomPadding: 0
