@@ -117,6 +117,14 @@ Prompt:
 > Do stage 8 of docs/PLAN.md on branch `redesign`: Clipboard, Capture and Overview per PANELS.md and their mockups.
 > Push and summarise.
 
+Carry-over from stage 7: the lock screen's parts are shared by both styles: `LockPrompt` (picture, "Welcome back",
+field, status line and the wrong-password shake), `LockStatus` (now the glance chips under the clock: weather from the
+cached forecast, battery, notification count), `LockMedia` and `LockKeyboard` (bottom-left chips; the layout chip only
+shows the layout) and `LockPower` (Sleep, and Restart and Shut down on a press and hold; `LockScreen` gained `reboot()`
+and `suspend()` beside `shutdown()`). The particle style keeps its clock and motion and wears the same chrome. Not
+built for lack of data: the next-event chip. For stage 12: `LockTransition` still closes the classic style's fold on
+47% of the height, where its clock used to be; the clock now sits near the top (the particle clock still matches).
+
 ## Stage 9: System monitor and Activity
 Files: `features/System.qml`, `features/Activity.qml`, `components/Sparkline.qml`.
 
