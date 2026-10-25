@@ -39,7 +39,7 @@ Item {
         passwordCharacter: "●"
         enabled: !root.context.busy && !root.context.unlocking
         placeholderText: root.context.prompt || (root.context.busy ? "Checking…" : "Password")
-        placeholderTextColor: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.45)
+        placeholderTextColor: Theme.tint(Theme.text, 0.45)
         color: Theme.text
         font.family: Theme.font
         font.pixelSize: text === "" || !masked ? 15 : 12
@@ -71,9 +71,9 @@ Item {
         // A dark pill with a hairline edge; a failed check turns the edge red.
         background: Rectangle {
             radius: height / 2
-            color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.7)
+            color: Theme.tint(Theme.caseColor, 0.7)
             border.width: 1
-            border.color: root.context.status !== "" ? Qt.rgba(Theme.danger.r, Theme.danger.g, Theme.danger.b, 0.6) : Qt.rgba(1, 1, 1, 0.1)
+            border.color: root.context.status !== "" ? Theme.tint(Theme.danger, 0.6) : Qt.rgba(1, 1, 1, 0.1)
             Behavior on border.color { ColorAnimation { duration: Theme.fast } }
         }
     }

@@ -502,7 +502,7 @@ FocusScope {
                 implicitWidth: phaseRow.implicitWidth + 20
                 implicitHeight: 28
                 radius: 14
-                color: live ? Qt.rgba(ink.r, ink.g, ink.b, 0.14) : Theme.key
+                color: live ? Theme.tint(ink, 0.14) : Theme.key
                 Behavior on color { ColorAnimation { duration: Theme.fast } }
                 RowLayout {
                     id: phaseRow

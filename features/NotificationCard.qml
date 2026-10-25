@@ -93,7 +93,7 @@ Rectangle {
     }
     radius: popup ? 18 : 14
     border.width: urgent || popup ? 1 : 0
-    border.color: urgent ? Theme.accentLine : Qt.rgba(1, 1, 1, 0.07)
+    border.color: urgent ? Theme.accentLine : Theme.cardEdge
     // Sits beneath the content so buttons keep their own clicks.
     MouseArea {
         id: cardArea

@@ -239,8 +239,8 @@ Rectangle {
                             y1: bands.plotTop
                             x2: 0
                             y2: bands.height
-                            GradientStop { position: 0; color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.35) }
-                            GradientStop { position: 1; color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0) }
+                            GradientStop { position: 0; color: Theme.tint(Theme.accent, 0.35) }
+                            GradientStop { position: 1; color: Theme.tint(Theme.accent, 0) }
                         }
                         PathSvg {
                             path: bands.curvePath + " L " + bands.width + " " + bands.height + " L 0 " + bands.height + " Z"

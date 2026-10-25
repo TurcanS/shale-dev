@@ -447,7 +447,7 @@ FocusScope {
                     radius: action.cornerRadius
                     blur: 20
                     offset.y: 8
-                    color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.22)
+                    color: Theme.tint(Theme.accent, 0.22)
                 }
                 C.Button {
                     id: action

@@ -65,7 +65,7 @@ RowLayout {
             implicitWidth: chipRow.implicitWidth + 28
             implicitHeight: 36
             radius: height / 2
-            color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.55)
+            color: Theme.tint(Theme.caseColor, 0.55)
             border.width: 1
             border.color: Theme.edge
             Accessible.role: Accessible.StaticText

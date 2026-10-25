@@ -82,7 +82,7 @@ ColumnLayout {
                 size: 182 + 8
                 thickness: 18
                 value: parent.fraction
-                color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.12)
+                color: Theme.tint(Theme.accent, 0.12)
                 trackColor: "transparent"
             }
             C.Ring {
@@ -91,7 +91,7 @@ ColumnLayout {
                 size: 182 + 4
                 thickness: 14
                 value: parent.fraction
-                color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.18)
+                color: Theme.tint(Theme.accent, 0.18)
                 trackColor: "transparent"
             }
             C.Ring {

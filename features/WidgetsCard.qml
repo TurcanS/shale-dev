@@ -24,9 +24,9 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: Theme.radiusCase
-        color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.78)
+        color: Theme.tint(Theme.caseColor, 0.78)
         border.width: 1
-        border.color: Qt.rgba(1, 1, 1, 0.07)
+        border.color: Theme.cardEdge
     }
     MouseArea {
         anchors.fill: parent

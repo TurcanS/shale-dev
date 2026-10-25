@@ -306,7 +306,7 @@ Item {
                             visible: page.current && !Theme.lowPower
                             radius: mark.radius
                             blur: 10
-                            color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.55)
+                            color: Theme.tint(Theme.accent, 0.55)
                         }
                         Rectangle {
                             id: mark

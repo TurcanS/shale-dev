@@ -737,7 +737,7 @@ FocusScope {
                                     onClicked: root.end(processRow.process)
                                     background: Rectangle {
                                         radius: 7
-                                        color: !endKey.enabled ? Theme.module : processRow.sure ? Qt.rgba(1, 0.42, 0.357, 0.18)
+                                        color: !endKey.enabled ? Theme.module : processRow.sure ? Theme.tint(Theme.danger, 0.18)
                                              : endKey.hovered || endKey.visualFocus ? Theme.keyHover : Theme.key
                                         Behavior on color { ColorAnimation { duration: Theme.fast } }
                                     }

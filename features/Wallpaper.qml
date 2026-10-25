@@ -350,7 +350,7 @@ FocusScope {
                             width: parent.width - 20
                             height: 12
                             radius: 5
-                            color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.85)
+                            color: Theme.tint(Theme.caseColor, 0.85)
                         }
                         Rectangle {
                             anchors.right: parent.right
@@ -359,14 +359,14 @@ FocusScope {
                             width: 92
                             height: 120
                             radius: 8
-                            color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.9)
+                            color: Theme.tint(Theme.caseColor, 0.9)
                             Rectangle {
                                 x: 8
                                 y: 8
                                 width: parent.width - 16
                                 height: 18
                                 radius: 4
-                                color: Qt.rgba(root.previewAccent.r, root.previewAccent.g, root.previewAccent.b, 0.25)
+                                color: Theme.tint(root.previewAccent, 0.25)
                             }
                             Rectangle {
                                 x: 8
@@ -383,7 +383,7 @@ FocusScope {
                             anchors.bottomMargin: 10
                             width: parent.width - 130
                             text: root.current ? root.current.name : ""
-                            color: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.8)
+                            color: Theme.tint(Theme.text, 0.8)
                             font.pixelSize: 12
                         }
                     }
@@ -647,7 +647,7 @@ FocusScope {
                             implicitWidth: inUseLabel.implicitWidth + 14
                             implicitHeight: 18
                             radius: 6
-                            color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.85)
+                            color: Theme.tint(Theme.caseColor, 0.85)
                             C.Label {
                                 id: inUseLabel
                                 anchors.centerIn: parent

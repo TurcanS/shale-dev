@@ -330,13 +330,13 @@ FocusScope {
                                 width: parent.width - 10
                                 height: 5
                                 radius: 3
-                                color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.8)
+                                color: Theme.tint(Theme.caseColor, 0.8)
                             }
                             C.Label {
                                 visible: cell.windows.length === 0
                                 anchors.centerIn: parent
                                 text: cell.canMove ? "Move here" : "Empty"
-                                color: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.45)
+                                color: Theme.tint(Theme.text, 0.45)
                                 font.pixelSize: 12
                             }
                             Repeater {
@@ -365,7 +365,7 @@ FocusScope {
                                     contentItem: Item {}
                                     background: Rectangle {
                                         radius: 8
-                                        color: Qt.rgba(Theme.module.r, Theme.module.g, Theme.module.b, 0.94)
+                                        color: Theme.tint(Theme.module, 0.94)
                                         border.width: card.picked ? 2 : root.folded !== "" && card.hit ? 1 : 0
                                         border.color: card.picked ? Theme.accent : Theme.accentLine
                                         // The window itself under its name, when previews are on and there is room.

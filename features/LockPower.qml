@@ -87,10 +87,10 @@ RowLayout {
         Behavior on scale { NumberAnimation { duration: Theme.press; easing.type: Easing.OutCubic } }
         background: Rectangle {
             radius: width / 2
-            color: key.danger ? Qt.rgba(Theme.danger.r, Theme.danger.g, Theme.danger.b, key.pressed || key.fired ? 0.3 : key.hovered ? 0.24 : 0.18)
-                              : key.pressed ? Qt.rgba(Theme.keyHover.r, Theme.keyHover.g, Theme.keyHover.b, 0.85)
-                              : key.hovered ? Qt.rgba(Theme.key.r, Theme.key.g, Theme.key.b, 0.75)
-                              : Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.55)
+            color: key.danger ? Theme.tint(Theme.danger, key.pressed || key.fired ? 0.3 : key.hovered ? 0.24 : 0.18)
+                              : key.pressed ? Theme.tint(Theme.keyHover, 0.85)
+                              : key.hovered ? Theme.tint(Theme.key, 0.75)
+                              : Theme.tint(Theme.caseColor, 0.55)
             Behavior on color { ColorAnimation { duration: Theme.fast } }
         }
         contentItem: Item {

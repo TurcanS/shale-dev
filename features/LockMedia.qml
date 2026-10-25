@@ -14,7 +14,7 @@ Rectangle {
     implicitWidth: Math.min(maxWidth, mediaRow.implicitWidth + 16)
     implicitHeight: 32
     radius: height / 2
-    color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.55)
+    color: Theme.tint(Theme.caseColor, 0.55)
     RowLayout {
         id: mediaRow
         anchors.fill: parent
@@ -25,7 +25,7 @@ Rectangle {
             readonly property string title: root.player ? root.player.trackTitle || root.player.identity : ""
             readonly property string artist: root.player ? root.player.trackArtist || "" : ""
             text: artist !== "" ? title + " · " + artist : title
-            color: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.75)
+            color: Theme.tint(Theme.text, 0.75)
             font.pixelSize: 13
             Layout.fillWidth: true
             Layout.maximumWidth: implicitWidth

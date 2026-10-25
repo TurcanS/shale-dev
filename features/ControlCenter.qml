@@ -880,7 +880,7 @@ FocusScope {
                     text: "M"
                     hint: (strip.muted ? "Unmute " : "Mute ") + strip.title
                     selected: strip.muted
-                    onColor: Qt.rgba(1, 0.42, 0.357, 0.2)
+                    onColor: Theme.tint(Theme.danger, 0.2)
                     onText: Theme.dangerText
                     onClicked: strip.muteClicked()
                 }

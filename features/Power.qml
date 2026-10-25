@@ -190,9 +190,9 @@ FocusScope {
                 onConfirmed: root.endSession("shutdown")
                 background: Rectangle {
                     radius: Theme.radiusCard + 2
-                    color: powerOff.hovered || powerOff.visualFocus || powerOff.down ? Qt.rgba(1, 0.42, 0.357, 0.11) : Theme.dangerWash
+                    color: powerOff.hovered || powerOff.visualFocus || powerOff.down ? Theme.tint(Theme.danger, 0.11) : Theme.dangerWash
                     border.width: 1
-                    border.color: Qt.rgba(1, 0.42, 0.357, 0.4)
+                    border.color: Theme.tint(Theme.danger, 0.4)
                     Behavior on color {
                         ColorAnimation {
                             duration: Theme.fast
@@ -214,7 +214,7 @@ FocusScope {
                             thickness: 3.5
                             value: powerOff.progress
                             color: Theme.danger
-                            trackColor: Qt.rgba(1, 0.42, 0.357, 0.18)
+                            trackColor: Theme.tint(Theme.danger, 0.18)
                         }
                         C.Icon {
                             anchors.centerIn: parent

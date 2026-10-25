@@ -12,14 +12,14 @@ Rectangle {
     implicitWidth: code.implicitWidth + 24
     implicitHeight: 32
     radius: height / 2
-    color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.55)
+    color: Theme.tint(Theme.caseColor, 0.55)
     Accessible.role: Accessible.StaticText
     Accessible.name: "Keyboard layout, " + (ShellState.keyboard.name || code.text)
     C.Label {
         id: code
         anchors.centerIn: parent
         text: root.current ? root.current.code.toUpperCase().slice(0, 3) : ""
-        color: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.75)
+        color: Theme.tint(Theme.text, 0.75)
         font.pixelSize: 13
         elide: Text.ElideNone
     }

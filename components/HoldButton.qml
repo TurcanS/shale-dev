@@ -98,7 +98,7 @@ C.Button {
                 width: root.width
                 height: parent.height
                 radius: Theme.radiusCard
-                color: root.destructive ? Qt.rgba(1, 0.42, 0.357, 0.28) : Theme.accentSoft
+                color: root.destructive ? Theme.tint(Theme.danger, 0.28) : Theme.accentSoft
             }
 
         }
@@ -139,7 +139,7 @@ C.Button {
             C.Label {
                 visible: root.description !== ""
                 text: root.description
-                color: root.destructive ? Qt.rgba(1, 0.706, 0.659, 0.75) : Theme.textDim
+                color: root.destructive ? Theme.tint(Theme.dangerText, 0.75) : Theme.textDim
                 font.pixelSize: Theme.small
                 Layout.fillWidth: true
             }

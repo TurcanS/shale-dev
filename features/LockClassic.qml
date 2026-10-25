@@ -37,7 +37,7 @@ Item {
         transform: Translate { y: Theme.reduced ? 0 : (1 - root.reveal) * 14 }
         C.Label {
             text: Qt.formatDateTime(clock.date, "dddd, d MMMM")
-            color: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.85)
+            color: Theme.tint(Theme.text, 0.85)
             font.pixelSize: 22
             font.weight: Font.Medium
             elide: Text.ElideNone

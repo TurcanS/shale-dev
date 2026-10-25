@@ -10,7 +10,7 @@ C.Label {
     readonly property string info: context.busy || context.prompt !== "" ? context.attemptMessage : ""
     readonly property string note: context.status !== "" ? context.status : info !== "" ? info : context.capsLock ? "Caps Lock is on" : ""
     text: note !== "" ? note : "Caps Lock is off"
-    color: context.status !== "" ? Theme.dangerText : info !== "" ? Theme.text : context.capsLock ? Theme.warning : Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.55)
+    color: context.status !== "" ? Theme.dangerText : info !== "" ? Theme.text : context.capsLock ? Theme.warning : Theme.tint(Theme.text, 0.55)
     font.pixelSize: 13
     font.weight: note !== "" ? Font.Medium : Font.Normal
     horizontalAlignment: Text.AlignHCenter

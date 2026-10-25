@@ -204,9 +204,9 @@ Scope {
                 id: osdCase
                 anchors.fill: parent
                 radius: osdWindow.level ? height / 2 : 24
-                color: Qt.rgba(Theme.module.r, Theme.module.g, Theme.module.b, 0.92)
+                color: Theme.tint(Theme.module, 0.92)
                 border.width: 1
-                border.color: Qt.rgba(1, 1, 1, 0.07)
+                border.color: Theme.cardEdge
             }
             // The level pill: icon disc, slim bar, value.
             RowLayout {
@@ -219,7 +219,7 @@ Scope {
                     Layout.preferredWidth: 36
                     Layout.preferredHeight: 36
                     radius: 18
-                    color: ShellState.osdMuted ? Theme.dangerSoft : osdWindow.volume ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.16) : Theme.key
+                    color: ShellState.osdMuted ? Theme.dangerSoft : osdWindow.volume ? Theme.tint(Theme.accent, 0.16) : Theme.key
                     Behavior on color { ColorAnimation { duration: Theme.fast } }
                     C.Icon {
                         id: osdIcon
@@ -254,7 +254,7 @@ Scope {
                         Gradient {
                             id: volumeGradient
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0; color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.16) }
+                            GradientStop { position: 0; color: Theme.tint(Theme.accent, 0.16) }
                             GradientStop { position: 1; color: Theme.accent }
                         }
                     }
@@ -367,7 +367,7 @@ Scope {
             radius: 18
             color: Theme.module
             border.width: 1
-            border.color: Qt.rgba(1, 1, 1, 0.07)
+            border.color: Theme.cardEdge
             opacity: trackWindow.reveal
             transform: Translate { y: Theme.reduced ? 0 : (1 - trackWindow.reveal) * -8 }
             HoverHandler {
@@ -453,7 +453,7 @@ Scope {
             radius: 18
             color: Theme.module
             border.width: 1
-            border.color: Qt.rgba(1, 1, 1, 0.07)
+            border.color: Theme.cardEdge
             opacity: digestWindow.reveal
             transform: Translate { y: Theme.reduced ? 0 : (1 - digestWindow.reveal) * -8 }
             ColumnLayout {
@@ -616,7 +616,7 @@ Scope {
             transform: Translate { y: Theme.reduced ? 0 : (1 - messageWindow.reveal) * 6 }
             radius: 14
             border.width: 1
-            border.color: messageWindow.retainedKind === "error" ? Theme.dangerLine : Qt.rgba(1, 1, 1, 0.07)
+            border.color: messageWindow.retainedKind === "error" ? Theme.dangerLine : Theme.cardEdge
             RowLayout {
                 anchors.fill: parent
                 anchors.leftMargin: 12

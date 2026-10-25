@@ -10,7 +10,7 @@ Item {
     property int bars: 32
     property color color: Theme.accent
     // Base of each bar; defaults to a faded top colour.
-    property color secondary: Qt.rgba(color.r, color.g, color.b, 0.15)
+    property color secondary: Theme.tint(color, 0.15)
     Behavior on color {
         ColorAnimation {
             duration: Theme.reduced ? 0 : 600
@@ -75,7 +75,7 @@ Item {
                 topRightRadius: topLeftRadius
                 gradient: Gradient {
                     GradientStop { position: 0; color: root.color }
-                    GradientStop { position: 1; color: Qt.rgba(root.secondary.r, root.secondary.g, root.secondary.b, 0.45) }
+                    GradientStop { position: 1; color: Theme.tint(root.secondary, 0.45) }
                 }
                 Behavior on height {
                     NumberAnimation {

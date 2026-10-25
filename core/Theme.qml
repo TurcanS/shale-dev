@@ -43,6 +43,8 @@ QtObject {
     readonly property color hairline: Qt.rgba(1, 1, 1, 0.06)
     readonly property color separator: Qt.rgba(1, 1, 1, 0.05)
     readonly property color edge: Qt.rgba(1, 1, 1, 0.08)
+    // The edge of cards that float on their own: toasts, the OSD, popup notifications and desktop widgets.
+    readonly property color cardEdge: Qt.rgba(1, 1, 1, 0.07)
     readonly property color textSecondary: surfaces.textSecondary
     readonly property color textMuted: surfaces.textMuted
     readonly property color textDim: surfaces.textDim
@@ -109,18 +111,18 @@ QtObject {
     readonly property color accentHover: Qt.hsla(accentHue, accent.hslSaturation, Math.min(1, accent.hslLightness + 0.08), 1)
     readonly property color accentText: contrast(accent, selection) >= 4.5 ? accent : text
     // "On" backgrounds, the 1 px edge on "on" things, and the glow on live meters and the volume fill.
-    readonly property color accentSoft: Qt.rgba(accent.r, accent.g, accent.b, 0.14)
-    readonly property color accentLine: Qt.rgba(accent.r, accent.g, accent.b, 0.40)
-    readonly property color accentGlow: Qt.rgba(accent.r, accent.g, accent.b, 0.45)
+    readonly property color accentSoft: tint(accent, 0.14)
+    readonly property color accentLine: tint(accent, 0.40)
+    readonly property color accentGlow: tint(accent, 0.45)
     // Only ever a second chart line: a quiet partner hue across the wheel from the accent, grey for a grey accent.
     readonly property color second: accent.hslSaturation < 0.05 ? textSecondary : Palette.inGamut(0.75, 0.06, Palette.oklch(accent).h + 2.6)
     readonly property color disabled: textFaint
     // Power off and destructive actions: the colour, its text, a muted icon's chip, a danger button's fill, its edge.
     readonly property color danger: "#ff6b5b"
     readonly property color dangerText: "#ffb4a8"
-    readonly property color dangerSoft: Qt.rgba(1, 0.42, 0.357, 0.16)
-    readonly property color dangerWash: Qt.rgba(1, 0.42, 0.357, 0.07)
-    readonly property color dangerLine: Qt.rgba(1, 0.42, 0.357, 0.45)
+    readonly property color dangerSoft: tint(danger, 0.16)
+    readonly property color dangerWash: tint(danger, 0.07)
+    readonly property color dangerLine: tint(danger, 0.45)
     readonly property color success: "#a2c6ac"
     readonly property color warning: "#d6ba86"
     // Hanken Grotesk for everything, Martian Mono for rates, signal, hex values and commands. One static file per
@@ -174,6 +176,10 @@ QtObject {
     function contrast(first, second) {
         const a = luminance(first), b = luminance(second);
         return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    }
+    // A colour at the given opacity, for washes, edges and see-through surfaces drawn from a token.
+    function tint(color, opacity) {
+        return Qt.rgba(color.r, color.g, color.b, opacity);
     }
     function mix(first, second, fraction) {
         return Qt.rgba(first.r * (1 - fraction) + second.r * fraction,

@@ -49,7 +49,7 @@ RowLayout {
         foreground: root.muted ? Theme.dangerText : Theme.text
         background: Rectangle {
             radius: Theme.radiusKey
-            color: root.muted ? (muteButton.hovered ? Qt.rgba(1, 0.42, 0.357, 0.24) : Theme.dangerSoft) : muteButton.hovered || muteButton.down ? Theme.keyHover : Theme.key
+            color: root.muted ? (muteButton.hovered ? Theme.tint(Theme.danger, 0.24) : Theme.dangerSoft) : muteButton.hovered || muteButton.down ? Theme.keyHover : Theme.key
             Behavior on color { ColorAnimation { duration: Theme.fast } }
         }
         hint: (root.muted ? "Unmute " : "Mute ") + root.title.toLowerCase()

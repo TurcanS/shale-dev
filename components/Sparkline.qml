@@ -58,7 +58,7 @@ Item {
         ShapePath {
             strokeWidth: 0
             strokeColor: "transparent"
-            fillColor: root.filled ? Qt.rgba(root.color.r, root.color.g, root.color.b, 0.16) : "transparent"
+            fillColor: root.filled ? Theme.tint(root.color, 0.16) : "transparent"
             PathSvg { path: root.area(root.mainRuns) }
         }
         ShapePath {
