@@ -74,12 +74,13 @@ PopupWindow {
         interval: 60
         onTriggered: list.focusFirst()
     }
+    // A small case: the panel colour with its hairline edge.
     Rectangle {
         anchors.fill: parent
-        radius: Theme.controlRadius
-        color: Theme.panel
+        radius: 14
+        color: Theme.caseColor
         border.width: 1
-        border.color: Theme.border
+        border.color: Theme.hairline
         opacity: root.reveal
         transform: Translate { y: Theme.reduced ? 0 : (1 - root.reveal) * -6 }
         TrayMenuList {

@@ -62,7 +62,7 @@ DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
             "weatherLocation": {}, "weatherUnits": "metric", "updateCheck": True, "emojiUsage": {}, "searchEngine": "duckduckgo", "lockScreen": "builtin", "lockStyle": "particles", "bluetoothAutoConnect": [],
             "recordAudio": "none", "activityTracking": "ask", "systemWindow": 60,
             "focusMinutes": 25, "focusSession": {}, "timers": [], "runHistory": [],
-            "barLayout": {}, "controlLayout": {}, "clockFormat": "day-time", "clockSeconds": False, "workspaceStyle": "numbers",
+            "barLayout": {}, "controlLayout": {}, "clockFormat": "date-time", "clockSeconds": False, "workspaceStyle": "dots",
             "workspaceSlots": 0, "trayIcons": -1, "batteryPercent": "auto", "barStyle": "floating", "weekStart": "locale", "terminal": "auto", "shortcuts": {},
             "screenshotDirectory": user_dir("PICTURES", "~/Pictures") + "/Screenshots",
             "recordingDirectory": user_dir("VIDEOS", "~/Videos") + "/Recordings",
@@ -86,7 +86,7 @@ RECORD_AUDIO = {"none": None, "system": "@DEFAULT_MONITOR@", "microphone": "@DEF
 # Bar items and control center parts, as core/barItems.js and core/controlItems.js name them. A layout lists
 # only what the user arranged; the shell puts anything it doesn't mention in its default place.
 BAR_ITEMS = ("launcher", "workspaces", "windowTitle", "clock", "media", "tray", "recording", "privacy", "focus", "timer",
-             "stayAwake", "keyboard", "vpn", "wifi", "audio", "battery", "notifications", "control")
+             "stayAwake", "keyboard", "vpn", "wifi", "audio", "battery", "notifications", "control", "wallpapers", "lock")
 # Never hidden: what is recording or listening stays visible, and the control center leads back to Settings.
 BAR_REQUIRED = ("recording", "privacy", "control")
 CONTROL_TILES = ("wifi", "bluetooth", "dnd", "awake", "grayscale", "lid")

@@ -163,7 +163,7 @@ ColumnLayout {
     C.ChoiceRow {
         label: "Clock"
         model: [{key: "time", text: "Time"}, {key: "day-time", text: "Day"}, {key: "date-time", text: "Date"}]
-        current: ShellState.setting("clockFormat", "day-time")
+        current: ShellState.setting("clockFormat", "date-time")
         onActivated: key => ShellState.setSetting("clockFormat", key)
     }
     C.Group {
@@ -178,7 +178,7 @@ ColumnLayout {
     C.ChoiceRow {
         label: "Workspaces"
         model: [{key: "numbers", text: "Numbers"}, {key: "dots", text: "Dots"}]
-        current: ShellState.setting("workspaceStyle", "numbers")
+        current: ShellState.setting("workspaceStyle", "dots")
         onActivated: key => ShellState.setSetting("workspaceStyle", key)
     }
     C.ChoiceRow {

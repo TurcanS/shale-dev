@@ -1,7 +1,9 @@
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Shapes
 import Quickshell
+import Quickshell.Services.Pipewire
 import "../core"
 import "../core/barItems.js" as BarItems
 import "../services"
@@ -10,11 +12,72 @@ import "../components" as C
 // The bar's items in their zones. Bar.qml puts it in a layer-shell window; previews put it in a plain one.
 Item {
     id: bar
-    component BarButton: C.Button {
+    // A key on the bar, 32 px tall. Flat keys show a light wash on hover; the Search pill and the status key rest on
+    // `module`. A key whose panel is open on this screen turns keySelected.
+    component BarKey: C.Button {
+        id: key
         // Whether the item has something to show; the zone hides its slot otherwise.
         property bool shown: true
-        labelSize: Theme.barText
-        implicitHeight: 30
+        property color rest: "transparent"
+        labelSize: 13
+        // Control's own measure of the content, which follows text that is measured late (bundled fonts loading).
+        implicitWidth: Math.max(28, implicitContentWidth + leftPadding + rightPadding)
+        implicitHeight: 32
+        topPadding: 0
+        bottomPadding: 0
+        cornerRadius: Theme.radiusKey
+        foreground: !enabled ? Theme.textFaint : tone === "danger" ? Theme.dangerText : tone === "warning" ? Theme.warning : Theme.text
+        background: Rectangle {
+            radius: key.cornerRadius
+            color: key.selected ? Theme.keySelected : key.rest
+            Behavior on color {
+                ColorAnimation {
+                    duration: Theme.fast
+                }
+            }
+            Rectangle {
+                anchors.fill: parent
+                radius: parent.radius
+                color: key.wash
+                opacity: key.hovered || key.down || key.visualFocus ? 1 : 0
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: Theme.fast
+                    }
+                }
+            }
+        }
+    }
+    // Something live or on (listening, recording, a focus session): a round accentSoft chip with accent text.
+    component LiveChip: BarKey {
+        implicitHeight: 28
+        cornerRadius: 14
+        rest: Theme.accentSoft
+        leftPadding: 10
+        rightPadding: 10
+        foreground: Theme.accentText
+    }
+    // One part of the status key: its own click, scroll and hint, with a wash on hover.
+    component StatusPart: BarKey {
+        id: part
+        implicitWidth: implicitContentWidth + leftPadding + rightPadding
+        leftPadding: 6
+        rightPadding: 6
+        cornerRadius: Theme.radiusSegment
+        background: Item {
+            Rectangle {
+                anchors.fill: parent
+                anchors.topMargin: 3
+                anchors.bottomMargin: 3
+                radius: Theme.radiusSegment
+                color: part.selected ? Theme.keySelected : part.hovered || part.down || part.visualFocus ? part.wash : "transparent"
+                Behavior on color {
+                    ColorAnimation {
+                        duration: Theme.fast
+                    }
+                }
+            }
+        }
     }
     required property string outputName
     // The window it is in, the tooltip its buttons share and the tray menu, which open next to it.
@@ -31,12 +94,16 @@ Item {
             launcher: launcherItem, workspaces: workspacesItem, windowTitle: windowTitleItem, clock: clockItem, media: mediaItem,
             tray: trayItem, recording: recordingItem, privacy: privacyItem, focus: focusItem, timer: timerItem, stayAwake: stayAwakeItem,
             keyboard: keyboardItem, vpn: vpnItem, wifi: wifiItem, audio: audioItem, battery: batteryItem, notifications: notificationsItem,
-            control: controlItem
+            control: controlItem, wallpapers: wallpapersItem, lock: lockItem
         })
     // The now-playing button while it exists, for the hover card.
     property Item mediaButton: null
     property bool mediaHovered: false
     readonly property var monitor: Services.workspaces.find(w => w.monitor && w.monitor.name === bar.outputName && w.active)
+    // Apps reading a camera through PipeWire: a video source with a device behind it (screen casts have none).
+    readonly property var cameraUsers: Services.captureApps(Services.captureLinks.filter(g => (g.source.type & PwNodeType.Video) && g.source.ready && !!g.source.properties["device.api"]))
+    // Empty pages: a step above the key colour, so they read as slots rather than as pages.
+    readonly property color emptyPage: Theme.mix(Theme.key, Theme.textFaint, 0.25)
     function controlActive(detail) {
         return ShellState.panel === "control" && ShellState.detail === detail && ShellState.screenName === outputName;
     }
@@ -52,159 +119,291 @@ Item {
         id: clock
         precision: ShellState.setting("clockSeconds", false) ? SystemClock.Seconds : SystemClock.Minutes
     }
-    // One quiet rail gives the independent controls a shared visual baseline.
+    // Today's weather beside the clock, from the forecast Clock and sky shows (the backend keeps it for 30 minutes).
+    // Nothing is requested until a city is chosen there.
+    readonly property var weatherLocation: ShellState.setting("weatherLocation", {})
+    readonly property string weatherKey: weatherLocation && weatherLocation.name ? weatherLocation.latitude + "," + weatherLocation.longitude + "," + ShellState.setting("weatherUnits", "metric") : ""
+    property var weather: null
+    function refreshWeather() {
+        if (weatherKey === "" || !Backend.ready)
+            return;
+        const key = weatherKey;
+        Backend.request("weather.get", {location: weatherLocation, units: ShellState.setting("weatherUnits", "metric"), refresh: false}, (r, e) => {
+            if (!e && key === bar.weatherKey)
+                bar.weather = r;
+        });
+    }
+    onWeatherKeyChanged: {
+        weather = null;
+        refreshWeather();
+    }
+    Timer {
+        interval: 600000
+        repeat: true
+        triggeredOnStart: true
+        running: bar.weatherKey !== "" && Backend.ready
+        onTriggered: bar.refreshWeather()
+    }
+    // The case: floating, it is a rounded strip with a hairline edge; edge to edge, a hairline under it.
     Rectangle {
         anchors.fill: parent
-        radius: bar.edge ? 0 : Theme.radiusSmall + 2
-        color: Theme.panel
+        radius: bar.edge ? 0 : 14
+        color: Theme.caseColor
+        border.width: bar.edge ? 0 : 1
+        border.color: Theme.hairline
+        Rectangle {
+            visible: bar.edge
+            anchors.bottom: parent.bottom
+            width: parent.width
+            height: 1
+            color: Theme.hairline
+        }
     }
-    // The three zones; each slot loads its item and hides while the item has nothing to show.
-    Repeater {
-        model: ["left", "center", "right"]
-        RowLayout {
-            id: zone
-            required property string modelData
-            anchors.verticalCenter: parent.verticalCenter
-            x: modelData === "left" ? 5 : modelData === "center" ? Math.round((bar.width - width) / 2) : bar.width - width - 5
-            height: parent.height
-            spacing: modelData === "left" ? Theme.gapS : Theme.gapXs
-            Repeater {
-                model: bar.layout[zone.modelData]
-                Loader {
-                    required property string modelData
-                    sourceComponent: bar.items[modelData] || null
-                    visible: !!item && item.shown
-                    Layout.alignment: Qt.AlignVCenter
-                    Layout.preferredWidth: item ? item.implicitWidth : 0
-                    Layout.preferredHeight: item ? item.implicitHeight : 0
+    // One zone; each slot loads its item and hides while the item has nothing to show. Status items next to each
+    // other share one key.
+    component Zone: RowLayout {
+        id: zoneRow
+        required property string name
+        anchors.verticalCenter: parent.verticalCenter
+        height: parent.height
+        spacing: 6
+        Repeater {
+            model: BarItems.runs(bar.layout[zoneRow.name])
+            Loader {
+                required property var modelData
+                readonly property var run: modelData
+                readonly property string zone: zoneRow.name
+                sourceComponent: run.status ? statusKey : bar.items[run.ids[0]] || null
+                visible: !!item && item.shown
+                Layout.alignment: Qt.AlignVCenter
+                Layout.preferredWidth: item ? item.implicitWidth : 0
+                Layout.preferredHeight: item ? item.implicitHeight : 0
+            }
+        }
+    }
+    Zone {
+        id: leftZone
+        name: "left"
+        x: 6
+    }
+    Zone {
+        id: rightZone
+        name: "right"
+        x: bar.width - width - 6
+    }
+    // Room between the side zones. The middle zone stays centred while it fits there, and moves aside rather than
+    // run into a busy side; the clock drops the weather, then the date, when even that is too tight.
+    readonly property real centerRoom: rightZone.x - leftZone.x - leftZone.width - 12
+    Zone {
+        name: "center"
+        x: Math.round(Math.max(leftZone.x + leftZone.width + 6, Math.min((bar.width - width) / 2, rightZone.x - 6 - width)))
+    }
+    Component {
+        id: statusKey
+        Rectangle {
+            id: status
+            readonly property var ids: parent && parent.run ? parent.run.ids : []
+            readonly property bool shown: parts.implicitWidth > 0
+            implicitWidth: parts.implicitWidth + 12
+            implicitHeight: 32
+            radius: Theme.radiusKey
+            color: Theme.module
+            Row {
+                id: parts
+                x: 6
+                height: parent.height
+                Repeater {
+                    model: status.ids
+                    Loader {
+                        required property string modelData
+                        sourceComponent: bar.items[modelData] || null
+                        visible: !!item && item.shown
+                    }
                 }
             }
         }
     }
     Component {
         id: launcherItem
-        BarButton {
-            glyph: "grid"
+        BarKey {
+            id: searchKey
+            // The shortcut that opens Find, unless Settings → Shortcuts turned it off.
+            readonly property string keys: {
+                const custom = ShellState.setting("shortcuts", {}).launcher;
+                const keys = custom === undefined ? "SUPER + SPACE" : custom || "";
+                return keys.split("+").map(part => part.trim()).filter(part => part).map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(" ");
+            }
+            rest: Theme.module
+            leftPadding: 10
+            rightPadding: bar.compact ? 10 : 12
             selected: ShellState.panel === "launcher" && ShellState.screenName === bar.outputName
-            flat: true
-            hint: "Applications"
+            hint: "Find"
             tooltip: bar.tooltip
+            Accessible.name: "Search"
             onClicked: ShellState.toggle("launcher", bar.outputName)
+            contentItem: RowLayout {
+                spacing: Theme.gapS
+                C.Icon {
+                    name: "search"
+                    size: 15
+                    color: Theme.textSecondary
+                }
+                C.Label {
+                    visible: !bar.compact
+                    text: "Search"
+                    font.pixelSize: 13
+                    color: Theme.textSecondary
+                    elide: Text.ElideNone
+                }
+                Rectangle {
+                    visible: bar.width > 1300 && searchKey.keys !== ""
+                    Layout.leftMargin: 10
+                    implicitWidth: keysLabel.implicitWidth + 12
+                    implicitHeight: 17
+                    radius: 5
+                    color: Theme.key
+                    C.Label {
+                        id: keysLabel
+                        anchors.centerIn: parent
+                        text: searchKey.keys
+                        font.family: Theme.mono
+                        font.pixelSize: 10
+                        color: Theme.textMuted
+                        elide: Text.ElideNone
+                    }
+                }
+            }
         }
     }
     Component {
         id: workspacesItem
-        ListView {
-            id: workspaceStrip
+        Rectangle {
+            id: pages
             readonly property bool shown: true
-            readonly property bool dots: ShellState.setting("workspaceStyle", "numbers") === "dots"
-            readonly property int slotWidth: dots ? 16 : 22
-            // Empty workspaces 1…N shown as well, unless they belong to another screen.
-            readonly property int slots: ShellState.setting("workspaceSlots", 0)
-            implicitWidth: Math.min(Math.max(78, bar.width / 2 - 170), dots ? 200 : 238, workspaceModel.count * (slotWidth + spacing))
-            implicitHeight: bar.height
-            clip: true
-            orientation: ListView.Horizontal
-            spacing: Theme.gapXs
-            boundsBehavior: Flickable.StopAtBounds
-            interactive: contentWidth > width
-            readonly property int activeId: bar.monitor ? bar.monitor.id : (Services.focusedWorkspace ? Services.focusedWorkspace.id : 1)
-            readonly property var occupied: Services.workspaces.filter(w => w.id > 0 && w.monitor && w.monitor.name === bar.outputName && (w.id === activeId || Services.windows.some(win => win.workspace && win.workspace.id === w.id))).sort((a, b) => a.id - b.id)
-            function syncWorkspaces() {
-                if (!workspaceModel)
-                    return;
-                const entries = occupied.map(w => ({ workspaceId: w.id, workspaceName: w.name || String(w.id), urgent: !!w.urgent, empty: false }));
-                if (!entries.some(w => w.workspaceId === activeId) && activeId > 0)
-                    entries.push({ workspaceId: activeId, workspaceName: String(activeId), urgent: false, empty: false });
-                for (let id = 1; id <= slots; ++id)
-                    if (!entries.some(w => w.workspaceId === id) && !Services.workspaces.some(w => w.id === id && w.monitor && w.monitor.name !== bar.outputName))
-                        entries.push({ workspaceId: id, workspaceName: String(id), urgent: false, empty: true });
-                entries.sort((a, b) => a.workspaceId - b.workspaceId);
-                for (let i = workspaceModel.count - 1; i >= 0; --i)
-                    if (!entries.some(w => w.workspaceId === workspaceModel.get(i).workspaceId))
-                        workspaceModel.remove(i);
-                for (let i = 0; i < entries.length; ++i) {
-                    if (i >= workspaceModel.count || workspaceModel.get(i).workspaceId !== entries[i].workspaceId)
-                        workspaceModel.insert(i, entries[i]);
-                    else
-                        workspaceModel.set(i, entries[i]);
-                }
-                currentIndex = entries.findIndex(w => w.workspaceId === activeId);
-            }
-            onOccupiedChanged: syncWorkspaces()
-            onActiveIdChanged: syncWorkspaces()
-            onSlotsChanged: syncWorkspaces()
-            Component.onCompleted: syncWorkspaces()
-            model: ListModel { id: workspaceModel }
-            highlightMoveDuration: Theme.reduced ? 0 : 220
-            highlightResizeDuration: 0
-            highlight: Item {
-                Rectangle {
-                    visible: !workspaceStrip.dots
-                    anchors.centerIn: parent
-                    width: 22
-                    height: 22
-                    radius: 6
-                    color: Theme.selection
-                    Behavior on color { ColorAnimation { duration: Theme.fast } }
-                }
-            }
-            delegate: BarButton {
-                id: workspaceButton
-                required property int workspaceId
-                required property string workspaceName
-                required property bool urgent
-                required property bool empty
-                readonly property bool current: workspaceStrip.activeId === workspaceId
-                readonly property color tint: current ? Theme.accentText : urgent ? Theme.warning : empty ? Theme.disabled : Theme.muted
-                width: workspaceStrip.slotWidth
-                height: workspaceStrip.height
-                padding: 0
-                flat: true
-                hint: "Workspace " + workspaceName
-                contentItem: Item {
-                    C.Label {
-                        visible: !workspaceStrip.dots
-                        anchors.centerIn: parent
-                        text: workspaceButton.workspaceName
-                        horizontalAlignment: Text.AlignHCenter
-                        color: workspaceButton.tint
-                        font.pixelSize: Theme.barText - 1
-                        font.family: Theme.mono
+            readonly property bool dots: ShellState.setting("workspaceStyle", "dots") === "dots"
+            // Each page's slot includes the 5 px gap after it; the current page stretches.
+            readonly property int slotWidth: dots ? 13 : 23
+            readonly property int stretch: dots ? 18 : 8
+            readonly property real naturalWidth: workspaceModel.count * slotWidth + (strip.currentIndex >= 0 ? stretch : 0)
+            implicitWidth: Math.min(naturalWidth, Math.max(60, Math.min(bar.width / 2 - 260, 300))) + 15
+            implicitHeight: 32
+            radius: Theme.radiusKey
+            color: Theme.module
+            ListView {
+                id: strip
+                // Empty pages 1…N shown as well, unless they belong to another screen.
+                readonly property int slots: ShellState.setting("workspaceSlots", 0)
+                readonly property int activeId: bar.monitor ? bar.monitor.id : (Services.focusedWorkspace ? Services.focusedWorkspace.id : 1)
+                readonly property var occupied: Services.workspaces.filter(w => w.id > 0 && w.monitor && w.monitor.name === bar.outputName && (w.id === activeId || Services.windows.some(win => win.workspace && win.workspace.id === w.id))).sort((a, b) => a.id - b.id)
+                function syncWorkspaces() {
+                    if (!workspaceModel || !occupied)
+                        return;
+                    const entries = occupied.map(w => ({ workspaceId: w.id, workspaceName: w.name || String(w.id), urgent: !!w.urgent, empty: false }));
+                    if (!entries.some(w => w.workspaceId === activeId) && activeId > 0)
+                        entries.push({ workspaceId: activeId, workspaceName: String(activeId), urgent: false, empty: false });
+                    for (let id = 1; id <= slots; ++id)
+                        if (!entries.some(w => w.workspaceId === id) && !Services.workspaces.some(w => w.id === id && w.monitor && w.monitor.name !== bar.outputName))
+                            entries.push({ workspaceId: id, workspaceName: String(id), urgent: false, empty: true });
+                    entries.sort((a, b) => a.workspaceId - b.workspaceId);
+                    for (let i = workspaceModel.count - 1; i >= 0; --i)
+                        if (!entries.some(w => w.workspaceId === workspaceModel.get(i).workspaceId))
+                            workspaceModel.remove(i);
+                    for (let i = 0; i < entries.length; ++i) {
+                        if (i >= workspaceModel.count || workspaceModel.get(i).workspaceId !== entries[i].workspaceId)
+                            workspaceModel.insert(i, entries[i]);
+                        else
+                            workspaceModel.set(i, entries[i]);
                     }
-                    Rectangle {
-                        visible: workspaceStrip.dots
-                        anchors.centerIn: parent
-                        width: workspaceButton.current ? 14 : 6
-                        height: 6
-                        radius: 3
-                        color: workspaceButton.tint
-                        Behavior on width { NumberAnimation { duration: Theme.reduced ? 0 : Theme.fast; easing.type: Easing.OutCubic } }
+                    currentIndex = entries.findIndex(w => w.workspaceId === activeId);
+                }
+                onOccupiedChanged: syncWorkspaces()
+                onActiveIdChanged: syncWorkspaces()
+                onSlotsChanged: syncWorkspaces()
+                onCurrentIndexChanged: if (currentIndex >= 0 && interactive)
+                    positionViewAtIndex(currentIndex, ListView.Contain)
+                Component.onCompleted: syncWorkspaces()
+                anchors.fill: parent
+                anchors.leftMargin: 8
+                anchors.rightMargin: 7
+                clip: true
+                orientation: ListView.Horizontal
+                boundsBehavior: Flickable.StopAtBounds
+                interactive: pages.naturalWidth > width + 1
+                model: ListModel { id: workspaceModel }
+                delegate: C.Button {
+                    id: page
+                    required property int workspaceId
+                    required property string workspaceName
+                    required property bool urgent
+                    required property bool empty
+                    readonly property bool current: strip.activeId === workspaceId
+                    readonly property color tint: current ? Theme.accent : urgent ? Theme.warning : page.hovered ? Theme.textSecondary : empty ? bar.emptyPage : Theme.textDim
+                    // The current page stretches into a lit pill.
+                    property real markWidth: pages.dots ? (current ? 26 : 8) : (current ? 26 : 18)
+                    width: markWidth + 5
+                    height: strip.height
+                    padding: 0
+                    hint: "Page " + workspaceName
+                    Accessible.name: "Page " + workspaceName + (current ? ", current" : empty ? ", empty" : ", has windows")
+                    Behavior on markWidth {
+                        NumberAnimation {
+                            duration: Theme.reduced ? 0 : Theme.lowPower ? 140 : 220
+                            easing.type: Easing.BezierSpline
+                            easing.bezierCurve: Theme.easeOut
+                        }
                     }
+                    background: Item {}
+                    contentItem: Item {
+                        // The glow costs a blur pass; power saver goes without it.
+                        RectangularShadow {
+                            anchors.fill: mark
+                            visible: page.current && !Theme.lowPower
+                            radius: mark.radius
+                            blur: 10
+                            color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.55)
+                        }
+                        Rectangle {
+                            id: mark
+                            x: 2
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: page.markWidth
+                            height: pages.dots ? 8 : 18
+                            radius: pages.dots ? 4 : 6
+                            color: pages.dots || page.current ? page.tint : "transparent"
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: Theme.fast
+                                }
+                            }
+                            C.Label {
+                                visible: !pages.dots
+                                anchors.centerIn: parent
+                                text: page.workspaceName
+                                color: page.current ? Theme.accentInk : page.tint
+                                font.family: Theme.mono
+                                font.pixelSize: 11
+                                font.weight: page.current ? Font.DemiBold : Font.Normal
+                                elide: Text.ElideNone
+                            }
+                        }
+                    }
+                    onClicked: Services.workspace(workspaceId)
                 }
-                background: Rectangle {
-                    anchors.centerIn: parent
-                    width: workspaceStrip.slotWidth
-                    height: 22
-                    radius: 6
-                    color: workspaceButton.hovered || workspaceButton.visualFocus ? Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.12) : "transparent"
+                add: Transition {
+                    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Theme.fast }
                 }
-                onClicked: Services.workspace(workspaceId)
-            }
-            add: Transition {
-                NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Theme.fast }
-            }
-            remove: Transition {
-                NumberAnimation { property: "opacity"; to: 0; duration: Theme.fast }
-            }
-            displaced: Transition {
-                NumberAnimation { property: "x"; duration: Theme.reduced ? 0 : 200; easing.type: Easing.OutCubic }
+                remove: Transition {
+                    NumberAnimation { property: "opacity"; to: 0; duration: Theme.fast }
+                }
+                displaced: Transition {
+                    NumberAnimation { property: "x"; duration: Theme.reduced ? 0 : 200; easing.type: Easing.OutCubic }
+                }
             }
             WheelHandler {
                 onWheel: event => {
                     if (!workspaceModel.count || event.angleDelta.y === 0)
                         return;
-                    const next = (workspaceStrip.currentIndex + (event.angleDelta.y < 0 ? 1 : -1) + workspaceModel.count) % workspaceModel.count;
+                    const next = (strip.currentIndex + (event.angleDelta.y < 0 ? 1 : -1) + workspaceModel.count) % workspaceModel.count;
                     Services.workspace(workspaceModel.get(next).workspaceId);
                 }
             }
@@ -212,79 +411,152 @@ Item {
     }
     Component {
         id: windowTitleItem
-        RowLayout {
-            readonly property bool shown: bar.width > 1400
-            spacing: Theme.gapS
-            Rectangle {
-                Layout.preferredWidth: 1
-                Layout.preferredHeight: 12
-                color: Theme.hover
+        BarKey {
+            id: titleKey
+            readonly property var window: Services.activeWindow
+            readonly property string appId: window ? (window.wayland ? window.wayland.appId || "" : (window.lastIpcObject || {}).class || "") : ""
+            readonly property var entry: appId && DesktopEntries.heuristicLookup ? DesktopEntries.heuristicLookup(appId) : null
+            readonly property string app: {
+                const name = entry && entry.name ? entry.name : appId.split(".").pop();
+                return name.charAt(0).toUpperCase() + name.slice(1);
             }
-            BarButton {
-                Layout.preferredWidth: 150
-                clip: true
-                flat: true
-                hint: Services.activeWindow ? Services.activeWindow.title : "Workspace overview"
-                contentItem: C.Label {
-                    text: Services.activeWindow ? Services.activeWindow.title : "Shale"
-                    color: Theme.muted
-                    font.pixelSize: Theme.barText
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignLeft
+            readonly property string title: window ? window.title || "" : ""
+            shown: bar.width > 1400
+            leftPadding: 8
+            rightPadding: 8
+            // Leaves room for the clock in the middle.
+            implicitWidth: Math.min(Math.max(120, Math.min(340, bar.width / 2 - 460)), implicitContentWidth + leftPadding + rightPadding)
+            hint: title || "Workspace overview"
+            onClicked: ShellState.toggle("overview", bar.outputName)
+            contentItem: RowLayout {
+                spacing: Theme.gapS
+                Rectangle {
+                    visible: titleKey.app !== ""
+                    Layout.preferredWidth: 20
+                    Layout.preferredHeight: 20
+                    radius: 6
+                    color: Theme.key
+                    C.Label {
+                        anchors.centerIn: parent
+                        text: titleKey.app.charAt(0).toUpperCase()
+                        color: Theme.textSecondary
+                        font.pixelSize: 11
+                        font.weight: Font.Bold
+                        elide: Text.ElideNone
+                    }
                 }
-                onClicked: ShellState.toggle("overview", bar.outputName)
+                C.Label {
+                    visible: titleKey.app !== ""
+                    text: titleKey.app
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                    Layout.maximumWidth: 140
+                }
+                // Runs on from the app name like one line of text.
+                C.Label {
+                    visible: text !== ""
+                    text: titleKey.app === "" ? (titleKey.title || "Shale") : titleKey.title && titleKey.title !== titleKey.app ? " · " + titleKey.title : ""
+                    color: Theme.textDim
+                    font.pixelSize: 13
+                    Layout.fillWidth: true
+                    Layout.leftMargin: titleKey.app === "" ? 0 : -Theme.gapS
+                }
             }
         }
     }
     Component {
         id: clockItem
-        BarButton {
-            id: clockButton
-            readonly property string format: {
-                const time = ShellState.setting("clock24h", true) ? (ShellState.setting("clockSeconds", false) ? "HH:mm:ss" : "HH:mm")
-                    : (ShellState.setting("clockSeconds", false) ? "h:mm:ss AP" : "h:mm AP");
-                const style = ShellState.setting("clockFormat", "day-time");
-                return style === "time" ? time : style === "date-time" ? "ddd d MMM   " + time : "ddd   " + time;
-            }
-            // Measure before laying out: an eliding Text can report a constrained
-            // implicit width when it is used directly as a button content item.
-            implicitWidth: Math.ceil(clockMetrics.advanceWidth) + 24
-            implicitHeight: 26
+        BarKey {
+            id: clockKey
+            readonly property bool seconds: ShellState.setting("clockSeconds", false)
+            readonly property string style: ShellState.setting("clockFormat", "date-time")
+            readonly property string time: Qt.formatDateTime(clock.date, ShellState.setting("clock24h", true) ? (seconds ? "HH:mm:ss" : "HH:mm") : (seconds ? "h:mm:ss AP" : "h:mm AP"))
+            readonly property string day: style === "time" ? "" : Qt.formatDateTime(clock.date, style === "date-time" ? "ddd d MMM" : "ddd")
+            readonly property string temperature: bar.weather && bar.weather.current && bar.weather.current.temperature !== null && bar.weather.current.temperature !== undefined ? bar.weather.current.temperature + "°" : ""
+            // In the middle zone it gives up the weather, then the date, before crowding the sides.
+            readonly property real room: parent && parent.zone === "center" ? bar.centerRoom : Infinity
+            readonly property real timeWidth: Math.ceil(timeMetrics.advanceWidth) + leftPadding + rightPadding
+            readonly property real dayWidth: day !== "" ? Math.ceil(dayMetrics.advanceWidth) + 10 : 0
+            readonly property bool showDay: day !== "" && timeWidth + dayWidth <= room
+            readonly property bool showWeather: temperature !== "" && (day === "" || showDay) && timeWidth + dayWidth + Math.ceil(weatherMetrics.advanceWidth) + 28 <= room
             TextMetrics {
-                id: clockMetrics
-                text: clockButton.text
-                font.family: Theme.mono
-                font.pixelSize: Theme.barText
+                id: timeMetrics
+                text: clockKey.time
+                font.family: Theme.font
+                font.pixelSize: 14
+                font.weight: 650
+                font.features: ({"tnum": 1})
             }
-            flat: true
-            text: Qt.formatDateTime(clock.date, format)
-            contentItem: C.Label {
-                text: clockButton.text
-                font.family: Theme.mono
-                font.pixelSize: Theme.barText
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                elide: Text.ElideNone
+            TextMetrics {
+                id: dayMetrics
+                text: clockKey.day
+                font.family: Theme.font
+                font.pixelSize: 13
             }
-            hint: Qt.formatDateTime(clock.date, "dddd, d MMMM yyyy")
+            TextMetrics {
+                id: weatherMetrics
+                text: clockKey.temperature
+                font.family: Theme.font
+                font.pixelSize: 13
+                font.features: ({"tnum": 1})
+            }
+            leftPadding: 14
+            rightPadding: 14
+            selected: ShellState.panel === "calendar" && ShellState.screenName === bar.outputName
+            hint: Qt.formatDateTime(clock.date, "dddd, d MMMM yyyy") + (temperature ? "\n" + bar.weather.current.label + " · " + temperature : "")
             tooltip: bar.tooltip
+            Accessible.name: "Clock and sky, " + Qt.formatDateTime(clock.date, "dddd d MMMM") + ", " + time
             onClicked: ShellState.toggle("calendar", bar.outputName)
+            // Labels without eliding, so their implicit widths stay the full text.
+            contentItem: RowLayout {
+                spacing: 10
+                C.Label {
+                    text: clockKey.time
+                    font.pixelSize: 14
+                    font.weight: 650
+                    font.features: ({"tnum": 1})
+                    elide: Text.ElideNone
+                }
+                C.Label {
+                    visible: clockKey.showDay
+                    text: clockKey.day
+                    color: Theme.textMuted
+                    font.pixelSize: 13
+                    elide: Text.ElideNone
+                }
+                RowLayout {
+                    visible: clockKey.showWeather
+                    spacing: Theme.gapXs
+                    C.Icon {
+                        name: bar.weather ? bar.weather.current.icon : "cloud"
+                        size: 14
+                        color: Theme.textMuted
+                    }
+                    C.Label {
+                        text: clockKey.temperature
+                        color: Theme.textMuted
+                        font.pixelSize: 13
+                        font.features: ({"tnum": 1})
+                        elide: Text.ElideNone
+                    }
+                }
+            }
         }
     }
     Component {
         id: mediaItem
-        BarButton {
+        BarKey {
             id: mediaButton
-            // Narrow bars keep the cover and visualizer but drop the title.
-            readonly property bool wide: bar.width > 1600
+            // Narrow bars keep the cover but drop the title.
+            readonly property bool wide: bar.width > 1500
             readonly property var player: NowPlaying.player
+            readonly property string artist: player ? player.trackArtist || "" : ""
             shown: !!player && bar.width > 1100 && ShellState.setting("barMedia", true)
-            flat: true
-            leftPadding: 6
-            rightPadding: wide ? 10 : 8
-            implicitWidth: Math.min(Math.max(28, contentItem.implicitWidth + leftPadding + rightPadding), wide ? 210 : 60)
+            leftPadding: 8
+            rightPadding: wide ? 12 : 8
+            implicitWidth: Math.min(implicitContentWidth + leftPadding + rightPadding, wide ? 320 : 38)
             hint: "Media controls"
-            Accessible.name: player ? "Now playing: " + (player.trackTitle || player.identity) : "Media controls"
+            Accessible.name: player ? "Player, " + (player.trackTitle || player.identity) + (artist ? " by " + artist : "") : "Media controls"
             selected: bar.controlActive("media")
             onClicked: bar.toggleControl("media")
             Component.onCompleted: bar.mediaButton = mediaButton
@@ -296,36 +568,84 @@ Item {
                 onHoveredChanged: bar.mediaHovered = hovered
             }
             contentItem: RowLayout {
-                spacing: Theme.gapS
+                spacing: 9
                 C.CoverArt {
-                    Layout.preferredWidth: 18
-                    Layout.preferredHeight: 18
-                    radius: 5
-                    glyphSize: 11
+                    id: cover
+                    // Moves while playing: the live spectrum when the visualizer runs, otherwise three bars on a loop.
+                    readonly property bool live: bar.onScreen && mediaButton.visible && NowPlaying.playing && ShellState.setting("visualizer", true) && !Theme.reduced && !Theme.lowPower
+                    Layout.preferredWidth: 22
+                    Layout.preferredHeight: 22
+                    radius: 6
+                    glyphSize: 12
                     source: NowPlaying.artFile
+                    // Darkens the cover under the bars; without a cover it hides the placeholder note.
+                    Rectangle {
+                        anchors.fill: parent
+                        visible: NowPlaying.playing
+                        color: cover.ready ? Qt.rgba(0, 0, 0, 0.5) : Theme.key
+                    }
+                    C.Spectrum {
+                        id: spectrum
+                        anchors.centerIn: parent
+                        width: 9
+                        height: 10
+                        visible: active && available
+                        bars: 3
+                        spacing: 1.5
+                        floor: 2
+                        maxRadius: 1
+                        curve: 0.6
+                        color: Theme.accent
+                        secondary: Theme.accent
+                        active: cover.live
+                    }
+                    Row {
+                        id: meter
+                        anchors.centerIn: parent
+                        visible: NowPlaying.playing && !spectrum.visible
+                        height: 10
+                        spacing: 1.5
+                        Repeater {
+                            model: [0.8, 0.5, 0.65]
+                            Rectangle {
+                                id: meterBar
+                                required property real modelData
+                                required property int index
+                                width: 2
+                                height: 10
+                                color: Theme.accent
+                                transform: Scale {
+                                    id: level
+                                    origin.y: 10
+                                    yScale: meterBar.modelData
+                                }
+                                SequentialAnimation {
+                                    running: cover.live && meter.visible
+                                    loops: Animation.Infinite
+                                    NumberAnimation { target: level; property: "yScale"; to: 0.95; duration: 290 + meterBar.index * 40; easing.type: Easing.InOutSine }
+                                    NumberAnimation { target: level; property: "yScale"; to: 0.45; duration: 220 + meterBar.index * 30; easing.type: Easing.InOutSine }
+                                    NumberAnimation { target: level; property: "yScale"; to: 0.8; duration: 210 + meterBar.index * 50; easing.type: Easing.InOutSine }
+                                    NumberAnimation { target: level; property: "yScale"; to: 0.25; duration: 300 + meterBar.index * 20; easing.type: Easing.InOutSine }
+                                }
+                            }
+                        }
+                    }
                 }
                 C.Label {
                     visible: mediaButton.wide
                     text: mediaButton.player ? mediaButton.player.trackTitle || mediaButton.player.identity : ""
-                    color: NowPlaying.playing || mediaButton.selected ? Theme.text : Theme.muted
-                    font.pixelSize: Theme.barText
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 140
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                    Layout.maximumWidth: 170
                 }
-                C.Spectrum {
-                    visible: NowPlaying.playing && available
-                    Layout.preferredWidth: 17
-                    Layout.preferredHeight: 12
-                    Layout.alignment: Qt.AlignVCenter
-                    bars: 6
-                    spacing: 1
-                    floor: 1.5
-                    maxRadius: 1
-                    curve: 0.6
-                    color: NowPlaying.artColors[0]
-                    secondary: NowPlaying.artColors[1]
-                    active: bar.onScreen && mediaButton.visible && NowPlaying.playing && ShellState.setting("visualizer", true) && !Theme.reduced && !Theme.lowPower
+                C.Label {
+                    visible: mediaButton.wide && mediaButton.artist !== ""
+                    text: " · " + mediaButton.artist
+                    color: Theme.textDim
+                    font.pixelSize: 13
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 130
+                    Layout.leftMargin: -9
                 }
             }
         }
@@ -340,22 +660,26 @@ Item {
                 return bar.width <= 1100 ? 0 : chosen >= 0 ? chosen : bar.width > 1700 ? 3 : 2;
             }
             readonly property bool shown: Services.trayItems.length > 0
-            spacing: Theme.gapXs
+            spacing: 2
             Repeater {
                 model: Services.trayItems.slice(0, tray.count)
-                BarButton {
+                BarKey {
                     id: trayButton
                     required property var modelData
-                    flat: true
+                    implicitWidth: 32
                     hint: modelData.tooltipTitle || modelData.title || modelData.id
                     tooltip: bar.tooltip
-                    contentItem: Image {
-                        source: trayButton.modelData.icon
-                        sourceSize.width: 18
-                        sourceSize.height: 18
-                        fillMode: Image.PreserveAspectFit
+                    contentItem: Item {
+                        Image {
+                            anchors.centerIn: parent
+                            width: 16
+                            height: 16
+                            source: trayButton.modelData.icon
+                            sourceSize.width: 32
+                            sourceSize.height: 32
+                            fillMode: Image.PreserveAspectFit
+                        }
                     }
-                    implicitWidth: 26
                     selected: !!bar.trayMenu && bar.trayMenu.shown && bar.trayMenu.item === modelData
                     onClicked: modelData.onlyMenu ? bar.trayMenu.toggle(modelData, bar.window, trayButton) : modelData.activate()
                     TapHandler {
@@ -383,10 +707,10 @@ Item {
                     }
                 }
             }
-            BarButton {
+            BarKey {
                 visible: Services.trayItems.length > tray.count
-                glyph: "grid"
-                flat: true
+                implicitWidth: 32
+                glyph: "tray"
                 hint: "System tray"
                 tooltip: bar.tooltip
                 selected: bar.controlActive("tray")
@@ -396,61 +720,70 @@ Item {
     }
     Component {
         id: recordingItem
-        BarButton {
+        LiveChip {
+            id: recordingChip
+            readonly property string elapsed: Math.floor(ShellState.recordingSeconds / 60) + ":" + String(ShellState.recordingSeconds % 60).padStart(2, "0")
             shown: ShellState.recording.active
-            accent: true
-            glyph: "record"
-            text: "REC " + Math.floor(ShellState.recordingSeconds / 60) + ":" + String(ShellState.recordingSeconds % 60).padStart(2, "0")
-            flat: true
+            text: "Recording " + elapsed
             hint: "Stop recording"
             tooltip: bar.tooltip
             onClicked: ShellState.action("stop-recording")
-            contentItem: Item {
-                // Mono digits keep the chip from jittering every second.
-                implicitWidth: recordingRow.implicitWidth
-                implicitHeight: recordingRow.implicitHeight
-                RowLayout {
-                    id: recordingRow
-                    anchors.centerIn: parent
-                    spacing: Theme.gapS
-                    C.Icon { name: "record"; size: 16; color: Theme.background }
-                    C.Label {
-                        text: "REC " + Math.floor(ShellState.recordingSeconds / 60) + ":" + String(ShellState.recordingSeconds % 60).padStart(2, "0")
-                        color: Theme.background
-                        font.family: Theme.mono
-                        font.pixelSize: Theme.barText
-                    }
+            contentItem: RowLayout {
+                spacing: 6
+                C.Icon {
+                    name: "record"
+                    size: 13
+                    color: Theme.accentText
+                }
+                // Tabular digits keep the chip from jittering every second.
+                C.Label {
+                    text: recordingChip.elapsed
+                    color: Theme.accentText
+                    font.pixelSize: 12
+                    font.weight: Font.DemiBold
+                    font.features: ({"tnum": 1})
+                    elide: Text.ElideNone
                 }
             }
         }
     }
     Component {
         id: privacyItem
-        BarButton {
+        LiveChip {
             id: privacyButton
             readonly property bool mic: Services.micUsers.length > 0
+            readonly property bool camera: bar.cameraUsers.length > 0
             readonly property bool sharing: Services.screenSharers.length > 0
-            shown: mic || sharing
-            accent: true
-            flat: true
+            readonly property var apps: Services.micUsers.concat(bar.cameraUsers, Services.screenSharers).filter((name, i, all) => all.indexOf(name) === i)
+            shown: mic || camera || sharing
             hint: [mic ? "Microphone in use: " + Services.micUsers.join(", ") : "",
+                   camera ? "Camera in use: " + bar.cameraUsers.join(", ") : "",
                    sharing ? "Sharing your screen with " + Services.screenSharers.join(", ") : ""].filter(line => line).join("\n")
             tooltip: bar.tooltip
-            contentItem: Row {
-                spacing: Theme.gapXs
-                C.Icon { visible: privacyButton.mic; name: "mic"; size: 16; color: Theme.background; anchors.verticalCenter: parent.verticalCenter }
-                C.Icon { visible: privacyButton.sharing; name: "cast"; size: 16; color: Theme.background; anchors.verticalCenter: parent.verticalCenter }
-            }
+            Accessible.name: hint
             onClicked: bar.toggleControl("audio")
+            contentItem: RowLayout {
+                spacing: 6
+                C.Icon { visible: privacyButton.mic; name: "mic"; size: 13; color: Theme.accentText }
+                C.Icon { visible: privacyButton.camera; name: "camera"; size: 13; color: Theme.accentText }
+                C.Icon { visible: privacyButton.sharing; name: "cast"; size: 13; color: Theme.accentText }
+                // Names the app; more than one shows as "+N".
+                C.Label {
+                    visible: !bar.compact && privacyButton.apps.length > 0
+                    text: privacyButton.apps.length ? privacyButton.apps[0] + (privacyButton.apps.length > 1 ? " +" + (privacyButton.apps.length - 1) : "") : ""
+                    color: Theme.accentText
+                    font.pixelSize: 12
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideNone
+                }
+            }
         }
     }
     Component {
         id: focusItem
-        BarButton {
+        LiveChip {
             id: focusButton
             shown: Focus.active
-            accent: true
-            flat: true
             readonly property string remaining: Focus.remainingSeconds < 60 ? Focus.remainingSeconds + "s" : Focus.minutesText(Focus.remainingSeconds)
             hint: "Focus · " + remaining + " left\nClick to end · Scroll to add or take 5 min"
             tooltip: bar.tooltip
@@ -462,50 +795,47 @@ Item {
                         Focus.extend(event.angleDelta.y > 0 ? 5 : -5);
                 }
             }
-            contentItem: Item {
-                implicitWidth: focusRow.implicitWidth
-                implicitHeight: focusRow.implicitHeight
-                RowLayout {
-                    id: focusRow
-                    anchors.centerIn: parent
-                    spacing: Theme.gapS
-                    // The ring empties as the session runs out.
-                    Shape {
-                        Layout.preferredWidth: 16
-                        Layout.preferredHeight: 16
-                        preferredRendererType: Shape.CurveRenderer
-                        ShapePath {
-                            strokeColor: Qt.rgba(Theme.background.r, Theme.background.g, Theme.background.b, 0.3)
-                            strokeWidth: 2
-                            fillColor: "transparent"
-                            PathAngleArc { centerX: 8; centerY: 8; radiusX: 6.5; radiusY: 6.5; startAngle: 0; sweepAngle: 360 }
-                        }
-                        ShapePath {
-                            strokeColor: Theme.background
-                            strokeWidth: 2
-                            fillColor: "transparent"
-                            capStyle: ShapePath.RoundCap
-                            PathAngleArc { centerX: 8; centerY: 8; radiusX: 6.5; radiusY: 6.5; startAngle: -90; sweepAngle: 360 * Focus.progress }
-                        }
+            contentItem: RowLayout {
+                spacing: 6
+                // The ring empties as the session runs out.
+                Shape {
+                    Layout.preferredWidth: 14
+                    Layout.preferredHeight: 14
+                    preferredRendererType: Shape.CurveRenderer
+                    ShapePath {
+                        strokeColor: Theme.accentLine
+                        strokeWidth: 2
+                        fillColor: "transparent"
+                        PathAngleArc { centerX: 7; centerY: 7; radiusX: 5.5; radiusY: 5.5; startAngle: 0; sweepAngle: 360 }
                     }
-                    C.Label {
-                        text: focusButton.remaining
-                        color: Theme.background
-                        font.family: Theme.mono
-                        font.pixelSize: Theme.barText
+                    ShapePath {
+                        strokeColor: Theme.accentText
+                        strokeWidth: 2
+                        fillColor: "transparent"
+                        capStyle: ShapePath.RoundCap
+                        PathAngleArc { centerX: 7; centerY: 7; radiusX: 5.5; radiusY: 5.5; startAngle: -90; sweepAngle: 360 * Focus.progress }
                     }
+                }
+                C.Label {
+                    text: focusButton.remaining
+                    color: Theme.accentText
+                    font.pixelSize: 12
+                    font.weight: Font.DemiBold
+                    font.features: ({"tnum": 1})
+                    elide: Text.ElideNone
                 }
             }
         }
     }
     Component {
         id: timerItem
-        BarButton {
+        BarKey {
             id: timerButton
             readonly property var timer: Focus.nextTimer
             readonly property int remaining: timer ? Math.max(0, Math.ceil((timer.endsAt - Focus.now) / 1000)) : 0
             shown: !!timer
-            flat: true
+            leftPadding: 10
+            rightPadding: 10
             hint: Focus.timers.map(t => (t.label || Focus.minutesText(t.seconds) + " timer") + " · " + Focus.clockText(Math.max(0, Math.ceil((t.endsAt - Focus.now) / 1000)))).join("\n") + "\nClick to cancel the first"
             tooltip: bar.tooltip
             Accessible.name: "Timer, " + Focus.clockText(remaining) + " left"
@@ -514,42 +844,53 @@ Item {
                 Focus.cancelTimer(timer.id);
                 ShellState.message("Timer cancelled", "info", {label: "Undo", run: () => Focus.addTimer(left, timer.label)});
             }
-            contentItem: Item {
-                implicitWidth: timerRow.implicitWidth
-                implicitHeight: timerRow.implicitHeight
-                RowLayout {
-                    id: timerRow
-                    anchors.centerIn: parent
-                    spacing: Theme.gapS
-                    C.Icon { name: "timer"; size: 16; color: timerButton.foreground }
-                    C.Label {
-                        text: Focus.clockText(timerButton.remaining)
-                        color: timerButton.foreground
-                        font.family: Theme.mono
-                        font.pixelSize: Theme.barText
-                    }
+            contentItem: RowLayout {
+                spacing: 6
+                C.Icon {
+                    name: "timer"
+                    size: 15
+                    color: timerButton.foreground
+                }
+                C.Label {
+                    text: Focus.clockText(timerButton.remaining)
+                    color: timerButton.foreground
+                    font.pixelSize: 12
+                    font.features: ({"tnum": 1})
+                    elide: Text.ElideNone
                 }
             }
         }
     }
     Component {
         id: stayAwakeItem
-        BarButton {
+        LiveChip {
             shown: ShellState.presentation
-            glyph: "moon"
-            flat: true
+            implicitWidth: 28
+            padding: 0
+            leftPadding: 0
+            rightPadding: 0
             hint: "Stay awake is on"
             tooltip: bar.tooltip
             onClicked: ShellState.presentation = false
+            contentItem: Item {
+                C.Icon {
+                    anchors.centerIn: parent
+                    name: "moon"
+                    size: 14
+                    color: Theme.accentText
+                }
+            }
         }
     }
     Component {
         id: keyboardItem
-        BarButton {
+        BarKey {
             readonly property var layouts: ShellState.keyboard.layouts || []
             readonly property var current: layouts[ShellState.keyboard.index] || null
             shown: layouts.length > 1
-            flat: true
+            leftPadding: 10
+            rightPadding: 10
+            labelSize: 12
             text: current ? current.code.toUpperCase().slice(0, 3) : ""
             hint: (ShellState.keyboard.name || "Keyboard layout") + "\n" + layouts.map((l, i) => (i === ShellState.keyboard.index ? "● " : "○ ") + l.code + (l.variant ? " (" + l.variant + ")" : "")).join("\n") + "\nClick for the next layout"
             tooltip: bar.tooltip
@@ -559,10 +900,10 @@ Item {
     }
     Component {
         id: vpnItem
-        BarButton {
+        StatusPart {
             shown: !!ShellState.activeVpn
             glyph: "shield"
-            flat: true
+            foreground: Theme.accentText
             hint: ShellState.activeVpn ? "VPN · " + ShellState.activeVpn.name : ""
             tooltip: bar.tooltip
             selected: bar.controlActive("wifi")
@@ -571,17 +912,15 @@ Item {
     }
     Component {
         id: wifiItem
-        BarButton {
+        StatusPart {
+            readonly property var network: (ShellState.wifi.networks || []).find(n => n.connected) || null
+            readonly property bool connected: ShellState.wifi.state === "connected"
             shown: bar.width >= 560 && ShellState.wifiAvailable
-            glyph: "wifi"
-            flat: true
-            // Dimmed while disconnected so a dropped network is visible at a glance.
-            opacity: ShellState.wifi.state === "connected" || bar.controlActive("wifi") ? 1 : 0.45
+            // The arcs show the signal; dimmed while disconnected so a dropped network is visible at a glance.
+            glyph: !connected ? (ShellState.wifi.powered ? "wifi" : "wifi-off") : !network || network.signal >= 67 ? "wifi" : network.signal >= 34 ? "wifi-2" : "wifi-1"
+            opacity: connected || bar.controlActive("wifi") ? 1 : 0.45
             Behavior on opacity { NumberAnimation { duration: Theme.fast } }
-            hint: {
-                const network = (ShellState.wifi.networks || []).find(n => n.connected);
-                return ShellState.wifi.state === "connected" ? "Wi-Fi" + (network ? " · " + network.name : "") : ShellState.wifi.powered ? "Wi-Fi · Not connected" : "Wi-Fi · Off";
-            }
+            hint: connected ? "Wi-Fi" + (network ? " · " + network.name : "") : ShellState.wifi.powered ? "Wi-Fi · Not connected" : "Wi-Fi · Off"
             tooltip: bar.tooltip
             selected: bar.controlActive("wifi")
             onClicked: bar.toggleControl("wifi")
@@ -589,10 +928,9 @@ Item {
     }
     Component {
         id: audioItem
-        BarButton {
+        StatusPart {
             glyph: Services.muted ? "mute" : "volume"
             selected: bar.controlActive("audio")
-            flat: true
             hint: "Audio · " + Math.round(Services.volume * 100) + "%"
             tooltip: bar.tooltip
             onClicked: bar.toggleControl("audio")
@@ -610,75 +948,136 @@ Item {
     }
     Component {
         id: batteryItem
-        BarButton {
+        StatusPart {
+            id: batteryButton
             readonly property bool low: !Services.batteryCharging && Services.onBattery && Services.batteryPercent <= 20
             // Low charge always shows its number, even when the percentage is turned off.
             readonly property bool percent: {
                 const choice = ShellState.setting("batteryPercent", "auto");
                 return low || choice === "always" || (choice === "auto" && !bar.compact);
             }
+            readonly property color level: tone === "danger" ? Theme.danger : tone === "warning" ? Theme.warning : Theme.text
             shown: Services.batteryAvailable
-            implicitWidth: percent ? 76 : 36
-            glyph: Services.batteryCharging ? "bolt" : "battery"
             text: percent ? Math.round(Services.batteryPercent) + "%" : ""
             tone: !low ? "" : Services.batteryPercent <= 10 ? "danger" : "warning"
-            flat: true
             hint: "Battery " + Math.round(Services.batteryPercent) + "% · Power profiles"
             tooltip: bar.tooltip
             Accessible.name: "Battery " + Math.round(Services.batteryPercent) + "%" + (Services.batteryCharging ? ", charging" : "")
             selected: bar.controlActive("power")
             onClicked: bar.toggleControl("power")
-        }
-    }
-    Component {
-        id: notificationsItem
-        BarButton {
-            // Do not disturb swaps the bell so suppressed popups are never a surprise.
-            glyph: ShellState.setting("dnd", false) ? "bell-off" : "bell"
-            implicitWidth: bar.compact ? 36 : 58
-            selected: ShellState.panel === "notifications" && ShellState.screenName === bar.outputName
-            flat: true
-            text: !bar.compact && Services.notifications.length ? (Services.notifications.length > 99 ? "99+" : String(Services.notifications.length)) : ""
-            hint: "Notifications"
-            tooltip: bar.tooltip
-            Accessible.name: "Notifications" + (ShellState.setting("dnd", false) ? ", do not disturb" : "") + (Services.notifications.length ? ", " + Services.notifications.length + " waiting" : "")
-            Rectangle {
-                visible: bar.compact && Services.notifications.length > 0
-                anchors.right: parent.right
-                anchors.rightMargin: 4
-                anchors.top: parent.top
-                anchors.topMargin: 4
-                width: 5
-                height: 5
-                radius: 2.5
-                color: Theme.accent
+            contentItem: RowLayout {
+                spacing: 5
+                C.Icon {
+                    visible: Services.batteryCharging
+                    name: "bolt"
+                    size: 12
+                    color: batteryButton.foreground
+                }
+                // A small battery that empties with the charge.
+                Rectangle {
+                    Layout.preferredWidth: 22
+                    Layout.preferredHeight: 11
+                    radius: 3.5
+                    color: "transparent"
+                    border.width: 1.5
+                    border.color: batteryButton.low ? batteryButton.level : Theme.textSecondary
+                    Rectangle {
+                        x: 3
+                        y: 3
+                        width: Math.max(1, (parent.width - 6) * Math.min(1, Services.batteryPercent / 100))
+                        height: parent.height - 6
+                        radius: 1
+                        color: batteryButton.level
+                    }
+                }
+                C.Label {
+                    visible: batteryButton.text !== ""
+                    text: batteryButton.text
+                    color: batteryButton.foreground
+                    font.pixelSize: 12
+                    font.features: ({"tnum": 1})
+                    elide: Text.ElideNone
+                }
             }
-            onClicked: ShellState.toggle("notifications", bar.outputName)
         }
     }
     Component {
         id: controlItem
-        BarButton {
-            glyph: "settings"
+        StatusPart {
+            glyph: "sliders"
             selected: bar.controlActive("")
-            implicitHeight: 26
-            flat: false
-            hint: Updates.available ? "Control center · Update available" : "Control center"
+            hint: Updates.available ? "Control · Update available" : "Control"
             tooltip: bar.tooltip
             Accessible.name: hint
             onClicked: bar.toggleControl("")
-            // A newer Shale is waiting; the control center's first row says what it changes.
+            // A newer Shale is waiting; Control's first row says what it changes.
             Rectangle {
                 visible: Updates.available
-                anchors.right: parent.right
-                anchors.rightMargin: 3
-                anchors.top: parent.top
-                anchors.topMargin: 3
+                z: 2
+                x: parent.width - width - 3
+                y: 5
                 width: 6
                 height: 6
                 radius: 3
                 color: Theme.accent
             }
+        }
+    }
+    Component {
+        id: notificationsItem
+        BarKey {
+            id: bell
+            readonly property int count: Services.notifications.length
+            readonly property bool dnd: ShellState.setting("dnd", false)
+            implicitWidth: 36
+            // Do not disturb swaps the bell so suppressed popups are never a surprise.
+            glyph: dnd ? "bell-off" : "bell"
+            selected: ShellState.panel === "notifications" && ShellState.screenName === bar.outputName
+            hint: "Notifications"
+            tooltip: bar.tooltip
+            Accessible.name: "Notifications" + (dnd ? ", do not disturb" : "") + (count ? ", " + count + " waiting" : "")
+            onClicked: ShellState.toggle("notifications", bar.outputName)
+            Rectangle {
+                visible: bell.count > 0
+                z: 2
+                x: parent.width - width - 4
+                y: 3
+                width: Math.max(15, badge.implicitWidth + 6)
+                height: 15
+                radius: 7.5
+                color: Theme.accent
+                C.Label {
+                    id: badge
+                    anchors.centerIn: parent
+                    text: bell.count > 99 ? "99+" : String(bell.count)
+                    color: Theme.accentInk
+                    font.pixelSize: 10
+                    font.weight: Font.Bold
+                    font.features: ({"tnum": 1})
+                    elide: Text.ElideNone
+                }
+            }
+        }
+    }
+    Component {
+        id: wallpapersItem
+        BarKey {
+            implicitWidth: 36
+            glyph: "image"
+            selected: ShellState.panel === "wallpaper" && ShellState.screenName === bar.outputName
+            hint: "Wallpapers"
+            tooltip: bar.tooltip
+            onClicked: ShellState.toggle("wallpaper", bar.outputName)
+        }
+    }
+    Component {
+        id: lockItem
+        BarKey {
+            implicitWidth: 36
+            glyph: "lock"
+            hint: "Lock"
+            tooltip: bar.tooltip
+            onClicked: ShellState.action("lock")
         }
     }
 }

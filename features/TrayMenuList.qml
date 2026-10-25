@@ -96,8 +96,8 @@ FocusScope {
         C.Label {
             visible: root.submenu !== ""
             text: root.submenu
-            color: Theme.muted
-            font.pixelSize: Theme.small
+            color: Theme.textDim
+            font.pixelSize: 12
             elide: Text.ElideRight
             Layout.fillWidth: true
             Layout.leftMargin: 10
@@ -120,7 +120,7 @@ FocusScope {
                             anchors.verticalCenter: parent.verticalCenter
                             width: parent.width
                             height: 1
-                            color: Theme.border
+                            color: Theme.separator
                         }
                     }
                 }
@@ -134,6 +134,9 @@ FocusScope {
                         danger: row.kind === "quit"
                         enabled: row.kind !== "entry" || entry.enabled !== false
                         implicitHeight: Math.max(32, Theme.body + 18)
+                        cornerRadius: 8
+                        leftPadding: 10
+                        rightPadding: 10
                         hint: text
                         text: row.kind === "back" ? "Back" : row.kind === "open" ? "Open " + root.appName
                             : row.kind === "quit" ? "Quit " + root.appName : root.label(entry.text)
@@ -160,7 +163,7 @@ FocusScope {
                             }
                             C.Label {
                                 text: rowButton.text
-                                color: !rowButton.enabled ? Theme.disabled : row.kind === "quit" ? Theme.danger : Theme.text
+                                color: rowButton.foreground
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
                             }
