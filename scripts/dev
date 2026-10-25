@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+# Try the redesign from this checkout without touching the installed Shale.
+# The installed shell (shale.service) is stopped while the dev copy runs and started again when it exits.
+set -euo pipefail
+
+DEV=$(cd "$(dirname "$0")/.." && pwd)
+PUBLIC=${SHALE_PUBLIC:-$HOME/Documents/quickshell}
+LOGS=${XDG_CACHE_HOME:-$HOME/.cache}/shale-dev
+CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}/shale/config.json
+QMLLINT=${QMLLINT:-/usr/lib/qt6/bin/qmllint}
+# Design and workflow files live only in the private repo; promote never carries them to the public one.
+PRIVATE=(':!docs/design' ':!docs/PLAN.md' ':!docs/DEV.md' ':!CLAUDE.md' ':!.claude' ':!scripts/dev')
+
+say() { printf '\033[1m%s\033[0m\n' "$*"; }
+die() { printf 'dev: %s\n' "$*" >&2; exit 1; }
+
+restore() {
+  trap - EXIT INT TERM
+  say "Starting the installed Shale again"
+  if command -v shale >/dev/null; then shale start >/dev/null 2>&1 || systemctl --user start shale.service
+  else systemctl --user start shale.service; fi
+}
+
+backup_config() {
+  [ -f "$CONFIG" ] || return 0
+  cp -p "$CONFIG" "$CONFIG.dev-$(date +%Y%m%d-%H%M%S)"
+  # Keep the five newest copies.
+  ls -1t "$CONFIG".dev-* 2>/dev/null | tail -n +6 | xargs -r rm -f
+}
+
+cmd_run() {
+  [ -n "${WAYLAND_DISPLAY:-}" ] || die "run this inside your Hyprland session"
+  mkdir -p "$LOGS"
+  local log="$LOGS/run-$(date +%Y%m%d-%H%M%S).log"
+  ln -sfn "$log" "$LOGS/last.log"
+  backup_config
+  say "Stopping the installed Shale"
+  systemctl --user stop shale.service || true
+  trap restore EXIT INT TERM
+  say "Running $DEV ($(git -C "$DEV" rev-parse --short HEAD) on $(git -C "$DEV" branch --show-current))"
+  say "Ctrl+C to stop. Log: $log"
+  quickshell --path "$DEV" --no-duplicate 2>&1 | tee "$log"
+}
+
+cmd_errors() {
+  local log="$LOGS/last.log"
+  [ -e "$log" ] || die "no run yet"
+  # The lines worth pasting into the next session: QML errors and warnings, without repeats.
+  grep -E 'ERROR|WARN|Error|error:|TypeError|ReferenceError|is not defined|Cannot|failed' "$log" | sed -E 's/^.{0,30}(WARN|ERROR)/\1/' | awk '!seen[$0]++' | head -n "${1:-60}"
+}
+
+cmd_lint() {
+  [ -x "$QMLLINT" ] || die "qmllint not found at $QMLLINT"
+  local files=("$@")
+  if [ ${#files[@]} -eq 0 ]; then
+    mapfile -t files < <( { git -C "$DEV" diff --name-only "$(base)" HEAD; git -C "$DEV" diff --name-only; } | grep '\.qml$' | sort -u)
+  fi
+  [ ${#files[@]} -gt 0 ] || { say "No changed QML files"; return; }
+  cd "$DEV" && "$QMLLINT" -I "$DEV" "${files[@]}"
+}
+
+cmd_tests() {
+  # tests/ is local only (gitignored); borrow it from the public checkout.
+  [ -d "$PUBLIC/tests" ] || die "no tests in $PUBLIC/tests"
+  rsync -a --delete "$PUBLIC/tests/" "$DEV/tests/"
+  cd "$DEV" && python3 -m unittest discover -s tests
+}
+
+base() {
+  git -C "$DEV" fetch -q public main 2>/dev/null || true
+  git -C "$DEV" merge-base HEAD public/main 2>/dev/null || git -C "$DEV" rev-list --max-parents=0 HEAD | tail -1
+}
+
+cmd_promote() {
+  # Copies the shell changes (not the design docs) onto a new branch of the public repo, as one commit made there,
+  # so its hooks check it. Nothing is pushed.
+  local branch=${1:-} message=${2:-}
+  [ -n "$branch" ] && [ -n "$message" ] || die 'usage: dev promote <branch> "<commit message>"'
+  [ -d "$PUBLIC/.git" ] || die "public checkout not found at $PUBLIC"
+  local from tree
+  from=$(base)
+  tree="$(dirname "$PUBLIC")/shale-promote-$branch"
+  [ -e "$tree" ] && die "$tree already exists"
+  git -C "$DEV" diff --quiet || die "commit or stash your dev changes first"
+  git -C "$PUBLIC" worktree add -q -b "$branch" "$tree" "$from"
+  git -C "$DEV" diff --binary "$from" HEAD -- . "${PRIVATE[@]}" | git -C "$tree" apply --index
+  git -C "$tree" commit -q -m "$message"
+  say "Committed on $branch in $tree (not pushed)"
+  git -C "$tree" show --stat --oneline HEAD | head -40
+  echo "Check it, then: git -C \"$PUBLIC\" merge $branch   or   git -C \"$tree\" push -u origin $branch"
+}
+
+case "${1:-help}" in
+  run|test) shift; cmd_run "$@" ;;
+  pull) git -C "$DEV" pull --ff-only ;;
+  stop) systemctl --user stop shale.service ;;
+  start) restore ;;
+  status) systemctl --user --no-pager status shale.service | head -5; pgrep -af "quickshell --path $DEV" || echo "dev copy not running" ;;
+  log) tail -n "${2:-80}" "$LOGS/last.log" ;;
+  errors) shift; cmd_errors "$@" ;;
+  open) quickshell ipc -p "$DEV" call shell toggle "${2:?panel name, e.g. control}" ;;
+  close) quickshell ipc -p "$DEV" call shell close ;;
+  action) quickshell ipc -p "$DEV" call shell action "${2:?action name}" ;;
+  lint) shift; cmd_lint "$@" ;;
+  tests) cmd_tests ;;
+  promote) shift; cmd_promote "$@" ;;
+  restore-config)
+    latest=$(ls -1t "$CONFIG".dev-* 2>/dev/null | head -1) || true
+    [ -n "$latest" ] || die "no backup"
+    cp -p "$latest" "$CONFIG" && say "Restored $latest" ;;
+  *)
+    cat <<'EOF'
+dev run              stop the installed Shale, run this checkout, start the installed one again on exit
+dev pull             fast-forward this checkout (after a web session pushed)
+dev errors [n]       QML errors and warnings from the last run, ready to paste
+dev log [n]          last lines of the last run
+dev open <panel>     open a panel in the dev copy: launcher clipboard control notifications calendar
+                     overview capture settings power wallpaper activity system
+dev close            close the open panel
+dev action <name>    run a shell action, e.g. screenshot-region
+dev lint [files]     qmllint the QML changed since the public main (or the files given)
+dev tests            run the local unit tests against this checkout
+dev status           is the installed or the dev copy running
+dev stop | start     stop or start the installed Shale
+dev restore-config   put back the settings saved before the last run
+dev promote <branch> "<message>"
+                     copy the shell changes into a new branch of the public repo (no design docs, no push)
+EOF
+    ;;
+esac

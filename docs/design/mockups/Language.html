@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack language sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes lgIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.lg-in{animation:lgIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.lg-in{animation:none}button{transition:none}}
+</style>
+</helmet>
+<div style="width: 1600px; height: 1200px; box-sizing: border-box; padding: 56px 72px; background: #0e0f11; font-family: 'Hanken Grotesk', sans-serif; color: #efece6; display: flex; flex-direction: column; gap: 32px;">
+
+<header style="display: flex; gap: 60px; align-items: flex-end;">
+<div><div style="font-size: 14px; color: #8c8f95;">Shale · language sheet</div><h1 style="margin: 6px 0 0; font-weight: 650; font-size: 72px; letter-spacing: -0.03em; line-height: 1;">Rack, studio edition</h1></div>
+<p style="margin: 0; max-width: 640px; font-size: 17px; line-height: 1.6; color: #c9c6bf;">Panels are dark cases holding modules, like a modern DAW. One flat backdrop, one module surface, soft corners, line icons and plain words. The accent comes from the wallpaper and marks what is on, live or chosen. Everything else stays quiet.</p>
+</header>
+
+<div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; min-height: 0;">
+
+<section aria-label="Colour" style="background: #121316; border-radius: 22px; padding: 22px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 12px;">
+<h2 style="margin: 0; font-weight: 650; font-size: 18px;">Colour</h2>
+<sc-for list="{{tokens}}" as="t" hint-placeholder-count="8">
+<div style="display: flex; align-items: center; gap: 12px;"><span style="width: 40px; height: 40px; flex: none; border-radius: 12px; background: {{t.c}}; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);"></span><span style="flex: 1; display: flex; flex-direction: column;"><span style="font-weight: 600; font-size: 14px;">{{t.name}}</span><span style="font-size: 12px; color: #8c8f95;">{{t.role}}</span></span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">{{t.hex}}</span></div>
+</sc-for>
+<p style="margin: auto 0 0; font-size: 13px; line-height: 1.55; color: #a7a9ad;">"On" is the accent at 14% with a 40% hairline and accent text or icon. Body text is 10:1 or better, secondary text 5:1 or better.</p>
+</section>
+
+<section aria-label="Controls" style="background: #121316; border-radius: 22px; padding: 22px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-weight: 650; font-size: 18px;">Controls</h2>
+<div style="display: flex; gap: 8px; align-items: center;">
+<button style="height: 36px; padding: 0 16px; border-radius: 10px; border: 0; background: {{s.a1}}; color: #17181a; font-weight: 650; font-size: 13px; cursor: pointer;">Primary</button>
+<button style="height: 36px; padding: 0 16px; border-radius: 10px; border: 0; background: #2a2d33; font-weight: 600; font-size: 13px; cursor: pointer;">Secondary</button>
+<button style="height: 36px; padding: 0 16px; border-radius: 10px; border: 1px solid rgba(255,107,91,0.45); background: rgba(255,107,91,0.07); color: #ffb4a8; font-weight: 600; font-size: 13px; cursor: pointer;">Hold to power off</button>
+</div>
+<div style="display: flex; gap: 14px; align-items: center;">
+<button aria-pressed="{{sw}}" onClick="{{flip}}" aria-label="Switch" style="position: relative; width: 40px; height: 22px; padding: 0; border-radius: 11px; border: 0; background: {{swTrack}}; cursor: pointer;"><span style="position: absolute; top: 3px; left: {{swKnob}}; width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; transition: left 160ms ease-out;"></span></button>
+<div role="radiogroup" aria-label="Segmented" style="display: flex; padding: 3px; gap: 2px; border-radius: 10px; background: #1c1e22;">
+<sc-for list="{{seg}}" as="o" hint-placeholder-count="3"><button role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="height: 26px; padding: 0 12px; border-radius: 7px; border: 0; background: {{o.bg}}; color: {{o.fg}}; box-shadow: {{o.shadow}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{o.label}}</button></sc-for>
+</div>
+<span style="height: 28px; padding: 0 12px; border-radius: 14px; background: {{s.soft}}; box-shadow: inset 0 0 0 1px {{s.line}}; color: {{s.a1}}; display: flex; align-items: center; font-weight: 600; font-size: 12px;">Chip on</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px;">
+<span style="width: 32px; height: 32px; border-radius: 10px; background: #2a2d33; display: grid; place-items: center;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h3l5-4v12l-5-4H4zM16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"></path></svg></span>
+<div style="position: relative; flex: 1; height: 28px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 6px; border-radius: 3px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: {{volPct}}; height: 6px; border-radius: 3px; background: linear-gradient(90deg, {{s.soft}}, {{s.a1}}); box-shadow: 0 0 12px {{s.glow}};"></span>
+<span style="position: absolute; left: calc({{volPct}} - 8px); width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 1px 5px rgba(0,0,0,0.55);"></span>
+<input type="range" min="0" max="100" value="{{vol}}" onChange="{{onVol}}" aria-label="Volume" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<span style="width: 28px; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums;">{{vol}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 6px; border-radius: 14px; background: #1c1e22;">
+<div style="display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 10px; border-radius: 10px; background: {{s.soft}};"><span style="width: 30px; height: 30px; border-radius: 9px; background: {{s.a1}}; color: #17181a; display: grid; place-items: center; font-weight: 700; font-size: 12px;">F</span><span style="font-weight: 600; font-size: 14px;">Selected row</span><span style="margin-left: auto; font-size: 12px; color: {{s.a1}};">Open ↵</span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 10px;"><span style="width: 30px; height: 30px; border-radius: 9px; background: #24272c; color: #c9c6bf; display: grid; place-items: center; font-weight: 700; font-size: 12px;">K</span><span style="font-size: 14px;">Resting row</span><span style="margin-left: auto; font-size: 12px; color: #8c8f95;">Page 1</span></div>
+</div>
+<div style="display: flex; align-items: flex-end; gap: 16px;">
+<div style="display: flex; gap: 3px; height: 70px; align-items: flex-end;"><span style="width: 5px; height: 70%; border-radius: 2px; background: linear-gradient(to top, {{s.soft}}, {{s.a1}});"></span><span style="width: 5px; height: 85%; border-radius: 2px; background: linear-gradient(to top, {{s.soft}}, {{s.a1}});"></span></div>
+<svg width="56" height="56" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14" fill="none" stroke="#2a2d33" stroke-width="4"></circle><circle cx="18" cy="18" r="14" fill="none" stroke="{{s.a1}}" stroke-width="4" stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="34" transform="rotate(-90 18 18)"></circle></svg>
+<span style="font-size: 13px; line-height: 1.5; color: #a7a9ad;">Meters glow in the accent from soft to full. Rings show a share of something.</span>
+</div>
+</section>
+
+<section aria-label="Type, shape and motion" style="background: #121316; border-radius: 22px; padding: 22px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-weight: 650; font-size: 18px;">Type, shape and motion</h2>
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: baseline; gap: 14px;"><span style="width: 120px; font-size: 12px; color: #8c8f95;">Display · 600</span><span style="font-weight: 600; font-size: 40px; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;">21:44</span></div>
+<div style="display: flex; align-items: baseline; gap: 14px;"><span style="width: 120px; font-size: 12px; color: #8c8f95;">Panel title · 650</span><span style="font-weight: 650; font-size: 17px;">System monitor</span></div>
+<div style="display: flex; align-items: baseline; gap: 14px;"><span style="width: 120px; font-size: 12px; color: #8c8f95;">Row · 400–600</span><span style="font-size: 14px;">Invoice 0142 is ready</span></div>
+<div style="display: flex; align-items: baseline; gap: 14px;"><span style="width: 120px; font-size: 12px; color: #8c8f95;">Secondary · 400</span><span style="font-size: 12px; color: #8c8f95;">Hetzner · the PDF is attached</span></div>
+<div style="display: flex; align-items: baseline; gap: 14px;"><span style="width: 120px; font-size: 12px; color: #8c8f95;">Data · mono</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px;">↓ 4.2 MB/s · −54 dBm</span></div>
+</div>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; font-size: 13px; line-height: 1.5; color: #c9c6bf;">
+<li>Hanken Grotesk for everything; Martian Mono only for rates, signal and code.</li>
+<li>Sentence case. No spaced-out capitals. Every action has a line icon at 1.8 px.</li>
+<li>Cases 22 px, modules 16 px, keys 10 px, chips fully round. Gaps 8–12 px.</li>
+<li>Panels rise 8 px and fade in 180 ms; switches slide in 160 ms; meters update every 120 ms.</li>
+<li>Reduced motion or power saver: everything appears at once.</li>
+</ul>
+<button onClick="{{replay}}" style="align-self: flex-start; height: 32px; padding: 0 14px; border-radius: 10px; border: 0; background: #2a2d33; font-weight: 600; font-size: 13px; cursor: pointer;">Replay the panel entrance</button>
+<sc-if value="{{odd}}" hint-placeholder-val="{{ true }}"><div style="display: flex; gap: 8px;"><span class="lg-in" style="flex: 1; height: 50px; border-radius: 14px; background: #1c1e22;"></span><span class="lg-in" style="flex: 1; height: 50px; border-radius: 14px; background: #1c1e22; animation-delay: 40ms;"></span><span class="lg-in" style="flex: 1; height: 50px; border-radius: 14px; background: {{s.soft}}; animation-delay: 80ms;"></span></div></sc-if>
+<sc-if value="{{even}}" hint-placeholder-val="{{ false }}"><section aria-label="Replayed" style="display: flex; gap: 8px;"><span class="lg-in" style="flex: 1; height: 50px; border-radius: 14px; background: #1c1e22;"></span><span class="lg-in" style="flex: 1; height: 50px; border-radius: 14px; background: #1c1e22; animation-delay: 40ms;"></span><span class="lg-in" style="flex: 1; height: 50px; border-radius: 14px; background: {{s.soft}}; animation-delay: 80ms;"></span></section></sc-if>
+</section>
+</div>
+
+<section aria-label="Words" style="display: flex; gap: 10px; align-items: center;">
+<span style="font-weight: 650; font-size: 15px; margin-right: 8px;">Plain words</span>
+<sc-for list="{{words}}" as="w" hint-placeholder-count="7"><span style="height: 36px; padding: 0 14px; border-radius: 18px; background: #121316; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); display: flex; align-items: center; gap: 8px; font-size: 13px;"><span style="color: #8c8f95;">{{w.from}}</span>→<span style="font-weight: 600;">{{w.to}}</span></span></sc-for>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":1600,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); this.state = { run: 1, sw: true, seg: 'Day', vol: 62 }; }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4), glow: a(0.45) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const tokens = [
+      ['Backdrop', '#0e0f11', 'behind panels, lock dimming'], ['Case', '#121316', 'every panel'], ['Module', '#1c1e22', 'cards and groups inside a panel'],
+      ['Well', '#141518', 'tracks, fields, graphs'], ['Key', '#2a2d33', 'secondary buttons, empty tracks'],
+      ['Accent', s.a1, 'from the wallpaper: on, live, chosen'], ['Second', s.comp, 'a second chart line only'], ['Danger', '#ff6b5b', 'power off and destructive actions']
+    ].map(([name, c, role]) => ({ name, c, role, hex: c.toUpperCase() }));
+    const seg = ['Day', 'Week', 'Month'].map((label) => ({ label, on: st.seg === label, pick: () => this.setState({ seg: label }), bg: st.seg === label ? '#2c2f35' : 'transparent', fg: st.seg === label ? '#ffffff' : '#a7a9ad', shadow: st.seg === label ? '0 1px 3px rgba(0,0,0,0.4)' : 'none' }));
+    const words = [['Control center', 'Control'], ['Launcher', 'Find'], ['Workspaces', 'Pages'], ['Desktop widgets', 'Widgets'], ['Calendar, weather', 'Clock and sky'], ['Media', 'Player'], ['Signal', 'Accent']].map(([from, to]) => ({ from, to }));
+    return {
+      s, tokens, seg, words,
+      sw: st.sw, flip: () => this.setState({ sw: !st.sw }), swTrack: st.sw ? s.a1 : '#2a2d33', swKnob: st.sw ? '21px' : '3px',
+      vol: st.vol, volPct: st.vol + '%', onVol: (e) => this.setState({ vol: Number(e.target.value) }),
+      replay: () => this.setState({ run: st.run + 1 }), odd: st.run % 2 === 1, even: st.run % 2 === 0
+    };
+  }
+}
+</script>
+</body>
+</html>

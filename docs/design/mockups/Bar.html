@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack bar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes bMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.95)}70%{transform:scaleY(.45)}100%{transform:scaleY(.8)}}
+.b-meter{transform-origin:bottom;animation:bMeter 720ms ease-in-out infinite alternate}
+.b-ws{transition:width 220ms cubic-bezier(.2,.8,.2,1),background-color 160ms ease-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.b-meter{animation:none}.b-ws,button{transition:none}}
+</style>
+</helmet>
+<nav aria-label="Bar" style="position: relative; width: 1584px; height: 44px; box-sizing: border-box; padding: 0 6px; display: flex; align-items: center; gap: 6px; background: #121316; border-radius: 14px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 10px 30px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<button onClick="{{openLauncher}}" aria-pressed="{{launcherOn}}" style="height: 32px; padding: 0 12px 0 10px; border-radius: 10px; border: 0; background: {{launcherBg}}; color: #c9c6bf; display: flex; align-items: center; gap: 8px; cursor: pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10.5 4a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM15.5 15.5L20 20"></path></svg><span style="font-size: 13px;">Search</span><span style="margin-left: 18px; padding: 1px 6px; border-radius: 5px; background: #2a2d33; font-family: 'Martian Mono', monospace; font-size: 10px; color: #a7a9ad;">Super Space</span></button>
+
+<div role="group" aria-label="Workspaces" style="height: 32px; padding: 0 10px; border-radius: 10px; background: #1c1e22; display: flex; align-items: center; gap: 5px;">
+<sc-for list="{{workspaces}}" as="w" hint-placeholder-count="8">
+<button class="b-ws" aria-label="Workspace {{w.n}}{{w.state}}" aria-current="{{w.current}}" onClick="{{w.pick}}" style="width: {{w.w}}; height: 8px; padding: 0; border-radius: 4px; border: 0; background: {{w.bg}}; box-shadow: {{w.glow}}; cursor: pointer;"></button>
+</sc-for>
+</div>
+
+<div style="display: flex; align-items: center; gap: 8px; padding: 0 8px; min-width: 0; max-width: 340px;">
+<span style="width: 20px; height: 20px; flex: none; border-radius: 6px; background: #2a2d33; display: grid; place-items: center; font-weight: 700; font-size: 11px; color: #c9c6bf;">F</span>
+<span style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><span style="font-weight: 600;">Firefox</span><span style="color: #8c8f95;"> · Shale redesign notes</span></span>
+</div>
+
+<button onClick="{{openAlmanac}}" aria-label="Clock and sky, {{dateLine}}, {{time}}" style="position: absolute; left: 50%; top: 6px; transform: translateX(-50%); height: 32px; padding: 0 14px; border: 0; border-radius: 10px; background: {{clockBg}}; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<span style="font-weight: 650; font-size: 14px; font-variant-numeric: tabular-nums;">{{time}}</span>
+<span style="font-size: 13px; color: #a7a9ad;">{{dateLine}}</span>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 13px; color: #a7a9ad;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M7 17a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4 4 0 0 1 .5 8.5z"></path></svg>11°</span>
+</button>
+
+<div style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+
+<div role="status" aria-label="Microphone in use by Discord" style="height: 28px; padding: 0 10px; border-radius: 14px; background: {{s.soft}}; color: {{s.a1}}; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 4a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v3"></path></svg>Discord</div>
+
+<button onClick="{{openMedia}}" aria-label="Player, Tame the Beast by Lofi Lion" aria-pressed="{{mediaOn}}" style="height: 32px; padding: 0 12px 0 8px; border-radius: 10px; border: 0; background: {{mediaBg}}; display: flex; align-items: center; gap: 9px; cursor: pointer;">
+<span style="width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, #22344d, #0a111a); display: grid; place-items: center;"><span aria-hidden="true" style="display: flex; gap: 1.5px; align-items: flex-end; height: 10px;"><span class="b-meter" style="width: 2px; height: 10px; background: {{s.a1}};"></span><span class="b-meter" style="width: 2px; height: 10px; background: {{s.a1}}; animation-delay: -0.3s;"></span><span class="b-meter" style="width: 2px; height: 10px; background: {{s.a1}}; animation-delay: -0.55s;"></span></span></span>
+<span style="font-size: 13px; white-space: nowrap;"><span style="font-weight: 600;">Tame the Beast</span><span style="color: #8c8f95;"> · Lofi Lion</span></span>
+</button>
+
+<button onClick="{{openControl}}" aria-pressed="{{controlOn}}" aria-label="Control: Wi-Fi Harbour 5G, volume 62, battery 82 percent" style="height: 32px; padding: 0 12px; border-radius: 10px; border: 0; background: {{controlBg}}; display: flex; align-items: center; gap: 12px; cursor: pointer;">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 9.5a12 12 0 0 1 16 0M7 13a7.5 7.5 0 0 1 10 0M10 16.5a3 3 0 0 1 4 0M12 19.5h.01"></path></svg>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h3l5-4v12l-5-4H4zM16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"></path></svg>
+<span style="display: flex; align-items: center; gap: 5px;"><span aria-hidden="true" style="position: relative; width: 22px; height: 11px; box-sizing: border-box; border: 1.5px solid #c9c6bf; border-radius: 3.5px; padding: 1.5px;"><span style="display: block; height: 100%; width: 82%; border-radius: 1px; background: #efece6;"></span></span><span style="font-size: 12px; font-variant-numeric: tabular-nums;">82%</span></span>
+</button>
+
+<button onClick="{{openInbox}}" aria-label="Notifications, 3 waiting" aria-pressed="{{inboxOn}}" style="position: relative; width: 36px; height: 32px; padding: 0; border-radius: 10px; border: 0; background: {{inboxBg}}; display: grid; place-items: center; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4"></path></svg><span style="position: absolute; top: 3px; right: 4px; min-width: 15px; height: 15px; padding: 0 3px; box-sizing: border-box; border-radius: 8px; background: {{s.a1}}; color: #17181a; font-weight: 700; font-size: 10px; line-height: 15px; text-align: center;">3</span></button>
+
+<button onClick="{{openWalls}}" aria-label="Wallpapers" aria-pressed="{{wallsOn}}" style="width: 36px; height: 32px; padding: 0; border-radius: 10px; border: 0; background: {{wallsBg}}; display: grid; place-items: center; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4zM4 16l5-5 4 4 2-2 5 5M15.5 8.5h.01"></path></svg></button>
+
+<button onClick="{{lock}}" aria-label="Lock" style="width: 36px; height: 32px; padding: 0; border-radius: 10px; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11h10v9H7zM9 11V8a3 3 0 0 1 6 0v3"></path></svg></button>
+</div>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"open":{"editor":null},"onOpen":{"editor":null},"$preview":{"width":1584,"height":44}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); this.state = { now: new Date(), ws: 2 }; }
+  componentDidMount() { this.tick = setInterval(() => this.setState({ now: new Date() }), 15000); }
+  componentWillUnmount() { clearInterval(this.tick); }
+  stripes(wall) {
+    // One signal from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': '#ff8a3d', 'aurora': '#4fd1c5', 'ember-city': '#ff6b6b' }[wall] || '#ff8a3d';
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p.slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p, soft: a(0.14), glow: '0 0 10px ' + a(0.55) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const open = this.props.open ?? null;
+    const go = (name) => () => { if (this.props.onOpen) this.props.onOpen(name); };
+    const now = this.state.now;
+    const pad = (n) => String(n).padStart(2, '0');
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const used = { 1: true, 2: true, 3: true, 5: true };
+    // The current page stretches into a lit pill; pages with windows are brighter than empty ones.
+    const workspaces = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
+      const on = this.state.ws === n;
+      return { n, current: on ? 'true' : 'false', state: on ? ', current' : (used[n] ? ', has windows' : ', empty'), pick: () => this.setState({ ws: n }),
+        w: on ? '26px' : '8px', bg: on ? s.a1 : (used[n] ? '#8c8f95' : '#3a3d42'), glow: on ? s.glow : 'none' };
+    });
+    const pressed = (name) => open === name;
+    const bg = (name, rest) => (pressed(name) ? '#2c2f35' : rest);
+    return {
+      s, workspaces,
+      time: pad(now.getHours()) + ':' + pad(now.getMinutes()),
+      dateLine: days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()],
+      openLauncher: go('launcher'), openAlmanac: go('almanac'), openMedia: go('media'), openInbox: go('inbox'),
+      openControl: go('control'), openWalls: go('wallpapers'), lock: go('lock'),
+      launcherOn: pressed('launcher'), launcherBg: bg('launcher', '#1c1e22'),
+      clockBg: bg('almanac', 'transparent'),
+      mediaOn: pressed('media'), mediaBg: bg('media', 'transparent'),
+      controlOn: pressed('control'), controlBg: bg('control', '#1c1e22'),
+      inboxOn: pressed('inbox'), inboxBg: bg('inbox', 'transparent'),
+      wallsOn: pressed('wallpapers'), wallsBg: bg('wallpapers', 'transparent')
+    };
+  }
+}
+</script>
+</body>
+</html>

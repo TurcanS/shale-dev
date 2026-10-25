@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack lock screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes lShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.l-shake{animation:lShake 300ms ease-in-out}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:rgba(239,236,230,0.45)}
+@media (prefers-reduced-motion: reduce){.l-shake{animation:none}button{transition:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 1600px; height: 900px; overflow: hidden; background: #0b111a; font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+<svg width="1600" height="900" viewBox="0 0 1600 900" style="position: absolute; left: 0; top: 0; filter: blur(14px); transform: scale(1.04);" aria-hidden="true">
+<defs><linearGradient id="rlSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{{w.top}}"></stop><stop offset="0.62" stop-color="{{w.sky}}"></stop><stop offset="1" stop-color="{{w.low}}"></stop></linearGradient></defs>
+<rect width="1600" height="900" fill="url(#rlSky)"></rect>
+<circle cx="1244" cy="186" r="40" fill="{{w.sun}}" opacity="0.9"></circle>
+<path d="M0 520 L120 460 L220 490 L340 410 L460 480 L560 430 L700 500 L820 390 L940 460 L1060 420 L1180 480 L1300 400 L1420 460 L1520 430 L1600 460 L1600 900 L0 900 Z" fill="{{w.far}}"></path>
+<path d="M0 610 L160 550 L280 590 L420 530 L560 600 L700 560 L860 620 L1000 550 L1140 610 L1280 570 L1440 630 L1600 580 L1600 900 L0 900 Z" fill="{{w.mid}}"></path>
+<path d="M0 720 L200 680 L380 710 L560 660 L760 720 L980 680 L1180 730 L1400 690 L1600 720 L1600 900 L0 900 Z" fill="{{w.near}}"></path>
+</svg>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(rgba(5,7,10,0.35), rgba(5,7,10,0.65));"></div>
+
+<div style="position: absolute; left: 0; right: 0; top: 130px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+<span style="font-size: 22px; font-weight: 500; color: rgba(239,236,230,0.85);">{{dateLine}}</span>
+<span style="font-weight: 600; font-size: 168px; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums;">{{time}}</span>
+<div style="margin-top: 18px; display: flex; gap: 8px;">
+<sc-for list="{{glance}}" as="g" hint-placeholder-count="4">
+<span style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(18,19,22,0.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); font-size: 14px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{g.c}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{g.icon}}"></path></svg>{{g.text}}</span>
+</sc-for>
+</div>
+</div>
+
+<form onSubmit="{{submit}}" aria-label="Unlock" style="position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 12px;">
+<span style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, {{s.a1}}, {{s.comp}}); display: grid; place-items: center; color: #17181a;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"></path></svg></span>
+<span style="font-weight: 600; font-size: 16px;">Welcome back</span>
+<div class="{{shakeClass}}" style="display: flex; align-items: center; gap: 6px; width: 340px; height: 48px; padding: 0 6px 0 18px; box-sizing: border-box; border-radius: 24px; background: rgba(18,19,22,0.7); box-shadow: inset 0 0 0 1px {{fieldRing}};">
+<input type="password" autocomplete="current-password" value="{{pw}}" onChange="{{onPw}}" placeholder="Password" aria-label="Password" style="flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: #efece6; font: 15px 'Hanken Grotesk', sans-serif;">
+<button type="submit" aria-label="Unlock" style="width: 36px; height: 36px; padding: 0; border-radius: 50%; border: 0; background: {{s.a1}}; color: #17181a; display: grid; place-items: center; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+</div>
+<span role="status" style="height: 18px; font-size: 13px; color: {{hintFg}};">{{hint}}</span>
+</form>
+
+<div style="position: absolute; left: 32px; bottom: 28px; display: flex; gap: 8px; font-size: 13px; color: rgba(239,236,230,0.75);">
+<span style="height: 32px; padding: 0 12px; border-radius: 16px; background: rgba(18,19,22,0.55); display: flex; align-items: center; gap: 6px;">Tame the Beast · Lofi Lion</span>
+<span style="height: 32px; padding: 0 12px; border-radius: 16px; background: rgba(18,19,22,0.55); display: flex; align-items: center;">US</span>
+</div>
+<div style="position: absolute; right: 32px; bottom: 28px; display: flex; gap: 8px;">
+<button aria-label="Sleep" style="width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 0; background: rgba(18,19,22,0.55); display: grid; place-items: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z"></path></svg></button>
+<button aria-label="Restart" style="width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 0; background: rgba(18,19,22,0.55); display: grid; place-items: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.1-5M19 4v4h-4"></path></svg></button>
+<button aria-label="Hold to power off" style="width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 0; background: rgba(255,107,91,0.18); color: #ffb4a8; display: grid; place-items: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M12 4v7M7.8 7.2a7 7 0 1 0 8.4 0"></path></svg></button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"onUnlock":{"editor":null},"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); this.state = { now: new Date(), pw: '', wrong: 0 }; }
+  componentDidMount() { this.tick = setInterval(() => this.setState({ now: new Date() }), 15000); }
+  componentWillUnmount() { clearInterval(this.tick); }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.5) };
+  }
+  renderVals() {
+    const wall = this.props.wallpaper ?? 'night-ridge';
+    const s = this.stripes(wall);
+    const w = {
+      'night-ridge': { top: '#090f1a', sky: '#14233a', low: '#1f3149', sun: '#e7e1d1', far: '#192739', mid: '#111c2a', near: '#0a111a' },
+      'aurora': { top: '#04121a', sky: '#0b1d26', low: '#12303a', sun: '#4fd1c5', far: '#12303a', mid: '#0d2229', near: '#071419' },
+      'ember-city': { top: '#1a0b0c', sky: '#2a1416', low: '#3d1c1f', sun: '#ff6b6b', far: '#3d1c1f', mid: '#2a1215', near: '#160a0b' }
+    }[wall] || {};
+    const st = this.state;
+    const now = st.now;
+    const pad = (n) => String(n).padStart(2, '0');
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const glance = [
+      ['M5 6h14v13H5zM5 10h14M9 4v4M15 4v4', '14:00 Dentist', s.a1],
+      ['M7 17a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4 4 0 0 1 .5 8.5z', '11° light rain', '#c9c6bf'],
+      ['M3 8h16v8H3zM21 11v2', '82% · 3 h 12 left', '#c9c6bf'],
+      ['M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4', '3 notifications', '#c9c6bf']
+    ].map(([icon, text, c]) => ({ icon, text, c }));
+    return {
+      s, w, glance,
+      time: pad(now.getHours()) + ':' + pad(now.getMinutes()),
+      dateLine: days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()],
+      pw: st.pw, onPw: (e) => this.setState({ pw: e.target.value }),
+      shakeClass: st.wrong % 2 ? 'l-shake' : '', fieldRing: st.wrong ? 'rgba(255,107,91,0.6)' : 'rgba(255,255,255,0.1)',
+      hint: st.wrong ? 'That didn\'t work. Any text unlocks the demo.' : 'Caps Lock is off', hintFg: st.wrong ? '#ffb4a8' : 'rgba(239,236,230,0.55)',
+      submit: (e) => {
+        e.preventDefault();
+        if (!st.pw) { this.setState({ wrong: st.wrong + 1 }); return; }
+        this.setState({ pw: '', wrong: 0 });
+        if (this.props.onUnlock) this.props.onUnlock();
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

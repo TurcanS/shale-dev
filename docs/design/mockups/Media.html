@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack player</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.94)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.p-bar{transition:height 240ms ease-out}
+@media (prefers-reduced-motion: reduce){.p-bar,button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Player" style="width: 460px; height: 260px; box-sizing: border-box; padding: 14px; display: flex; gap: 14px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<div style="position: relative; width: 150px; height: 232px; flex: none; border-radius: 16px; overflow: hidden; background: linear-gradient(160deg, #22344d 0%, #14233a 55%, #0a111a 100%);">
+<svg width="150" height="232" viewBox="0 0 150 232" aria-hidden="true" style="position: absolute; inset: 0;"><circle cx="104" cy="54" r="20" fill="#e7e1d1" opacity="0.9"></circle><path d="M0 150 L30 128 L58 140 L88 110 L118 134 L150 118 L150 232 L0 232 Z" fill="#192739"></path><path d="M0 180 L40 160 L80 176 L120 156 L150 168 L150 232 L0 232 Z" fill="#0a111a"></path></svg>
+<div aria-hidden="true" style="position: absolute; left: 12px; right: 12px; bottom: 12px; height: 26px; display: flex; align-items: flex-end; gap: 3px;">
+<sc-for list="{{vu}}" as="v" hint-placeholder-count="12"><span class="p-bar" style="flex: 1; height: {{v.h}}; border-radius: 2px; background: {{v.c}};"></span></sc-for>
+</div>
+</div>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;">
+<div style="display: flex; align-items: center; gap: 6px;">
+<span style="display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; border-radius: 12px; background: #1c1e22; font-size: 12px; color: #c9c6bf;"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{s.a1}};"></span>Spotify</span>
+<span style="font-size: 12px; color: #8c8f95;">on Headphones</span>
+</div>
+<span style="margin-top: 8px; font-weight: 650; font-size: 19px; line-height: 1.2;">Tame the Beast</span>
+<span style="font-size: 14px; color: #a7a9ad;">Lofi Lion · Night Sessions</span>
+
+<div style="margin-top: auto; position: relative; height: 18px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 4px; border-radius: 2px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: {{pct}}; height: 4px; border-radius: 2px; background: {{s.a1}};"></span>
+<span style="position: absolute; left: calc({{pct}} - 6px); width: 12px; height: 12px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 1px 4px rgba(0,0,0,0.5);"></span>
+<input type="range" min="0" max="185" value="{{raw}}" onChange="{{seek}}" aria-label="Position" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 11px; color: #8c8f95; font-variant-numeric: tabular-nums;"><span>{{pos}}</span><span>3:05</span></div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+<button aria-pressed="{{shuffle}}" onClick="{{toggleShuffle}}" aria-label="Shuffle" style="width: 34px; height: 34px; padding: 0; border-radius: 10px; border: 0; background: transparent; color: {{shuffleFg}}; display: grid; place-items: center; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3c4 0 6 10 10 10h3M4 17h3c1.5 0 2.7-1.4 3.7-3M14 9.5C15 8 16 7 17 7h3M18 4l3 3-3 3M18 14l3 3-3 3"></path></svg></button>
+<button aria-label="Previous" style="width: 38px; height: 38px; padding: 0; border-radius: 12px; border: 0; background: #1c1e22; display: grid; place-items: center; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h2v14H6zM19 5v14L9 12z"></path></svg></button>
+<button onClick="{{toggle}}" aria-label="{{playLabel}}" style="width: 50px; height: 50px; padding: 0; border-radius: 50%; border: 0; background: {{s.a1}}; color: #17181a; display: grid; place-items: center; box-shadow: 0 6px 18px {{s.soft}}; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{playIcon}}"></path></svg></button>
+<button aria-label="Next" style="width: 38px; height: 38px; padding: 0; border-radius: 12px; border: 0; background: #1c1e22; display: grid; place-items: center; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 5h2v14h-2zM5 5v14l10-7z"></path></svg></button>
+<button aria-pressed="{{repeat}}" onClick="{{toggleRepeat}}" aria-label="Repeat" style="width: 34px; height: 34px; padding: 0; border-radius: 10px; border: 0; background: transparent; color: {{repeatFg}}; display: grid; place-items: center; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l3 3-3 3M20 6H8a4 4 0 0 0-4 4v1M7 21l-3-3 3-3M4 18h12a4 4 0 0 0 4-4v-1"></path></svg></button>
+</div>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":460,"height":260}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); this.state = { playing: true, pos: 72, seed: 1, shuffle: false, repeat: true }; }
+  componentDidMount() { this.tick = setInterval(() => { if (this.state.playing) this.setState({ pos: Math.min(185, this.state.pos + 0.25), seed: this.state.seed + 1 }); }, 250); }
+  componentWillUnmount() { clearInterval(this.tick); }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.3), line: a(0.4) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const v = Math.floor(st.pos);
+    const vu = [];
+    for (let i = 0; i < 12; i++) {
+      const h = st.playing ? 4 + Math.abs(Math.sin(st.seed * 0.7 + i * 1.3)) * 22 : 3;
+      vu.push({ h: h.toFixed(0) + 'px', c: s.a1 });
+    }
+    return {
+      s, vu, raw: v, pos: Math.floor(v / 60) + ':' + String(v % 60).padStart(2, '0'), pct: (v / 185 * 100).toFixed(1) + '%',
+      seek: (e) => this.setState({ pos: Number(e.target.value) }),
+      toggle: () => this.setState({ playing: !st.playing }), playLabel: st.playing ? 'Pause' : 'Play',
+      playIcon: st.playing ? 'M7 5h3.5v14H7zM13.5 5H17v14h-3.5z' : 'M8 5l11 7-11 7z',
+      shuffle: st.shuffle, toggleShuffle: () => this.setState({ shuffle: !st.shuffle }), shuffleFg: st.shuffle ? s.a1 : '#8c8f95',
+      repeat: st.repeat, toggleRepeat: () => this.setState({ repeat: !st.repeat }), repeatFg: st.repeat ? s.a1 : '#8c8f95'
+    };
+  }
+}
+</script>
+</body>
+</html>

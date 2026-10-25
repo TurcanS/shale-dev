@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack notifications</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes nIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.n-in{animation:nIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-in{animation:none}button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Notifications" style="position: relative; width: 420px; height: 580px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6; overflow: hidden;">
+
+<header style="display: flex; align-items: center; gap: 8px; height: 32px;">
+<span style="font-weight: 650; font-size: 17px;">Notifications</span>
+<span style="min-width: 22px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; background: #2a2d33; display: grid; place-items: center; font-weight: 650; font-size: 12px; color: #c9c6bf;">{{count}}</span>
+<button onClick="{{clearAll}}" style="margin-left: auto; height: 30px; padding: 0 12px; border-radius: 9px; border: 0; background: #1c1e22; font-weight: 600; font-size: 12px; cursor: pointer;">Clear all</button>
+</header>
+
+<button aria-pressed="{{dnd}}" onClick="{{toggleDnd}}" style="height: 48px; flex: none; padding: 0 12px; border-radius: 14px; border: 1px solid {{dndBorder}}; background: {{dndBg}}; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;">
+<span style="width: 30px; height: 30px; border-radius: 9px; background: {{dndIconBg}}; color: {{dndIconFg}}; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z"></path></svg></span>
+<span style="display: flex; flex-direction: column; flex: 1;"><span style="font-weight: 600; font-size: 14px;">Do not disturb</span><span style="font-size: 12px; color: #8c8f95;">{{dndSub}}</span></span>
+<span aria-hidden="true" style="position: relative; width: 40px; height: 22px; border-radius: 11px; background: {{dndTrack}};"><span style="position: absolute; top: 3px; left: {{dndKnob}}; width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; transition: left 160ms ease-out;"></span></span>
+</button>
+
+<div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; overflow: hidden;">
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #8c8f95;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4"></path></svg><span style="font-weight: 600; font-size: 15px; color: #c9c6bf;">You're all caught up</span><span style="font-size: 13px;">New notifications land here.</span></div>
+</sc-if>
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+<span style="padding: 4px 4px 0; font-weight: 600; font-size: 12px; color: #8c8f95;">{{g.title}}</span>
+<sc-for list="{{g.items}}" as="n" hint-placeholder-count="2">
+<article class="n-in" style="flex: none; padding: 12px; border-radius: 14px; background: #1c1e22; box-shadow: {{n.ring}}; display: flex; gap: 12px;">
+<span style="width: 34px; height: 34px; flex: none; border-radius: 10px; background: {{n.tile}}; color: {{n.tileFg}}; display: grid; place-items: center;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
+<div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8c8f95;"><span style="font-weight: 600; color: #c9c6bf;">{{n.app}}</span>·<span>{{n.time}}</span>
+<button aria-label="Dismiss: {{n.title}}" onClick="{{n.dismiss}}" style="margin-left: auto; width: 24px; height: 24px; padding: 0; border-radius: 7px; border: 0; background: transparent; color: #8c8f95; display: grid; place-items: center; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>
+<span style="font-weight: 600; font-size: 14px;">{{n.title}}</span>
+<span style="font-size: 13px; line-height: 1.4; color: #a7a9ad;">{{n.body}}</span>
+<sc-if value="{{n.hasAction}}" hint-placeholder-val="{{ true }}"><div style="display: flex; gap: 6px; margin-top: 6px;"><button style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: {{n.primaryBg}}; color: {{n.primaryFg}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{n.action}}</button><button onClick="{{n.dismiss}}" style="height: 28px; padding: 0 12px; border-radius: 8px; border: 0; background: #2a2d33; font-weight: 600; font-size: 12px; cursor: pointer;">Later</button></div></sc-if>
+</div>
+</article>
+</sc-for>
+</sc-for>
+</div>
+
+<sc-if value="{{hasUndo}}" hint-placeholder-val="{{ false }}">
+<div role="status" class="n-in" style="position: absolute; left: 14px; right: 14px; bottom: 14px; height: 44px; box-sizing: border-box; padding: 0 6px 0 14px; border-radius: 12px; background: #2c2f35; box-shadow: 0 10px 24px rgba(0,0,0,0.45); display: flex; align-items: center; gap: 8px; font-size: 13px;">{{undoText}}<button onClick="{{undo}}" style="margin-left: auto; height: 32px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: {{s.a1}}; font-weight: 650; font-size: 13px; cursor: pointer;">Undo</button></div>
+</sc-if>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":420,"height":580}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      dnd: false, undo: null,
+      items: [
+        { id: 1, app: 'Mail', time: 'now', title: 'Invoice 0142 is ready', body: 'Hetzner · the PDF is attached.', action: 'Open', urgent: true, icon: 'M4 6h16v12H4zM4 7l8 6 8-6', when: 'new' },
+        { id: 2, app: 'Discord', time: '21:12', title: 'Ana: the new bar looks great', body: 'Can you post the sound-route video?', action: 'Reply', icon: 'M5 5h14v10H9l-4 4z', when: 'new' },
+        { id: 3, app: 'Updates', time: '20:05', title: '26 packages can be updated', body: 'Includes Hyprland 0.56.3 and Mesa.', action: 'Update', icon: 'M12 4v11M7 10l5 5 5-5M5 20h14', when: 'earlier' },
+        { id: 4, app: 'Capture', time: '19:48', title: 'Screenshot saved', body: 'Copied to the clipboard too.', action: '', icon: 'M4 8h3l2-3h6l2 3h3v11H4zM12 11a3 3 0 1 1 0 6 3 3 0 0 1 0-6z', when: 'earlier' }
+      ]
+    };
+  }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const view = (n) => Object.assign({}, n, {
+      hasAction: !!n.action, ring: n.urgent ? 'inset 0 0 0 1px ' + s.line : 'none',
+      tile: n.urgent ? s.a1 : '#2a2d33', tileFg: n.urgent ? '#17181a' : '#c9c6bf',
+      primaryBg: n.urgent ? s.a1 : '#2a2d33', primaryFg: n.urgent ? '#17181a' : '#efece6',
+      dismiss: () => this.setState({ items: st.items.filter((x) => x.id !== n.id), undo: { item: n } })
+    });
+    const groups = [['new', 'New'], ['earlier', 'Earlier today']].map(([k, title]) => ({ title, items: st.items.filter((n) => n.when === k).map(view) })).filter((g) => g.items.length);
+    return {
+      s, groups, count: st.items.length, empty: st.items.length === 0,
+      dnd: st.dnd, toggleDnd: () => this.setState({ dnd: !st.dnd }), dndSub: st.dnd ? 'Holding new notifications' : 'Off · calls and alarms always ring',
+      dndBg: st.dnd ? s.soft : '#1c1e22', dndBorder: st.dnd ? s.line : 'transparent', dndIconBg: st.dnd ? s.a1 : '#2a2d33', dndIconFg: st.dnd ? '#17181a' : '#efece6',
+      dndTrack: st.dnd ? s.a1 : '#2a2d33', dndKnob: st.dnd ? '21px' : '3px',
+      clearAll: () => this.setState({ undo: { all: st.items }, items: [] }),
+      hasUndo: !!st.undo, undoText: st.undo ? (st.undo.all ? 'All notifications cleared' : 'Notification dismissed') : '',
+      undo: () => { const u = st.undo; if (!u) return; this.setState({ items: u.all ? u.all : st.items.concat([u.item]).sort((a, b) => a.id - b.id), undo: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

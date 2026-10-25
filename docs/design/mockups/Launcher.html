@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack find</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Find" style="width: 680px; height: 480px; box-sizing: border-box; display: flex; flex-direction: column; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.4); font-family: 'Hanken Grotesk', sans-serif; color: #efece6; overflow: hidden;">
+
+<label style="display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 18px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8c8f95" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10.5 4a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM15.5 15.5L20 20"></path></svg>
+<input value="{{query}}" onChange="{{onQuery}}" onKeyDown="{{onKey}}" placeholder="Search apps, windows and actions…" aria-label="Find" style="flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: #efece6; font: 18px 'Hanken Grotesk', sans-serif;">
+<span style="padding: 2px 7px; border-radius: 6px; background: #1c1e22; font-size: 11px; color: #8c8f95;">Esc</span>
+</label>
+
+<div role="tablist" aria-label="Filter" style="display: flex; gap: 6px; padding: 10px 14px 4px;">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="height: 28px; padding: 0 12px; border-radius: 14px; border: 1px solid {{t.border}}; background: {{t.bg}}; color: {{t.fg}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{t.label}}</button></sc-for>
+</div>
+
+<div style="flex: 1; min-height: 0; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; overflow: hidden;">
+<sc-if value="{{empty}}" hint-placeholder-val="{{ true }}">
+<div style="margin: 2px 6px 4px; padding: 9px 12px; border-radius: 12px; background: #1c1e22; display: flex; gap: 18px; font-size: 13px; color: #c9c6bf;">
+<span style="display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 6h14v13H5zM5 10h14M9 4v4M15 4v4"></path></svg>14:00 Dentist</span>
+<span style="display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M7 17a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4 4 0 0 1 .5 8.5z"></path></svg>11° light rain</span>
+<span style="display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M3 8h16v8H3zM21 11v2"></path></svg>82% · 3 h 12 left</span>
+</div>
+</sc-if>
+<sc-if value="{{hasCalc}}" hint-placeholder-val="{{ false }}">
+<div style="margin: 2px 6px 6px; padding: 14px 16px; border-radius: 12px; background: {{s.soft}}; box-shadow: inset 0 0 0 1px {{s.line}}; display: flex; align-items: center; gap: 14px;">
+<span style="font-size: 15px; color: #c9c6bf;">{{query}}</span><span style="color: #8c8f95;">=</span><span style="font-weight: 650; font-size: 26px; font-variant-numeric: tabular-nums;">{{calc}}</span>
+<span style="margin-left: auto; font-size: 12px; color: #d8d5ce;">Enter copies</span>
+</div>
+</sc-if>
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+<span style="padding: 6px 12px 2px; font-weight: 600; font-size: 12px; color: #8c8f95;">{{g.title}}</span>
+<sc-for list="{{g.rows}}" as="r" hint-placeholder-count="3">
+<button onClick="{{r.pick}}" onMouseEnter="{{r.hover}}" aria-current="{{r.current}}" style="height: 42px; flex: none; padding: 0 10px; border-radius: 12px; border: 0; background: {{r.bg}}; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;">
+<span style="width: 30px; height: 30px; flex: none; border-radius: 9px; background: {{r.tile}}; color: {{r.tileFg}}; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{r.icon}}"></path></svg></span>
+<span style="font-weight: 600; font-size: 14px; white-space: nowrap;">{{r.name}}</span>
+<span style="font-size: 13px; color: #8c8f95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{r.desc}}</span>
+<span style="margin-left: auto; font-size: 12px; color: {{r.hintFg}}; white-space: nowrap;">{{r.hint}}</span>
+</button>
+</sc-for>
+</sc-for>
+<sc-if value="{{none}}" hint-placeholder-val="{{ false }}"><div style="flex: 1; display: grid; place-items: center; font-size: 14px; color: #8c8f95;">Nothing matches. Try ? to search the web.</div></sc-if>
+</div>
+
+<footer style="height: 40px; flex: none; padding: 0 16px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 16px; font-size: 12px; color: #8c8f95;">
+<span style="display: flex; align-items: center; gap: 6px;"><span style="padding: 1px 6px; border-radius: 5px; background: #1c1e22; color: #c9c6bf;">↑↓</span>Move</span>
+<span style="display: flex; align-items: center; gap: 6px;"><span style="padding: 1px 6px; border-radius: 5px; background: #1c1e22; color: #c9c6bf;">↵</span>Open</span>
+<span>note … · timer … · = sums · ? web · / files</span>
+<span style="margin-left: auto;">{{count}}</span>
+</footer>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":680,"height":480}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); this.state = { query: '', tab: 'all', sel: 0 }; }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const q = st.query.trim();
+    const I = {
+      app: 'M5 5h6v6H5zM13 5h6v6h-6zM5 13h6v6H5zM13 13h6v6h-6z', win: 'M4 5h16v14H4zM4 9h16', act: 'M13 3L5 14h6l-1 7 8-11h-6z',
+      note: 'M6 4h9l4 4v12H6zM14 4v5h5M9 13h7M9 17h5', timer: 'M12 8v5l3 2M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM10 2h4', scene: 'M12 3v2M12 19v2M5 12H3M21 12h-2M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z'
+    };
+    const all = [
+      ['Firefox', 'Web browser', 'app'], ['kitty', 'Terminal', 'app'], ['Files', 'Browse folders', 'app'], ['Spotify', 'Music', 'app'],
+      ['Obsidian', 'Notes and writing', 'app'], ['GIMP', 'Edit images', 'app'], ['Steam', 'Games', 'app'],
+      ['Firefox', 'Shale redesign notes', 'win', 'Page 2'], ['kitty', '~/src/shale', 'win', 'Page 1'],
+      ['Lock the screen', '', 'act', 'Super L'], ['Focus for 25 minutes', 'holds notifications', 'act'],
+      ['Evening scene', 'night light, volume 40', 'act'], ['Screenshot and pin', 'keeps it above windows', 'act', 'Print']
+    ];
+    let calc = null;
+    if (q && /^=?[\d\s+\-*/().%]+$/.test(q) && /\d/.test(q)) {
+      try { const v = Function('"use strict";return (' + q.replace(/^=/, '') + ')')(); if (typeof v === 'number' && isFinite(v)) calc = String(Math.round(v * 1e6) / 1e6); } catch (e) { calc = null; }
+    }
+    const tabMap = { all: null, app: 'app', win: 'win', act: 'act' };
+    let groups = [];
+    if (/^note\s+/i.test(q)) groups = [['Note', [['Add to the note', '“' + q.replace(/^note\s+/i, '') + '”', 'note']]]];
+    else if (/^timer\s+/i.test(q)) groups = [['Timer', [['Start a timer in the bar', q.replace(/^timer\s+/i, ''), 'timer']]]];
+    else if (calc === null) {
+      const want = tabMap[st.tab];
+      const hit = all.filter(([n, d, k]) => (!want || k === want) && (!q || (n + ' ' + d).toLowerCase().includes(q.toLowerCase())));
+      const titles = { app: q ? 'Apps' : 'Suggested', win: 'Open windows', act: 'Actions' };
+      ['app', 'win', 'act'].forEach((k) => {
+        let rows = hit.filter((x) => x[2] === k);
+        if (!q && !want) rows = rows.slice(0, k === 'app' ? 3 : 1);
+        if (rows.length) groups.push([titles[k], rows.slice(0, 5)]);
+      });
+    }
+    let idx = 0;
+    const total = groups.reduce((n, g) => n + g[1].length, 0);
+    const sel = Math.min(st.sel, Math.max(0, total - 1));
+    const out = groups.map(([title, rows]) => ({ title, rows: rows.map(([name, desc, kind, hint]) => {
+      const i = idx++, on = i === sel;
+      return { name, desc, icon: I[kind], current: on ? 'true' : 'false', hint: on ? 'Open ↵' : (hint || ''), hintFg: on ? s.a1 : '#8c8f95',
+        bg: on ? s.soft : 'transparent', tile: on ? s.a1 : '#24272c', tileFg: on ? '#17181a' : '#c9c6bf',
+        pick: () => this.setState({ sel: i }), hover: () => this.setState({ sel: i }) };
+    }) }));
+    const tabs = [['all', 'All'], ['app', 'Apps'], ['win', 'Windows'], ['act', 'Actions']].map(([id, label]) => {
+      const on = st.tab === id;
+      return { label, on, pick: () => this.setState({ tab: id, sel: 0 }), bg: on ? s.soft : 'transparent', border: on ? s.line : 'rgba(255,255,255,0.08)', fg: on ? s.a1 : '#c9c6bf' };
+    });
+    return {
+      s, query: st.query, tabs, groups: out, empty: !q, hasCalc: calc !== null, calc, none: !!q && calc === null && total === 0,
+      count: total + (calc !== null ? 1 : 0) + ' results',
+      onQuery: (e) => this.setState({ query: e.target.value, sel: 0 }),
+      onKey: (e) => {
+        if (e.key === 'ArrowDown') { e.preventDefault(); this.setState({ sel: Math.min(sel + 1, total - 1) }); }
+        if (e.key === 'ArrowUp') { e.preventDefault(); this.setState({ sel: Math.max(sel - 1, 0) }); }
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

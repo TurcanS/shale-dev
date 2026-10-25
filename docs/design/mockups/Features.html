@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack features</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 1600px; height: 1300px; box-sizing: border-box; background: #121316; padding: 52px 72px; font-family: 'Hanken Grotesk', sans-serif; color: #efece6; display: flex; flex-direction: column; gap: 22px;">
+<header style="display: flex; align-items: baseline; gap: 24px;">
+<h1 style="margin: 0; font-family: 'Martian Mono', monospace; font-weight: 200; font-size: 52px; letter-spacing: -0.05em;">Features</h1>
+<p style="margin: 0; font-size: 16px; color: #c9c6bf;">Six are planned. Twelve more are proposed: pick the ones you want and the rest stay out, so the shell does not bloat.</p>
+</header>
+
+<div style="font-weight: 650; font-size: 12px; letter-spacing: 0.2em; color: #a7a9ad;">Planned · 6</div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px;">
+<sc-for list="{{planned}}" as="f" hint-placeholder-count="6">
+<article style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;">
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: {{f.c}};">{{f.n}}</span>
+<h2 style="margin: 0; font-weight: 650; font-size: 15px;">{{f.title}}</h2>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #c9c6bf;">{{f.text}}</p>
+</div>
+</article>
+</sc-for>
+</div>
+
+<div style="display: flex; align-items: baseline; gap: 14px; margin-top: 8px;">
+<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.2em; color: #a7a9ad;">Proposed · 12</span>
+<span style="font-size: 13px; color: #a7a9ad;">Click a module to mark it as wanted.</span>
+<span style="margin-left: auto; font-family: 'Martian Mono', monospace; font-size: 13px; color: #ff8a3d;">{{pickedCount}} PICKED</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; flex: 1;">
+<sc-for list="{{proposed}}" as="f" hint-placeholder-count="12">
+<button aria-pressed="{{f.on}}" onClick="{{f.toggle}}" style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 10px; border: 2px solid {{f.border}}; padding: 0; overflow: hidden; display: flex; flex-direction: column; text-align: left; color: #efece6; cursor: pointer;">
+<span style="display: block; height: 6px; width: 100%; background: {{f.c}};"></span>
+<span style="padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{f.led}}; box-shadow: {{f.glow}};"></span><span style="font-weight: 650; font-size: 15px;">{{f.title}}</span></span>
+<span style="font-size: 13px; line-height: 1.45; color: #c9c6bf;">{{f.text}}</span>
+<span style="margin-top: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #a7a9ad;"><span style="font-weight: 650; letter-spacing: 0.01em;">Lives in</span><span>{{f.where}}</span></span>
+<span style="font-size: 12px; color: #a7a9ad;">{{f.needs}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); this.state = { picked: {} }; }
+  renderVals() {
+    const A1 = '#ff8a3d', A2 = '#ff8a3d', A3 = '#ff8a3d', A4 = '#ff8a3d';
+    const planned = [
+      { n: '01', c: A3, title: 'Desktop rack', text: 'Clock, sky, note, system, player and agenda as modules on the wallpaper. Off until wanted; six at most.' },
+      { n: '02', c: A4, title: 'One running note', text: 'note … in Find adds a line; the same note sits in the desktop rack.' },
+      { n: '03', c: A2, title: 'Sky arc', text: 'Sun position between rise and set and how long is left, from the weather Shale already fetches.' },
+      { n: '04', c: A1, title: 'Route the sound', text: 'Send it to speakers, headphones or HDMI in one press; every playing stream follows.' },
+      { n: '05', c: A3, title: 'Stripes from the wallpaper', text: 'Four colours pulled from each wallpaper colour every module; its name can sit on the desktop.' },
+      { n: '06', c: A2, title: 'At a glance', text: 'Next event, weather and battery time on the lock screen and in an empty Find.' }
+    ];
+    const defs = [
+      ['scenes', A2, 'Scenes', 'Work, Game, Evening: one press sets apps on workspaces, volume, quiet and power mode.', 'Control rack · Find', 'Uses Hyprland and power profiles already in Shale.'],
+      ['meeting', A1, 'Meeting key', 'Mutes mic and camera and turns on quiet in one press; switches itself on when a call app takes the mic.', 'Bar · Control rack', 'PipeWire only.'],
+      ['sheet', A4, 'Shortcut sheet', 'Hold Super for a moment and every shortcut appears over the screen.', 'Whole screen', 'Reads the shortcuts Shale already manages.'],
+      ['shelf', A4, 'Drop shelf', 'Drag files, screenshots or text to the bar edge to park them; drag them out later.', 'Bar edge', 'Drag and drop in Quickshell; needs a test.'],
+      ['pin', A1, 'Pinned screenshot', 'Capture a region and keep it floating above windows as a reference.', 'Capture', 'grim and slurp, already used.'],
+      ['timers', A3, 'Timers in the bar', 'Several named timers at once: tea 4:12, laundry 31:00. Click to pause.', 'Bar', 'Extends timer in Find.'],
+      ['batteries', A2, 'Device batteries', 'Headphones, mouse and controller levels, with a warning under 15 %.', 'Control rack · Bar', 'UPower; BlueZ battery support.'],
+      ['charge', A3, 'Charge care', 'Stop charging at 80 % and change power mode when unplugged.', 'Control rack', 'Needs charge_control_end_threshold on the laptop.'],
+      ['meter', A2, 'Network meter', 'Live down and up speed on hover, and data used today.', 'Bar · NET module', '/proc counters; no extra packages.'],
+      ['snippets', A4, 'Clipboard pins and snippets', 'Keep items you reuse; type ;sig in Find to paste one.', 'Clipboard · Find', 'cliphist, already used.'],
+      ['calendar', A3, 'Calendar sync', 'Read local calendars so the agenda and at-a-glance show real events.', 'Clock and sky', 'ICS files or vdirsyncer.'],
+      ['smartquiet', A4, 'Smart quiet', 'Quiet turns on during full-screen games and screen sharing, with a summary after.', 'Notes', 'Built on Focus, already in Shale.']
+    ];
+    const picked = this.state.picked;
+    const proposed = defs.map(([id, c, title, text, where, needs]) => {
+      const on = !!picked[id];
+      return { title, text, where, needs, c, on, toggle: () => this.setState({ picked: Object.assign({}, picked, { [id]: !on }) }),
+        border: on ? c : '#1c1e22', led: on ? c : '#3a3d42', glow: on ? '0 0 8px ' + c : 'none' };
+    });
+    return { planned, proposed, pickedCount: Object.values(picked).filter(Boolean).length };
+  }
+}
+</script>
+</body>
+</html>

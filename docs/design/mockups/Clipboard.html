@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack clipboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Clipboard" style="position: relative; width: 560px; height: 600px; box-sizing: border-box; display: flex; flex-direction: column; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6; overflow: hidden;">
+
+<label style="display: flex; align-items: center; gap: 12px; height: 56px; flex: none; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8c8f95" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10.5 4a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM15.5 15.5L20 20"></path></svg>
+<input value="{{query}}" onChange="{{onQuery}}" placeholder="Search clipboard history…" aria-label="Search the clipboard" style="flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: #efece6; font: 16px 'Hanken Grotesk', sans-serif;">
+<span style="font-size: 12px; color: #8c8f95;">{{count}} items</span>
+</label>
+
+<div role="tablist" aria-label="Show" style="display: flex; gap: 6px; padding: 10px 12px 6px; flex: none;">
+<sc-for list="{{filters}}" as="t" hint-placeholder-count="6"><button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="height: 28px; padding: 0 11px; border-radius: 14px; border: 1px solid {{t.border}}; background: {{t.bg}}; color: {{t.fg}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{t.label}}</button></sc-for>
+</div>
+
+<div style="flex: 1; min-height: 0; display: flex; gap: 0;">
+<ul style="list-style: none; margin: 0; padding: 4px 8px; width: 250px; flex: none; display: flex; flex-direction: column; gap: 2px; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.06);">
+<sc-for list="{{items}}" as="c" hint-placeholder-count="7">
+<li><button onClick="{{c.pick}}" aria-current="{{c.current}}" style="width: 100%; height: 48px; padding: 0 8px; border-radius: 10px; border: 0; background: {{c.bg}}; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
+<span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: {{c.tile}}; color: {{c.tileFg}}; display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{c.icon}}"></path></svg></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{c.text}}</span><span style="font-size: 11px; color: #8c8f95;">{{c.when}}</span></span>
+<sc-if value="{{c.pinned}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="{{s.a1}}" aria-label="Pinned"><path d="M8 3h8l-1 7 4 4H5l4-4zM12 14v7" stroke="{{s.a1}}" stroke-width="1.5"></path></svg></sc-if>
+</button></li>
+</sc-for>
+</ul>
+
+<div style="flex: 1; min-width: 0; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+<sc-if value="{{has}}" hint-placeholder-val="{{ true }}">
+<div style="flex: 1; min-height: 0; border-radius: 14px; background: #1c1e22; overflow: hidden; display: flex;">
+<sc-if value="{{cur.isImage}}" hint-placeholder-val="{{ false }}"><svg width="100%" height="100%" viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="160" height="100" fill="#14233a"></rect><path d="M0 70 L35 50 L65 64 L100 36 L160 64 L160 100 L0 100 Z" fill="#22344d"></path><path d="M0 84 L50 72 L100 82 L160 70 L160 100 L0 100 Z" fill="#0a111a"></path><circle cx="120" cy="24" r="9" fill="#e7e1d1"></circle></svg></sc-if>
+<sc-if value="{{cur.isColour}}" hint-placeholder-val="{{ false }}"><div style="flex: 1; display: flex; flex-direction: column;"><span style="flex: 1; background: {{cur.text}};"></span><div style="padding: 10px 12px; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px;"><span style="color: #8c8f95;">Hex</span><span style="font-family: 'Martian Mono', monospace;">{{cur.text}}</span><span style="color: #8c8f95;">RGB</span><span style="font-family: 'Martian Mono', monospace;">{{cur.rgb}}</span></div></div></sc-if>
+<sc-if value="{{cur.isText}}" hint-placeholder-val="{{ true }}"><p style="margin: 0; padding: 14px; font-size: 15px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; font-family: {{cur.font}};">{{cur.text}}</p></sc-if>
+</div>
+<div style="display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 12px;">
+<span style="color: #8c8f95;">From</span><span>{{cur.source}}</span>
+<span style="color: #8c8f95;">Copied</span><span>{{cur.when}}</span>
+<span style="color: #8c8f95;">Type</span><span>{{cur.kindName}}</span>
+</div>
+<div style="display: flex; gap: 6px;">
+<button style="flex: 1; height: 36px; border-radius: 10px; border: 0; background: {{s.a1}}; color: #17181a; font-weight: 650; font-size: 13px; cursor: pointer;">Paste</button>
+<button aria-pressed="{{cur.pinned}}" onClick="{{cur.pin}}" style="height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid {{cur.pinBorder}}; background: {{cur.pinBg}}; color: {{cur.pinFg}}; font-weight: 600; font-size: 13px; cursor: pointer;">{{cur.pinWord}}</button>
+<button onClick="{{cur.remove}}" aria-label="Remove" style="width: 36px; height: 36px; padding: 0; border-radius: 10px; border: 0; background: #2a2d33; display: grid; place-items: center; cursor: pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"></path></svg></button>
+</div>
+</sc-if>
+<sc-if value="{{none}}" hint-placeholder-val="{{ false }}"><div style="flex: 1; display: grid; place-items: center; font-size: 14px; color: #8c8f95;">Nothing here.</div></sc-if>
+</div>
+</div>
+
+<footer style="height: 38px; flex: none; padding: 0 16px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 16px; font-size: 12px; color: #8c8f95;">
+<span><span style="padding: 1px 6px; border-radius: 5px; background: #1c1e22; color: #c9c6bf;">↵</span> Paste</span><span><span style="padding: 1px 6px; border-radius: 5px; background: #1c1e22; color: #c9c6bf;">Ctrl P</span> Pin</span><span><span style="padding: 1px 6px; border-radius: 5px; background: #1c1e22; color: #c9c6bf;">Del</span> Remove</span><span style="margin-left: auto;">Kept 7 days · pinned stay</span>
+</footer>
+
+<sc-if value="{{hasUndo}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="position: absolute; left: 14px; right: 14px; bottom: 50px; height: 44px; box-sizing: border-box; padding: 0 6px 0 14px; border-radius: 12px; background: #2c2f35; box-shadow: 0 10px 24px rgba(0,0,0,0.45); display: flex; align-items: center; gap: 8px; font-size: 13px;">Removed “{{undoText}}”<button onClick="{{undo}}" style="margin-left: auto; height: 32px; padding: 0 12px; border-radius: 8px; border: 0; background: transparent; color: {{s.a1}}; font-weight: 650; font-size: 13px; cursor: pointer;">Undo</button></div>
+</sc-if>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":560,"height":600}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      query: '', filter: 'all', undo: null, sel: 1,
+      items: [
+        { id: 1, kind: 'txt', text: 'Thanks — I will send the invoice tonight.', source: 'Firefox', when: '2 min ago', pinned: false },
+        { id: 2, kind: 'url', text: 'github.com/TurcanS/shale/issues/41', source: 'Firefox', when: '9 min ago', pinned: false },
+        { id: 3, kind: 'img', text: 'Screenshot 1920×1080', source: 'Capture · region', when: '14 min ago', pinned: false },
+        { id: 4, kind: 'hex', text: '#ff8a3d', source: 'Colour picker', when: '20 min ago', pinned: false },
+        { id: 5, kind: 'txt', text: 'Best regards,\n[your name]\n[your email]', source: 'Snippet ;sig', when: '3 days ago', pinned: true },
+        { id: 6, kind: 'code', text: 'sudo pacman -Syu', source: 'kitty', when: '1 h ago', pinned: true },
+        { id: 7, kind: 'url', text: 'open-meteo.com/en/docs', source: 'Firefox', when: 'yesterday', pinned: false }
+      ]
+    };
+  }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const icons = { txt: 'M5 6h14M5 12h14M5 18h9', url: 'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1', img: 'M4 5h16v14H4zM4 16l5-5 4 4 2-2 5 5', hex: 'M12 4c4 5 6 8 6 10.5a6 6 0 0 1-12 0C6 12 8 9 12 4z', code: 'M8 8l-4 4 4 4M16 8l4 4-4 4' };
+    const names = { txt: 'Text', url: 'Link', img: 'Image', hex: 'Colour', code: 'Command' };
+    const want = { all: null, txt: ['txt', 'code'], img: ['img'], url: ['url'], hex: ['hex'], pin: 'pin' }[st.filter];
+    const q = st.query.trim().toLowerCase();
+    const shown = st.items
+      .filter((c) => (!want || (want === 'pin' ? c.pinned : want.indexOf(c.kind) >= 0)) && (!q || c.text.toLowerCase().includes(q)))
+      .sort((a, b) => (b.pinned - a.pinned) || (a.id - b.id));
+    const sel = shown.find((c) => c.id === st.sel) || shown[0];
+    const items = shown.map((c) => {
+      const on = sel && c.id === sel.id;
+      return Object.assign({}, c, { text: c.text.split('\n')[0], icon: icons[c.kind], current: on ? 'true' : 'false', pick: () => this.setState({ sel: c.id }),
+        bg: on ? s.soft : 'transparent', tile: on ? s.a1 : '#24272c', tileFg: on ? '#17181a' : '#c9c6bf' });
+    });
+    const filters = [['all', 'All'], ['txt', 'Text'], ['img', 'Images'], ['url', 'Links'], ['hex', 'Colours'], ['pin', 'Pinned']].map(([id, label]) => {
+      const on = st.filter === id;
+      return { label, on, pick: () => this.setState({ filter: id }), bg: on ? s.soft : 'transparent', border: on ? s.line : 'rgba(255,255,255,0.08)', fg: on ? s.a1 : '#c9c6bf' };
+    });
+    let cur = { isImage: false, isColour: false, isText: false };
+    if (sel) {
+      const rgb = sel.kind === 'hex' ? [1, 3, 5].map((i) => parseInt(sel.text.slice(i, i + 2), 16)).join(', ') : '';
+      cur = Object.assign({}, sel, { isImage: sel.kind === 'img', isColour: sel.kind === 'hex', isText: sel.kind !== 'img' && sel.kind !== 'hex', rgb, kindName: names[sel.kind],
+        font: sel.kind === 'code' ? "'Martian Mono', monospace" : "'Hanken Grotesk', sans-serif",
+        pinWord: sel.pinned ? 'Pinned' : 'Pin', pinBg: sel.pinned ? s.soft : '#2a2d33', pinFg: sel.pinned ? s.a1 : '#efece6', pinBorder: sel.pinned ? s.line : 'transparent',
+        pin: () => this.setState({ items: st.items.map((x) => x.id === sel.id ? Object.assign({}, x, { pinned: !x.pinned }) : x) }),
+        remove: () => this.setState({ items: st.items.filter((x) => x.id !== sel.id), undo: sel, sel: null }) });
+    }
+    return {
+      s, items, filters, cur, has: !!sel, none: !sel, count: st.items.length, query: st.query, onQuery: (e) => this.setState({ query: e.target.value }),
+      hasUndo: !!st.undo, undoText: st.undo ? (st.undo.text.length > 26 ? st.undo.text.slice(0, 26) + '…' : st.undo.text) : '',
+      undo: () => { if (st.undo) this.setState({ items: st.items.concat([st.undo]), sel: st.undo.id, undo: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

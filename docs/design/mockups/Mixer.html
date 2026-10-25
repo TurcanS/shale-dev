@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack mixer</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+.m-lvl{transition:height 110ms linear}
+@media (prefers-reduced-motion: reduce){.m-lvl,button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Mixer and equalizer" style="width: 720px; height: 460px; box-sizing: border-box; padding: 12px; display: flex; gap: 8px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<div style="width: 408px; box-sizing: border-box; background: #1c1e22; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: center; gap: 8px;"><span style="font-weight: 650; font-size: 15px;">Mixer</span><span style="padding: 3px 8px; border-radius: 8px; background: #141518; font-size: 12px; color: #a7a9ad;">Out · Headphones</span></div>
+<div style="flex: 1; display: flex; gap: 6px; min-height: 0;">
+<sc-for list="{{strips}}" as="c" hint-placeholder-count="5">
+<div style="width: 72px; border-radius: 12px; background: #17191c; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-bottom: 8px;">
+<span aria-hidden="true" style="align-self: stretch; height: 3px; background: {{c.tag}};"></span>
+<span style="font-weight: 600; font-size: 12px; max-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{c.label}}</span>
+<div style="position: relative; width: 30px; height: 30px;" title="Pan {{c.panText}}">
+<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="#2a2d33" stroke-width="3"></circle><path d="{{c.panArc}}" fill="none" stroke="#e7e2d6" stroke-width="3" stroke-linecap="round"></path><circle cx="15" cy="15" r="2" fill="#8c8f95"></circle></svg>
+<input type="range" min="-50" max="50" value="{{c.pan}}" onChange="{{c.panChange}}" aria-label="{{c.label}} pan" style="position: absolute; inset: 0; width: 30px; height: 30px; margin: 0; opacity: 0; cursor: ew-resize;">
+</div>
+<div style="position: relative; flex: 1; width: 56px; min-height: 0;">
+<span aria-hidden="true" style="position: absolute; left: 6px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: {{c.lvlL}}; background: linear-gradient(to top, {{s.soft}}, {{c.meter}});"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 12px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: #0f1012; overflow: hidden;"><span class="m-lvl" style="position: absolute; left: 0; right: 0; bottom: 0; height: {{c.lvlR}}; background: linear-gradient(to top, {{s.soft}}, {{c.meter}});"></span></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; top: 0; bottom: 0; width: 2px; border-radius: 1px; background: #2a2d33;"></span>
+<span aria-hidden="true" style="position: absolute; left: 33px; bottom: 0; width: 2px; height: {{c.pct}}; border-radius: 1px; background: {{c.fill}};"></span>
+<span aria-hidden="true" style="position: absolute; left: 22px; bottom: calc({{c.pct}} - 7px); width: 24px; height: 14px; border-radius: 4px; background: #f4f2ee; box-shadow: 0 2px 6px rgba(0,0,0,0.55);"><span style="position: absolute; left: 5px; right: 5px; top: 6px; height: 2px; border-radius: 1px; background: #17181a;"></span></span>
+<input type="range" min="0" max="100" value="{{c.v}}" onChange="{{c.change}}" aria-label="{{c.label}} volume" style="position: absolute; inset: 0; width: 56px; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+<span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: {{c.valColor}}; font-variant-numeric: tabular-nums;">{{c.db}}</span>
+<div style="display: flex; gap: 4px;">
+<button aria-pressed="{{c.muted}}" onClick="{{c.mute}}" aria-label="Mute {{c.label}}" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: {{c.mBg}}; color: {{c.mFg}}; font-weight: 700; font-size: 11px; cursor: pointer;">M</button>
+<button aria-pressed="{{c.solo}}" onClick="{{c.soloT}}" aria-label="Solo {{c.label}}" style="width: 26px; height: 22px; padding: 0; border-radius: 6px; border: 0; background: {{c.sBg}}; color: {{c.sFg}}; font-weight: 700; font-size: 11px; cursor: pointer;">S</button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="flex: 1; min-width: 0; background: #1c1e22; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: center; justify-content: space-between;"><span style="font-weight: 650; font-size: 15px;">Equalizer</span>
+<button aria-pressed="{{eqOn}}" onClick="{{toggleEq}}" aria-label="Equalizer on" style="width: 36px; height: 20px; padding: 0; border-radius: 10px; border: 0; background: {{eqTrack}}; position: relative; cursor: pointer;"><span style="position: absolute; top: 2px; left: {{eqKnob}}; width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; transition: left 160ms ease-out;"></span></button></div>
+<div role="radiogroup" aria-label="Preset" style="display: flex; padding: 3px; gap: 2px; border-radius: 10px; background: #141518;">
+<sc-for list="{{presets}}" as="p" hint-placeholder-count="4"><button role="radio" aria-checked="{{p.on}}" onClick="{{p.pick}}" style="flex: 1; height: 26px; padding: 0; border-radius: 7px; border: 0; background: {{p.bg}}; color: {{p.fg}}; box-shadow: {{p.shadow}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{p.label}}</button></sc-for>
+</div>
+<div style="position: relative; flex: 1; border-radius: 12px; background: #141518; overflow: hidden; opacity: {{eqOpacity}};">
+<svg width="100%" height="100%" viewBox="0 0 256 220" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0;">
+<defs><linearGradient id="mxFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{{s.a1}}" stop-opacity="0.35"></stop><stop offset="1" stop-color="{{s.a1}}" stop-opacity="0"></stop></linearGradient></defs>
+<line x1="0" y1="50" x2="256" y2="50" stroke="#202226"></line><line x1="0" y1="100" x2="256" y2="100" stroke="#33363c" stroke-dasharray="3 4"></line><line x1="0" y1="150" x2="256" y2="150" stroke="#202226"></line>
+<path d="{{area}}" fill="url(#mxFill)"></path>
+<path d="{{curve}}" fill="none" stroke="{{s.a1}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+</svg>
+<div style="position: absolute; left: 0; right: 0; top: 0; height: calc(100% * 200 / 220); display: flex;">
+<sc-for list="{{bands}}" as="b" hint-placeholder-count="10">
+<div style="position: relative; flex: 1;">
+<span aria-hidden="true" style="position: absolute; left: 50%; top: {{b.y}}; width: 9px; height: 9px; margin: -5px 0 0 -5px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 0 0 2px #141518;"></span>
+<input type="range" min="-12" max="12" value="{{b.v}}" onChange="{{b.change}}" aria-label="{{b.f}} hertz, {{b.v}} decibels" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; writing-mode: vertical-lr; direction: rtl; cursor: ns-resize;">
+</div>
+</sc-for>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 4px; display: flex;"><sc-for list="{{bands}}" as="b" hint-placeholder-count="10"><span style="flex: 1; text-align: center; font-family: 'Martian Mono', monospace; font-size: 9px; color: #8c8f95;">{{b.f}}</span></sc-for></div>
+</div>
+<span style="font-size: 12px; color: #8c8f95;">Headphones keep their own curve.</span>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":720,"height":460}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { lv: { Master: 78, Firefox: 52, Spotify: 70, Discord: 60, Mic: 66 }, pan: { Master: 0, Firefox: 0, Spotify: -10, Discord: 15, Mic: 0 },
+      muted: {}, solo: null, preset: 'Bass', eq: [4, 5, 3, 1, 0, 0, 0, 1, 1, 0], eqOn: true, t: 0 };
+  }
+  componentDidMount() { this.tick = setInterval(() => this.setState({ t: this.state.t + 1 }), 120); }
+  componentWillUnmount() { clearInterval(this.tick); }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    // Meters move with a cheap pseudo-signal; a muted or soloed-out channel drops to silence.
+    const wave = (seed) => 0.55 + 0.45 * Math.abs(Math.sin(st.t * 0.9 + seed) * Math.cos(st.t * 0.37 + seed * 2));
+    const arc = (deg) => {
+      if (Math.abs(deg) < 3) return '';
+      const pt = (d) => { const a = d * Math.PI / 180; return (15 + 11 * Math.sin(a)).toFixed(1) + ' ' + (15 - 11 * Math.cos(a)).toFixed(1); };
+      return 'M' + pt(0) + ' A11 11 0 0 ' + (deg > 0 ? 1 : 0) + ' ' + pt(deg);
+    };
+    const strips = Object.keys(st.lv).map((label, i) => {
+      const v = st.lv[label], muted = !!st.muted[label], solo = st.solo === label;
+      const silent = muted || (st.solo && !solo && label !== 'Master');
+      const live = silent ? 0 : v / 100;
+      const dbv = v === 0 ? null : 20 * Math.log10(v / 78);
+      return {
+        label, v, muted, solo, pan: st.pan[label], pct: v + '%',
+        tag: label === 'Master' ? s.a1 : (label === 'Mic' ? '#e7e2d6' : '#4a4e55'),
+        fill: label === 'Master' ? s.a1 : '#8c8f95', meter: label === 'Mic' ? '#e7e2d6' : s.a1,
+        lvlL: (live * wave(i) * 100).toFixed(0) + '%', lvlR: (live * wave(i + 0.7) * 100).toFixed(0) + '%',
+        db: dbv === null ? '−∞' : (dbv > 0 ? '+' : '') + dbv.toFixed(1), valColor: silent ? '#5b5f66' : '#c9c6bf',
+        panArc: arc(st.pan[label] * 2.6), panText: st.pan[label] === 0 ? 'centre' : (st.pan[label] < 0 ? 'L' : 'R') + Math.abs(st.pan[label]),
+        panChange: (e) => this.setState({ pan: Object.assign({}, st.pan, { [label]: Number(e.target.value) }) }),
+        change: (e) => this.setState({ lv: Object.assign({}, st.lv, { [label]: Number(e.target.value) }) }),
+        mute: () => this.setState({ muted: Object.assign({}, st.muted, { [label]: !muted }) }),
+        soloT: () => this.setState({ solo: solo ? null : label }),
+        mBg: muted ? 'rgba(255,107,91,0.2)' : '#24272c', mFg: muted ? '#ffb4a8' : '#a7a9ad',
+        sBg: solo ? s.soft : '#24272c', sFg: solo ? s.a1 : '#a7a9ad'
+      };
+    });
+    const freqs = ['32', '64', '125', '250', '500', '1k', '2k', '4k', '8k', '16k'];
+    const yOf = (v) => (12 - v) / 24 * 200;
+    const bands = st.eq.map((v, i) => ({ f: freqs[i], v, y: ((12 - v) / 24 * 100) + '%',
+      change: (e) => { const eq = st.eq.slice(); eq[i] = Number(e.target.value); this.setState({ eq, preset: 'Custom' }); } }));
+    const xs = st.eq.map((_, i) => (i + 0.5) * 25.6);
+    const ys = st.eq.map(yOf);
+    let curve = 'M0 ' + ys[0].toFixed(1) + ' L' + xs[0].toFixed(1) + ' ' + ys[0].toFixed(1);
+    for (let i = 1; i < xs.length; i++) { const cx = (xs[i - 1] + xs[i]) / 2; curve += ' C' + cx.toFixed(1) + ' ' + ys[i - 1].toFixed(1) + ' ' + cx.toFixed(1) + ' ' + ys[i].toFixed(1) + ' ' + xs[i].toFixed(1) + ' ' + ys[i].toFixed(1); }
+    curve += ' L256 ' + ys[9].toFixed(1);
+    const curves = { Flat: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Bass: [4, 5, 3, 1, 0, 0, 0, 1, 1, 0], Voice: [-3, -2, 0, 2, 4, 4, 3, 1, 0, -1], Night: [-2, -1, 0, 1, 1, 1, 0, -2, -4, -5] };
+    const presets = ['Flat', 'Bass', 'Voice', 'Night'].map((label) => {
+      const on = st.preset === label;
+      return { label, on, pick: () => this.setState({ preset: label, eq: curves[label].slice() }), bg: on ? '#2c2f35' : 'transparent', fg: on ? '#ffffff' : '#a7a9ad', shadow: on ? '0 1px 3px rgba(0,0,0,0.4)' : 'none' };
+    });
+    return {
+      s, strips, bands, curve, area: curve + ' L256 220 L0 220 Z', presets,
+      eqOn: st.eqOn, toggleEq: () => this.setState({ eqOn: !st.eqOn }), eqTrack: st.eqOn ? s.a1 : '#2a2d33', eqKnob: st.eqOn ? '18px' : '2px', eqOpacity: st.eqOn ? 1 : 0.45
+    };
+  }
+}
+</script>
+</body>
+</html>

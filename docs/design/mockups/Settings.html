@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;transition:background-color 120ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+input::placeholder{color:#6b6f76}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Settings" style="width: 1060px; height: 680px; box-sizing: border-box; padding: 14px; display: flex; gap: 14px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.4); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<nav aria-label="Settings sections" style="width: 230px; flex: none; display: flex; flex-direction: column; gap: 2px;">
+<span style="padding: 6px 10px 10px; font-weight: 650; font-size: 17px;">Settings</span>
+<label style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; margin-bottom: 8px; border-radius: 10px; background: #1c1e22;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8c8f95" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10.5 4a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM15.5 15.5L20 20"></path></svg><input placeholder="Find a setting" aria-label="Find a setting" style="flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: #efece6; font: 13px 'Hanken Grotesk', sans-serif;"></label>
+<sc-for list="{{sections}}" as="x" hint-placeholder-count="10">
+<button aria-current="{{x.current}}" onClick="{{x.pick}}" style="height: 38px; flex: none; padding: 0 10px; border-radius: 10px; border: 0; background: {{x.bg}}; color: {{x.fg}}; display: flex; align-items: center; gap: 10px; text-align: left; font-weight: {{x.weight}}; font-size: 14px; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{x.icon}}"></path></svg>{{x.label}}</button>
+</sc-for>
+</nav>
+
+<main style="flex: 1; min-width: 0; background: #17191c; border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; overflow: hidden;">
+<div><h2 style="margin: 0; font-weight: 650; font-size: 22px;">{{title}}</h2><p style="margin: 4px 0 0; font-size: 13px; color: #8c8f95;">{{blurb}}</p></div>
+
+<sc-if value="{{isLook}}" hint-placeholder-val="{{ true }}">
+<span style="font-weight: 600; font-size: 13px; color: #a7a9ad;">Colour</span>
+<div style="border-radius: 14px; background: #1f2125; display: flex; flex-direction: column;">
+<div style="display: flex; align-items: center; gap: 16px; min-height: 60px; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+<span style="flex: 1;"><span style="display: block; font-size: 14px;">Accent colour</span><span style="font-size: 12px; color: #8c8f95;">Taken from the wallpaper, or fixed</span></span>
+<div role="radiogroup" aria-label="Accent colour" style="display: flex; gap: 8px; align-items: center;">
+<sc-for list="{{signals}}" as="g" hint-placeholder-count="5"><button role="radio" aria-checked="{{g.on}}" onClick="{{g.pick}}" aria-label="{{g.label}}" style="width: {{g.w}}; height: 28px; padding: 0 10px; border-radius: 14px; border: 0; background: {{g.bg}}; box-shadow: {{g.ring}}; color: #efece6; font-weight: 600; font-size: 12px; cursor: pointer;">{{g.text}}</button></sc-for>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 16px; min-height: 60px; padding: 0 16px;">
+<span style="flex: 1;"><span style="display: block; font-size: 14px;">Wallpaper tint</span><span style="font-size: 12px; color: #8c8f95;">How much panels lean toward the wallpaper</span></span>
+<div style="position: relative; width: 200px; height: 28px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 4px; border-radius: 2px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: {{tintPct}}; height: 4px; border-radius: 2px; background: {{s.a1}};"></span>
+<span style="position: absolute; left: calc({{tintPct}} - 8px); width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 1px 4px rgba(0,0,0,0.5);"></span>
+<input type="range" min="0" max="100" value="{{tint}}" onChange="{{onTint}}" aria-label="Tint strength" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<span style="width: 36px; text-align: right; font-size: 13px; color: #c9c6bf; font-variant-numeric: tabular-nums;">{{tint}}%</span>
+</div>
+</div>
+<span style="font-weight: 600; font-size: 13px; color: #a7a9ad;">Behaviour</span>
+<div style="border-radius: 14px; background: #1f2125; display: flex; flex-direction: column;">
+<sc-for list="{{toggles}}" as="t" hint-placeholder-count="4">
+<button aria-pressed="{{t.on}}" onClick="{{t.toggle}}" style="display: flex; align-items: center; gap: 16px; min-height: 58px; padding: 0 16px; border: 0; border-bottom: 1px solid {{t.rule}}; background: transparent; text-align: left; cursor: pointer;">
+<span style="flex: 1;"><span style="display: block; font-size: 14px;">{{t.label}}</span><span style="font-size: 12px; color: #8c8f95;">{{t.text}}</span></span>
+<span aria-hidden="true" style="position: relative; width: 40px; height: 22px; border-radius: 11px; background: {{t.track}};"><span style="position: absolute; top: 3px; left: {{t.knob}}; width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; transition: left 160ms ease-out;"></span></span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{isBar}}" hint-placeholder-val="{{ false }}">
+<div style="border-radius: 14px; background: #1f2125; display: flex; flex-direction: column;">
+<sc-for list="{{barItems}}" as="b" hint-placeholder-count="9">
+<div style="display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 10px 0 14px; border-bottom: 1px solid {{b.rule}};">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="#6b6f76" aria-hidden="true"><path d="M9 6h2v2H9zM13 6h2v2h-2zM9 11h2v2H9zM13 11h2v2h-2zM9 16h2v2H9zM13 16h2v2h-2z"></path></svg>
+<span style="width: 130px; font-size: 14px; color: {{b.fg}};">{{b.label}}</span>
+<span style="flex: 1; font-size: 12px; color: #8c8f95;">{{b.text}}</span>
+<button aria-label="Move {{b.label}} up" onClick="{{b.up}}" disabled="{{b.first}}" style="width: 28px; height: 28px; padding: 0; border-radius: 8px; border: 0; background: #2a2d33; display: grid; place-items: center; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"></path></svg></button>
+<button aria-label="Move {{b.label}} down" onClick="{{b.down}}" disabled="{{b.last}}" style="width: 28px; height: 28px; padding: 0; border-radius: 8px; border: 0; background: #2a2d33; display: grid; place-items: center; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+<button aria-pressed="{{b.on}}" onClick="{{b.toggle}}" aria-label="Show {{b.label}}" style="position: relative; width: 40px; height: 22px; padding: 0; border-radius: 11px; border: 0; background: {{b.track}}; cursor: pointer;"><span style="position: absolute; top: 3px; left: {{b.knob}}; width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; transition: left 160ms ease-out;"></span></button>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{isKeys}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0; font-size: 13px; color: #c9c6bf;">Choose Change, then press the new keys. Keys Hyprland already uses are refused.</p>
+<div style="border-radius: 14px; background: #1f2125; display: flex; flex-direction: column;">
+<sc-for list="{{shortcuts}}" as="k" hint-placeholder-count="8">
+<div style="display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 12px 0 16px; border-bottom: 1px solid {{k.rule}};">
+<span style="flex: 1; font-size: 14px;">{{k.label}}</span>
+<span style="display: flex; gap: 4px;"><sc-for list="{{k.keys}}" as="c" hint-placeholder-count="2"><span style="min-width: 24px; height: 24px; padding: 0 7px; box-sizing: border-box; border-radius: 6px; background: #2a2d33; box-shadow: inset 0 -1px 0 rgba(0,0,0,0.4); display: grid; place-items: center; font-size: 12px; color: #c9c6bf;">{{c}}</span></sc-for></span>
+<button onClick="{{k.change}}" onKeyDown="{{k.capture}}" style="width: 104px; height: 30px; border-radius: 8px; border: 1px solid {{k.border}}; background: {{k.bg}}; color: {{k.fg}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{k.action}}</button>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{isOther}}" hint-placeholder-val="{{ false }}">
+<div style="border-radius: 14px; background: #1f2125; display: flex; flex-direction: column;">
+<sc-for list="{{otherRows}}" as="r" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 16px; min-height: 58px; padding: 0 16px; border-bottom: 1px solid {{r.rule}};"><span style="flex: 1;"><span style="display: block; font-size: 14px;">{{r.label}}</span><span style="font-size: 12px; color: #8c8f95;">{{r.text}}</span></span><span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #c9c6bf;">{{r.value}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span></div>
+</sc-for>
+</div>
+</sc-if>
+</main>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":1060,"height":680}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      section: 'look', signal: 'wall', tint: 50,
+      on: { reduced: false, rituals: true, sounds: false, caption: true },
+      bar: [['Search', true], ['Pages', true], ['Window title', true], ['Clock', true], ['Live indicators', true], ['Now playing', true], ['Status', true], ['Notifications', true], ['Tray', false]],
+      keys: { 'Find': ['Super', 'Space'], 'Control': ['Super', 'A'], 'Notifications': ['Super', 'N'], 'Clipboard': ['Super', 'V'], 'Pages': ['Super', 'O'], 'System monitor': ['Ctrl', 'Shift', 'Esc'], 'Lock': ['Super', 'L'], 'Session': ['Super', 'M'] },
+      capturing: null
+    };
+  }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const secs = [
+      ['look', 'Appearance', 'M12 4a8 8 0 1 0 0 16c1 0 1.5-.8 1.2-1.6-.4-1 .2-2.4 1.8-2.4H17a3 3 0 0 0 3-3 8 8 0 0 0-8-9zM8 11h.01M11 8h.01M15 8.5h.01'],
+      ['bar', 'Bar', 'M4 5h16v4H4zM4 13h16v6H4z'], ['desk', 'Desktop', 'M3 5h18v12H3zM9 21h6M12 17v4'],
+      ['ctl', 'Control', 'M4 7h10M18 7h2M4 17h4M12 17h8M16 4v6M10 14v6'], ['keys', 'Shortcuts', 'M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M8 14.5h8'],
+      ['notes', 'Notifications', 'M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4'], ['sound', 'Sound', 'M4 10h3l5-4v12l-5-4H4zM16 9.5a3.5 3.5 0 0 1 0 5'],
+      ['power', 'Power', 'M12 4v7M7.8 7.2a7 7 0 1 0 8.4 0'], ['act', 'Activity', 'M4 12h4l2-6 4 12 2-6h4'], ['backup', 'Backup', 'M4 7h6l2 2h8v10H4z']
+    ];
+    const sections = secs.map(([id, label, icon]) => {
+      const on = st.section === id;
+      return { label, icon, current: on ? 'page' : 'false', pick: () => this.setState({ section: id }), bg: on ? s.soft : 'transparent', fg: on ? s.a1 : '#c9c6bf', weight: on ? 600 : 500 };
+    });
+    const titles = Object.fromEntries(secs.map(([id, label]) => [id, label]));
+    const blurbs = { look: 'Colour, tint, motion and sound.', bar: 'Turn bar items on or off and put them in order.', keys: 'Keyboard shortcuts and what they open.', desk: 'Widgets on the desktop and where they sit.', ctl: 'What the Control panel shows.', notes: 'History, sounds and quiet hours.', sound: 'Outputs and equalizer curves.', power: 'Lid, sleep and power modes.', act: 'What Activity records and for how long.', backup: 'Move your setup to another computer.' };
+    const others = {
+      desk: [['Widgets', 'Clock, sky, note, system', '4 shown'], ['Position', 'Where the widget row sits', 'Bottom left'], ['Edit mode', 'Drag widgets on the desktop', 'Super E']],
+      ctl: [['Quick tiles', 'Wi-Fi, Bluetooth, Do not disturb, Night light', '4 tiles'], ['Scenes', 'Work, Game, Evening', '3 scenes'], ['Power row', 'Lock, Sleep, Restart, Power off', 'Shown']],
+      notes: [['Keep history', 'How long old notifications stay', '7 days'], ['Sounds', 'Which apps may play a sound', '3 apps'], ['Quiet hours', 'Do not disturb on a schedule', '23:00 – 07:00']],
+      sound: [['Default output', 'Where new sound goes', 'Headphones'], ['Equalizer', 'Per-device curves', 'Bass'], ['New apps', 'Volume a new app starts at', '70%']],
+      power: [['When the lid closes', 'On battery and on the charger', 'Sleep'], ['Sleep after', 'With no input', '15 min'], ['Power mode', 'On battery', 'Balanced']],
+      act: [['Recording', 'App names and times only', 'On'], ['Keep for', 'Older days are deleted', '1 year'], ['Delete a day', 'Pick days to remove', '']],
+      backup: [['Export', 'Every setting in one file', ''], ['Import', 'Load a file from another computer', ''], ['Last export', '', '12 Oct']]
+    };
+    const sigs = [['wall', 'From wallpaper', s.a1], ['#ff8a3d', '', '#ff8a3d'], ['#4fd1c5', '', '#4fd1c5'], ['#ff6b6b', '', '#ff6b6b'], ['#a58bff', '', '#a58bff']];
+    const signals = sigs.map(([id, text, c]) => {
+      const on = st.signal === id;
+      return { label: id === 'wall' ? 'From the wallpaper' : 'Fixed ' + id, text, on, pick: () => this.setState({ signal: id }),
+        w: id === 'wall' ? 'auto' : '28px', bg: id === 'wall' ? '#2a2d33' : c, ring: on ? '0 0 0 2px #121316, 0 0 0 4px ' + (id === 'wall' ? s.a1 : c) : 'none' };
+    });
+    const tdefs = [['reduced', 'Reduce motion', 'Panels appear without sliding'], ['rituals', 'Start-up and lock animations', 'A short sweep at log-in and a fade at lock'], ['sounds', 'Soft clicks', 'Quiet sounds on switches'], ['caption', 'Wallpaper name on the desktop', 'Small, in the corner']];
+    const toggles = tdefs.map(([id, label, text], i) => ({ label, text, on: st.on[id], track: st.on[id] ? s.a1 : '#2a2d33', knob: st.on[id] ? '21px' : '3px', rule: i === tdefs.length - 1 ? 'transparent' : 'rgba(255,255,255,0.05)', toggle: () => this.setState({ on: Object.assign({}, st.on, { [id]: !st.on[id] }) }) }));
+    const texts = { 'Search': 'opens Find', 'Pages': 'workspace dots', 'Window title': 'app and title', 'Clock': 'time, date, weather', 'Live indicators': 'mic, camera, screen share', 'Now playing': 'track and level', 'Status': 'Wi-Fi, volume, battery', 'Notifications': 'bell with count', 'Tray': 'app icons' };
+    const move = (i, d) => { const a = st.bar.slice(); [a[i], a[i + d]] = [a[i + d], a[i]]; this.setState({ bar: a }); };
+    const barItems = st.bar.map(([label, on], i) => ({
+      label, text: texts[label], on, first: i === 0, last: i === st.bar.length - 1, fg: on ? '#efece6' : '#6b6f76', rule: i === st.bar.length - 1 ? 'transparent' : 'rgba(255,255,255,0.05)',
+      up: () => move(i, -1), down: () => move(i, 1), track: on ? s.a1 : '#2a2d33', knob: on ? '21px' : '3px',
+      toggle: () => { const a = st.bar.slice(); a[i] = [label, !on]; this.setState({ bar: a }); }
+    }));
+    const names = Object.keys(st.keys);
+    const shortcuts = names.map((label, i) => {
+      const cap = st.capturing === label;
+      return {
+        label, keys: st.keys[label], action: cap ? 'Press keys…' : 'Change', border: cap ? s.line : 'transparent', bg: cap ? s.soft : '#2a2d33', fg: cap ? s.a1 : '#efece6',
+        rule: i === names.length - 1 ? 'transparent' : 'rgba(255,255,255,0.05)',
+        change: () => this.setState({ capturing: cap ? null : label }),
+        capture: (e) => {
+          if (!cap || ['Shift', 'Control', 'Alt', 'Meta', 'Tab'].indexOf(e.key) >= 0) return;
+          e.preventDefault();
+          const k = e.key === ' ' ? 'Space' : (e.key.length === 1 ? e.key.toUpperCase() : e.key);
+          this.setState({ keys: Object.assign({}, st.keys, { [label]: ['Super', k] }), capturing: null });
+        }
+      };
+    });
+    const sec = st.section;
+    const rows = others[sec] || [];
+    return {
+      s, sections, signals, toggles, barItems, shortcuts,
+      title: titles[sec], blurb: blurbs[sec] || '',
+      isLook: sec === 'look', isBar: sec === 'bar', isKeys: sec === 'keys', isOther: !!others[sec],
+      otherRows: rows.map(([label, text, value], i) => ({ label, text, value, rule: i === rows.length - 1 ? 'transparent' : 'rgba(255,255,255,0.05)' })),
+      tint: st.tint, tintPct: st.tint + '%', onTint: (e) => this.setState({ tint: Number(e.target.value) })
+    };
+  }
+}
+</script>
+</body>
+</html>

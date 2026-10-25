@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack control</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes cMeter{0%{transform:scaleY(.25)}40%{transform:scaleY(.9)}70%{transform:scaleY(.45)}100%{transform:scaleY(1)}}
+.c-meter{transform-origin:bottom;animation:cMeter 700ms ease-in-out infinite alternate}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-meter{animation:none}button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Control rack" style="width: 560px; height: 680px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<header style="display: flex; align-items: center; gap: 10px; height: 32px;">
+<span style="font-weight: 650; font-size: 17px;">Control</span>
+<span style="font-size: 13px; color: #8c8f95;">Battery 82% · 3 h 12 left</span>
+<button aria-label="Open settings" style="margin-left: auto; width: 32px; height: 32px; border-radius: 10px; border: 0; background: #1c1e22; display: grid; place-items: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8M16 4v6M10 14v6"></path></svg></button>
+</header>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="4">
+<button aria-pressed="{{t.on}}" onClick="{{t.toggle}}" style="height: 60px; padding: 0 12px; border-radius: 14px; border: 1px solid {{t.border}}; background: {{t.bg}}; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 11px; background: {{t.iconBg}}; color: {{t.iconFg}}; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.icon}}"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">{{t.label}}</span><span style="font-size: 12px; color: {{t.subFg}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{t.sub}}</span></span>
+</button>
+</sc-for>
+</div>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;">
+<sc-for list="{{sliders}}" as="x" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 12px; height: 32px;">
+<button onClick="{{x.mute}}" aria-label="{{x.muteLabel}}" aria-pressed="{{x.muted}}" style="width: 32px; height: 32px; flex: none; padding: 0; border-radius: 10px; border: 0; background: {{x.btnBg}}; color: {{x.btnFg}}; display: grid; place-items: center; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{x.icon}}"></path></svg></button>
+<div style="position: relative; flex: 1; height: 32px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 6px; border-radius: 3px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: {{x.pct}}; height: 6px; border-radius: 3px; background: {{x.fill}}; box-shadow: {{x.glow}};"></span>
+<span style="position: absolute; left: calc({{x.pct}} - 8px); width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; box-shadow: 0 1px 5px rgba(0,0,0,0.55);"></span>
+<input type="range" min="0" max="100" value="{{x.v}}" onChange="{{x.change}}" aria-label="{{x.label}}" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<span style="width: 34px; text-align: right; font-family: 'Martian Mono', monospace; font-size: 12px; color: #c9c6bf; font-variant-numeric: tabular-nums;">{{x.shown}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: baseline; gap: 8px;"><span style="font-weight: 600; font-size: 14px;">Output</span><span style="font-size: 12px; color: #8c8f95;">every playing app follows</span></div>
+<div role="radiogroup" aria-label="Sound output" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+<sc-for list="{{outs}}" as="o" hint-placeholder-count="3">
+<button role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="height: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid {{o.border}}; background: {{o.bg}}; color: {{o.fg}}; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{o.icon}}"></path></svg>
+<span style="font-weight: 600; font-size: 13px;">{{o.label}}</span>
+<sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="margin-left: auto; display: flex; gap: 2px; align-items: flex-end; height: 14px;"><span class="c-meter" style="width: 3px; height: 14px; border-radius: 1px; background: {{s.a1}};"></span><span class="c-meter" style="width: 3px; height: 14px; border-radius: 1px; background: {{s.a1}}; animation-delay: -0.3s;"></span><span class="c-meter" style="width: 3px; height: 14px; border-radius: 1px; background: {{s.a1}}; animation-delay: -0.6s;"></span></span></sc-if>
+</button>
+</sc-for>
+</div>
+<sc-for list="{{apps}}" as="a" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 10px; height: 26px;">
+<span style="width: 74px; font-size: 13px; color: #c9c6bf;">{{a.label}}</span>
+<div style="position: relative; flex: 1; height: 26px; display: flex; align-items: center;">
+<span style="position: absolute; left: 0; right: 0; height: 4px; border-radius: 2px; background: #2a2d33;"></span>
+<span style="position: absolute; left: 0; width: {{a.pct}}; height: 4px; border-radius: 2px; background: #8c8f95;"></span>
+<span style="position: absolute; left: calc({{a.pct}} - 6px); width: 12px; height: 12px; border-radius: 50%; background: #c9c6bf;"></span>
+<input type="range" min="0" max="100" value="{{a.v}}" onChange="{{a.change}}" aria-label="{{a.label}} volume" style="position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer;">
+</div>
+<span style="width: 34px; text-align: right; font-family: 'Martian Mono', monospace; font-size: 12px; color: #8c8f95;">{{a.v}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 600; font-size: 14px;">{{g.title}}</span><span style="font-size: 12px; color: #8c8f95;">{{g.note}}</span></div>
+<div role="radiogroup" aria-label="{{g.title}}" style="display: flex; padding: 3px; gap: 2px; border-radius: 11px; background: #141518;">
+<sc-for list="{{g.opts}}" as="o" hint-placeholder-count="4">
+<button role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="flex: 1; height: 30px; padding: 0; border-radius: 8px; border: 0; background: {{o.bg}}; color: {{o.fg}}; box-shadow: {{o.shadow}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="margin-top: auto; display: flex; gap: 8px;">
+<sc-for list="{{power}}" as="p" hint-placeholder-count="3">
+<button onClick="{{p.go}}" aria-label="{{p.label}}" style="flex: 1; height: 44px; border-radius: 12px; border: 0; background: #1c1e22; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{p.icon}}"></path></svg><span style="font-weight: 600; font-size: 13px;">{{p.label}}</span></button>
+</sc-for>
+<button aria-label="Hold to power off" onPointerDown="{{holdStart}}" onPointerUp="{{holdStop}}" onPointerLeave="{{holdStop}}" onKeyDown="{{keyDown}}" onKeyUp="{{keyUp}}" style="flex: 1.3; height: 44px; border-radius: 12px; border: 1px solid rgba(255,107,91,0.45); background: linear-gradient(90deg, rgba(255,107,91,0.28) {{holdPct}}, transparent {{holdPct}}); color: #ffb4a8; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 4v7M7.8 7.2a7 7 0 1 0 8.4 0"></path></svg><span style="font-weight: 600; font-size: 13px;">{{powerWord}}</span></button>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"onOpen":{"editor":null},"$preview":{"width":560,"height":680}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { on: { wifi: true, bt: true, dnd: false, night: false }, lv: { vol: 62, mic: 70, light: 80 }, muted: {},
+      apps: { Firefox: 45, Spotify: 74 }, out: 'Headphones', focus: 'Off', scene: 'Work', hold: 0, done: false };
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], tint: a(0.05), soft: a(0.14), line: a(0.4), glow: '0 0 12px ' + a(0.45) };
+  }
+  start() {
+    if (this.timer || this.state.done) return;
+    const t0 = Date.now();
+    this.timer = setInterval(() => {
+      const h = Math.min(1, (Date.now() - t0) / 1000);
+      this.setState({ hold: h });
+      if (h >= 1) { clearInterval(this.timer); this.timer = null; this.setState({ done: true }); }
+    }, 30);
+  }
+  stop() { if (this.timer) { clearInterval(this.timer); this.timer = null; } if (!this.state.done) this.setState({ hold: 0 }); }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const I = {
+      wifi: 'M4 9.5a12 12 0 0 1 16 0M7 13a7.5 7.5 0 0 1 10 0M10 16.5a3 3 0 0 1 4 0M12 19.5h.01',
+      bt: 'M7 7l10 10-5 4V3l5 4L7 17',
+      moon: 'M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z',
+      sun: 'M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4',
+      speaker: 'M4 10h3l5-4v12l-5-4H4zM16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10',
+      muted: 'M4 10h3l5-4v12l-5-4H4zM16 10l4 4M20 10l-4 4',
+      mic: 'M12 4a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v3',
+      micOff: 'M12 4a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v3M4 4l16 16',
+      phones: 'M4 16v-4a8 8 0 0 1 16 0v4M4 15h3v5H4zM17 15h3v5h-3z',
+      hdmi: 'M3 7h18v8H3zM8 19h8M12 15v4',
+      lock: 'M7 11h10v9H7zM9 11V8a3 3 0 0 1 6 0v3',
+      restart: 'M19 12a7 7 0 1 1-2.1-5M19 4v4h-4'
+    };
+    const flip = (id) => () => this.setState({ on: Object.assign({}, st.on, { [id]: !st.on[id] }) });
+    const tile = (id, label, sub, icon) => {
+      const on = !!st.on[id];
+      return { label, on, sub: on ? sub : 'Off', toggle: flip(id), icon, bg: on ? s.soft : '#1c1e22', border: on ? s.line : 'transparent',
+        iconBg: on ? s.a1 : '#2a2d33', iconFg: on ? '#17181a' : '#efece6', subFg: on ? '#d8d5ce' : '#8c8f95' };
+    };
+    const tiles = [tile('wifi', 'Wi-Fi', 'Harbour 5G', I.wifi), tile('bt', 'Bluetooth', 'WH-1000 · 70%', I.bt), tile('dnd', 'Do not disturb', 'Notes are held', I.moon), tile('night', 'Night light', 'Warm until 07:00', I.sun)];
+    const slider = (id, label, icon, offIcon, fill, glow) => {
+      const muted = !!st.muted[id], v = st.lv[id];
+      return { label, v, muted, pct: (muted ? 0 : v) + '%', shown: muted ? 'Off' : String(v), icon: muted ? offIcon : icon, fill, glow: muted ? 'none' : glow,
+        btnBg: muted ? 'rgba(255,107,91,0.14)' : '#2a2d33', btnFg: muted ? '#ffb4a8' : '#efece6', muteLabel: (muted ? 'Unmute ' : 'Mute ') + label,
+        mute: () => this.setState({ muted: Object.assign({}, st.muted, { [id]: !muted }) }),
+        change: (e) => this.setState({ lv: Object.assign({}, st.lv, { [id]: Number(e.target.value) }) }) };
+    };
+    const sliders = [
+      slider('vol', 'Volume', I.speaker, I.muted, 'linear-gradient(90deg, ' + s.soft + ', ' + s.a1 + ')', s.glow),
+      slider('mic', 'Microphone', I.mic, I.micOff, '#e7e2d6', 'none'),
+      slider('light', 'Brightness', I.sun, I.sun, '#e7e2d6', 'none')
+    ];
+    const outs = [['Speakers', I.speaker], ['Headphones', I.phones], ['HDMI', I.hdmi]].map(([label, icon]) => {
+      const on = st.out === label;
+      return { label, icon, on, pick: () => this.setState({ out: label }), bg: on ? s.soft : '#141518', border: on ? s.line : 'transparent', fg: on ? '#ffffff' : '#c9c6bf' };
+    });
+    const apps = Object.keys(st.apps).map((label) => ({ label, v: st.apps[label], pct: st.apps[label] + '%', change: (e) => this.setState({ apps: Object.assign({}, st.apps, { [label]: Number(e.target.value) }) }) }));
+    const seg = (cur, key, list) => list.map((label) => {
+      const on = cur === label;
+      return { label, on, pick: () => this.setState({ [key]: label }), bg: on ? '#2c2f35' : 'transparent', fg: on ? '#ffffff' : '#a7a9ad', shadow: on ? '0 1px 3px rgba(0,0,0,0.4)' : 'none' };
+    });
+    const notes = { Work: 'quiet on · balanced', Game: 'quiet on · performance', Evening: 'night light · saver' };
+    const groups = [
+      { title: 'Focus', note: st.focus === 'Off' ? 'not running' : st.focus + ' min', opts: seg(st.focus, 'focus', ['Off', '25', '50', '90']) },
+      { title: 'Scene', note: notes[st.scene], opts: seg(st.scene, 'scene', ['Work', 'Game', 'Evening']) }
+    ];
+    const go = (name) => () => { if (this.props.onOpen) this.props.onOpen(name); };
+    const power = [{ label: 'Lock', icon: I.lock, go: go('lock') }, { label: 'Sleep', icon: I.moon, go: () => {} }, { label: 'Restart', icon: I.restart, go: () => {} }];
+    return {
+      s, tiles, sliders, outs, apps, groups, power,
+      holdPct: Math.round(st.hold * 100) + '%', powerWord: st.done ? 'Good night' : (st.hold > 0 ? 'Keep holding' : 'Hold to power off'),
+      holdStart: () => this.start(), holdStop: () => this.stop(),
+      keyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.start(); } },
+      keyUp: (e) => { if (e.key === 'Enter' || e.key === ' ') this.stop(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

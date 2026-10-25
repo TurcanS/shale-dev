@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack network</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes nSpin{to{transform:rotate(360deg)}}
+.n-spin{animation:nSpin 900ms linear infinite;transform-origin:center}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.n-spin{animation:none}button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Network" style="width: 480px; height: 640px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1.3; min-height: 0; overflow: hidden;">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 2px 4px;">
+<span style="font-weight: 650; font-size: 15px;">Wi-Fi</span>
+<span style="font-size: 12px; color: #8c8f95;">{{wifiNote}}</span>
+<button aria-pressed="{{wifiOn}}" onClick="{{toggleWifi}}" aria-label="Wi-Fi" style="margin-left: auto; position: relative; width: 40px; height: 22px; padding: 0; border-radius: 11px; border: 0; background: {{wifiTrack}}; cursor: pointer;"><span style="position: absolute; top: 3px; left: {{wifiKnob}}; width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; transition: left 160ms ease-out;"></span></button>
+</div>
+<sc-if value="{{hasCurrent}}" hint-placeholder-val="{{ true }}">
+<div style="padding: 12px; border-radius: 12px; background: {{s.soft}}; box-shadow: inset 0 0 0 1px {{s.line}}; display: flex; align-items: center; gap: 12px;">
+<span style="width: 36px; height: 36px; border-radius: 11px; background: {{s.a1}}; color: #17181a; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9.5a12 12 0 0 1 16 0M7 13a7.5 7.5 0 0 1 10 0M10 16.5a3 3 0 0 1 4 0M12 19.5h.01"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0;"><span style="font-weight: 600; font-size: 14px;">{{current}}</span><span style="font-size: 12px; color: #d8d5ce;">Connected · 5 GHz · 300 Mb/s</span></span>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-family: 'Martian Mono', monospace; font-size: 11px; color: #d8d5ce;"><span>↓ 4.2 MB/s</span><span>↑ 180 kB/s</span></span>
+<button onClick="{{forget}}" style="height: 28px; padding: 0 10px; border-radius: 8px; border: 0; background: rgba(0,0,0,0.25); font-weight: 600; font-size: 12px; cursor: pointer;">Forget</button>
+</div>
+</sc-if>
+<sc-for list="{{nets}}" as="n" hint-placeholder-count="4">
+<div style="border-radius: 10px; background: {{n.bg}};">
+<button onClick="{{n.go}}" style="width: 100%; height: 42px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9.5a12 12 0 0 1 16 0" stroke="{{n.b4}}"></path><path d="M7 13a7.5 7.5 0 0 1 10 0" stroke="{{n.b3}}"></path><path d="M10 16.5a3 3 0 0 1 4 0" stroke="{{n.b2}}"></path><path d="M12 19.5h.01" stroke="#efece6"></path></svg>
+<span style="flex: 1; font-size: 14px;">{{n.name}}</span>
+<span style="font-size: 12px; color: #8c8f95;">{{n.meta}}</span>
+<sc-if value="{{n.secure}}" hint-placeholder-val="{{ true }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8c8f95" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Secured"><path d="M7 11h10v9H7zM9 11V8a3 3 0 0 1 6 0v3"></path></svg></sc-if>
+</button>
+<sc-if value="{{n.asking}}" hint-placeholder-val="{{ false }}">
+<form onSubmit="{{n.join}}" style="display: flex; gap: 6px; padding: 0 10px 10px 40px;">
+<input type="password" autocomplete="current-password" aria-label="Password for {{n.name}}" placeholder="Password" style="flex: 1; min-width: 0; height: 34px; box-sizing: border-box; border-radius: 9px; border: 1px solid rgba(255,255,255,0.08); background: #141518; color: #efece6; font: 14px 'Hanken Grotesk', sans-serif; padding: 0 10px;">
+<button type="submit" style="height: 34px; padding: 0 14px; border-radius: 9px; border: 0; background: {{s.a1}}; color: #17181a; font-weight: 650; font-size: 13px; cursor: pointer;">Join</button>
+</form>
+</sc-if>
+</div>
+</sc-for>
+<div style="margin-top: auto; display: flex; gap: 6px; padding-top: 4px;">
+<button style="height: 30px; padding: 0 12px; border-radius: 9px; border: 0; background: #272a2f; font-weight: 600; font-size: 12px; cursor: pointer;">Hidden network…</button>
+<button aria-pressed="{{vpnOn}}" onClick="{{toggleVpn}}" style="height: 30px; padding: 0 12px; border-radius: 9px; border: 1px solid {{vpnBorder}}; background: {{vpnBg}}; color: {{vpnFg}}; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12px; cursor: pointer;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"></path></svg>VPN · Office</button>
+</div>
+</div>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0;">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 2px 4px;">
+<span style="font-weight: 650; font-size: 15px;">Bluetooth</span>
+<span style="font-size: 12px; color: #8c8f95;">warns under 15%</span>
+<button aria-pressed="{{scanning}}" onClick="{{toggleScan}}" style="margin-left: auto; height: 28px; padding: 0 10px; border-radius: 8px; border: 0; background: #272a2f; color: {{scanFg}}; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12px; cursor: pointer;"><svg class="{{scanClass}}" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-3-6.2"></path></svg>{{scanWord}}</button>
+</div>
+<sc-for list="{{devices}}" as="d" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 6px 0 10px; border-radius: 10px; background: {{d.bg}};">
+<span style="width: 32px; height: 32px; flex: none; border-radius: 10px; background: {{d.iconBg}}; color: {{d.iconFg}}; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{d.icon}}"></path></svg></span>
+<span style="display: flex; flex-direction: column; flex: 1; min-width: 0;"><span style="font-size: 14px; font-weight: 600;">{{d.name}}</span><span style="font-size: 12px; color: #8c8f95;">{{d.meta}}</span></span>
+<sc-if value="{{d.hasBattery}}" hint-placeholder-val="{{ true }}"><span style="display: flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 8px; background: {{d.batBg}}; color: {{d.batFg}}; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;"><span aria-hidden="true" style="width: 16px; height: 8px; box-sizing: border-box; border: 1.5px solid currentColor; border-radius: 2.5px; padding: 1px;"><span style="display: block; height: 100%; width: {{d.pct}}; background: currentColor;"></span></span>{{d.battery}}</span></sc-if>
+<button onClick="{{d.go}}" style="height: 30px; padding: 0 10px; border-radius: 8px; border: 0; background: {{d.keyBg}}; color: {{d.keyFg}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{d.action}}</button>
+</div>
+</sc-for>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":480,"height":640}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { wifi: true, vpn: false, scanning: false, current: 'Harbour 5G', asking: null,
+      bt: { 'WH-1000': true, 'MX Master': true, 'Xbox controller': false } };
+  }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const list = [['Harbour 5G', 4, true, '5 GHz'], ['Harbour', 3, true, '2.4 GHz'], ['Café Lumen', 2, false, 'sign-in page'], ['DIRECT-printer', 2, true, 'printer'], ['Neighbour_2G', 1, true, 'weak']];
+    const nets = (st.wifi ? list : []).filter(([name]) => name !== st.current).map(([name, bars, secure, band]) => {
+      const lit = (k) => (k <= bars ? '#efece6' : '#3a3d42');
+      return {
+        name, secure, asking: st.asking === name, meta: band, bg: st.asking === name ? '#23262b' : 'transparent',
+        b2: lit(2), b3: lit(3), b4: lit(4),
+        go: () => { if (secure) this.setState({ asking: st.asking === name ? null : name }); else this.setState({ current: name, asking: null }); },
+        join: (e) => { e.preventDefault(); this.setState({ current: name, asking: null }); }
+      };
+    });
+    const info = { 'WH-1000': ['Headphones', 70, 'M4 16v-4a8 8 0 0 1 16 0v4M4 15h3v5H4zM17 15h3v5h-3z'], 'MX Master': ['Mouse', 12, 'M8 4h8a3 3 0 0 1 3 3v8a7 7 0 0 1-14 0V7a3 3 0 0 1 3-3zM12 4v6'], 'Xbox controller': ['Controller', null, 'M7 8h10a4 4 0 0 1 4 4.5l-.6 3.5a2 2 0 0 1-3.6.8L15 15H9l-1.8 1.8a2 2 0 0 1-3.6-.8L3 12.5A4 4 0 0 1 7 8zM8 11v3M6.5 12.5h3M15 12h.01M17 13.5h.01'] };
+    const devices = Object.keys(st.bt).map((name) => {
+      const on = st.bt[name];
+      const [kind, bat, icon] = info[name];
+      const low = bat !== null && bat < 15;
+      return {
+        name, icon, meta: on ? kind + ' · connected' : kind + ' · paired', hasBattery: on && bat !== null,
+        pct: (bat || 0) + '%', battery: (bat || 0) + '%',
+        batBg: low ? 'rgba(255,107,91,0.16)' : '#272a2f', batFg: low ? '#ffb4a8' : '#c9c6bf',
+        bg: on ? '#202227' : 'transparent', iconBg: on ? s.soft : '#272a2f', iconFg: on ? s.a1 : '#a7a9ad',
+        action: on ? 'Disconnect' : 'Connect', keyBg: on ? '#2a2d33' : s.a1, keyFg: on ? '#efece6' : '#17181a',
+        go: () => this.setState({ bt: Object.assign({}, st.bt, { [name]: !on }) })
+      };
+    });
+    return {
+      s, nets, devices,
+      hasCurrent: st.wifi && !!st.current, current: st.current, forget: () => this.setState({ current: null }),
+      wifiOn: st.wifi, toggleWifi: () => this.setState({ wifi: !st.wifi }), wifiTrack: st.wifi ? s.a1 : '#2a2d33', wifiKnob: st.wifi ? '21px' : '3px',
+      wifiNote: st.wifi ? (st.current ? '5 networks nearby' : 'not connected') : 'off',
+      vpnOn: st.vpn, toggleVpn: () => this.setState({ vpn: !st.vpn }), vpnBg: st.vpn ? s.soft : '#272a2f', vpnFg: st.vpn ? s.a1 : '#efece6', vpnBorder: st.vpn ? s.line : 'transparent',
+      scanning: st.scanning, toggleScan: () => this.setState({ scanning: !st.scanning }), scanWord: st.scanning ? 'Scanning' : 'Scan', scanFg: st.scanning ? s.a1 : '#efece6', scanClass: st.scanning ? 'n-spin' : ''
+    };
+  }
+}
+</script>
+</body>
+</html>

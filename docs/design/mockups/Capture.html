@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack capture</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+@keyframes cBlink{50%{opacity:.35}}
+.c-rec{animation:cBlink 1s steps(2) infinite}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.c-rec{animation:none}button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Capture" style="width: 600px; height: 480px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 12px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+<header style="display: flex; align-items: center; gap: 12px; height: 32px;">
+<span style="font-weight: 650; font-size: 17px;">Capture</span>
+<div role="tablist" aria-label="Kind" style="display: flex; padding: 3px; gap: 2px; border-radius: 10px; background: #1c1e22;">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="2"><button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="height: 26px; padding: 0 14px; border-radius: 7px; border: 0; background: {{t.bg}}; color: {{t.fg}}; box-shadow: {{t.shadow}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{t.label}}</button></sc-for>
+</div>
+<span style="margin-left: auto; font-size: 12px; color: #8c8f95;">Print for region · Super Print for screen</span>
+</header>
+
+<div role="radiogroup" aria-label="What to capture" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="4">
+<button role="radio" aria-checked="{{m.on}}" onClick="{{m.pick}}" style="height: 84px; border-radius: 14px; border: 1px solid {{m.border}}; background: {{m.bg}}; color: {{m.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{m.icon}}"></path></svg><span style="font-weight: 600; font-size: 13px;">{{m.label}}</span></button>
+</sc-for>
+</div>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 4px 14px; display: flex; flex-direction: column;">
+<div style="display: flex; align-items: center; gap: 12px; height: 46px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+<span style="flex: 1; font-size: 14px;">Delay</span>
+<div role="radiogroup" aria-label="Delay" style="display: flex; padding: 3px; gap: 2px; border-radius: 9px; background: #141518;">
+<sc-for list="{{delays}}" as="d" hint-placeholder-count="4"><button role="radio" aria-checked="{{d.on}}" onClick="{{d.pick}}" style="width: 44px; height: 26px; padding: 0; border-radius: 7px; border: 0; background: {{d.bg}}; color: {{d.fg}}; box-shadow: {{d.shadow}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{d.label}}</button></sc-for>
+</div>
+</div>
+<sc-for list="{{toggles}}" as="t" hint-placeholder-count="3">
+<button aria-pressed="{{t.on}}" onClick="{{t.flip}}" style="display: flex; align-items: center; gap: 12px; height: 44px; padding: 0; border: 0; border-bottom: 1px solid {{t.rule}}; background: transparent; text-align: left; cursor: pointer;">
+<span style="flex: 1; display: flex; flex-direction: column;"><span style="font-size: 14px;">{{t.label}}</span></span>
+<span style="font-size: 12px; color: #8c8f95;">{{t.note}}</span>
+<span aria-hidden="true" style="position: relative; width: 36px; height: 20px; border-radius: 10px; background: {{t.track}};"><span style="position: absolute; top: 2px; left: {{t.knob}}; width: 16px; height: 16px; border-radius: 50%; background: #f4f2ee; transition: left 160ms ease-out;"></span></span>
+</button>
+</sc-for>
+</div>
+
+<div style="flex: 1; min-height: 0; display: flex; gap: 10px; align-items: flex-end;">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 12px; color: #8c8f95;">Recent · ~/Pictures/Screenshots</span>
+<div style="display: flex; gap: 6px;">
+<sc-for list="{{recent}}" as="r" hint-placeholder-count="4">
+<button aria-label="Open shot from {{r.name}}" style="position: relative; width: 74px; height: 46px; padding: 0; border-radius: 9px; border: 0; overflow: hidden; box-shadow: {{r.ring}}; cursor: pointer;"><svg width="74" height="46" viewBox="0 0 74 46" aria-hidden="true" style="display: block;"><rect width="74" height="46" fill="{{r.a}}"></rect><rect x="6" y="6" width="38" height="24" rx="2" fill="{{r.b}}"></rect><rect x="48" y="6" width="20" height="34" rx="2" fill="{{r.c}}"></rect></svg><span style="position: absolute; right: 3px; bottom: 2px; font-size: 9px; color: #efece6; text-shadow: 0 1px 2px #000;">{{r.name}}</span></button>
+</sc-for>
+</div>
+</div>
+<button onClick="{{go}}" style="height: 52px; padding: 0 22px; border-radius: 14px; border: 0; background: {{goBg}}; color: {{goFg}}; display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 14px; cursor: pointer; box-shadow: 0 8px 20px {{s.glow}};">
+<sc-if value="{{recording}}" hint-placeholder-val="{{ false }}"><span class="c-rec" style="width: 10px; height: 10px; border-radius: 50%; background: #ff6b5b;"></span></sc-if>
+<span>{{goText}}</span></button>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":600,"height":480}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { tab: 'shot', mode: 'region', delay: 0, rec: false, secs: 0, opt: { copy: true, save: true, pin: false, sys: true, mic: false, cursor: true },
+      recent: [['19:48', 0], ['18:12', 1], ['16:40', 2], ['11:03', 3]] };
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4), glow: a(0.22) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const shot = st.tab === 'shot';
+    const seg = (cur, list, key) => list.map(([id, label]) => ({ label, on: cur === id, pick: () => this.setState({ [key]: id }), bg: cur === id ? '#2c2f35' : 'transparent', fg: cur === id ? '#ffffff' : '#a7a9ad', shadow: cur === id ? '0 1px 3px rgba(0,0,0,0.4)' : 'none' }));
+    const I = { region: 'M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4M9 9h6v6H9z', window: 'M4 5h16v14H4zM4 9h16M7 7h.01', screen: 'M3 5h18v12H3zM9 21h6M12 17v4', colour: 'M14 4l6 6-9 9H5v-6zM12 6l6 6' };
+    const modeList = shot ? [['region', 'Region'], ['window', 'Window'], ['screen', 'Screen'], ['colour', 'Colour']] : [['region', 'Region'], ['window', 'Window'], ['screen', 'Screen']];
+    const modes = modeList.map(([id, label]) => {
+      const on = st.mode === id;
+      return { label, on, icon: I[id], pick: () => this.setState({ mode: id }), bg: on ? s.soft : '#1c1e22', border: on ? s.line : 'transparent', fg: on ? s.a1 : '#c9c6bf' };
+    });
+    const flip = (k) => () => this.setState({ opt: Object.assign({}, st.opt, { [k]: !st.opt[k] }) });
+    const tdefs = shot ? [['copy', 'Copy to clipboard', ''], ['save', 'Save to Screenshots', 'PNG'], ['pin', 'Pin above windows', 'until closed']]
+      : [['sys', 'Record system sound', 'Headphones'], ['mic', 'Record microphone', 'Built-in'], ['cursor', 'Show the pointer', '']];
+    const toggles = tdefs.map(([k, label, note], i) => ({ label, note, on: st.opt[k], flip: flip(k), track: st.opt[k] ? s.a1 : '#2a2d33', knob: st.opt[k] ? '18px' : '2px', rule: i === tdefs.length - 1 ? 'transparent' : 'rgba(255,255,255,0.05)' }));
+    const tones = [['#14233a', '#22344d', '#0a111a'], ['#1b1c1f', '#2a2d33', '#3c3f45'], ['#1c1e22', '#e7e2d6', '#3c3f45'], ['#121316', '#2a2623', '#4a4f56']];
+    const recent = st.recent.slice(0, 4).map(([name, t], i) => ({ name, a: tones[t % 4][0], b: tones[t % 4][1], c: tones[t % 4][2], ring: i === 0 ? '0 0 0 2px ' + s.a1 : 'inset 0 0 0 1px rgba(255,255,255,0.06)' }));
+    const mm = String(Math.floor(st.secs / 60)).padStart(2, '0'), ss = String(st.secs % 60).padStart(2, '0');
+    let goText = 'Take screenshot', go = () => { const t = new Date(); this.setState({ recent: [[String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'), st.recent.length]].concat(st.recent) }); };
+    if (!shot) {
+      goText = st.rec ? 'Stop · ' + mm + ':' + ss : 'Start recording';
+      go = () => {
+        if (st.rec) { clearInterval(this.timer); this.setState({ rec: false }); }
+        else { this.setState({ rec: true, secs: 0 }); this.timer = setInterval(() => this.setState({ secs: this.state.secs + 1 }), 1000); }
+      };
+    }
+    return {
+      s, modes, toggles, recent, recording: !shot && st.rec, go, goText,
+      goBg: !shot && st.rec ? '#2c2f35' : s.a1, goFg: !shot && st.rec ? '#efece6' : '#17181a',
+      tabs: seg(st.tab, [['shot', 'Screenshot'], ['rec', 'Record']], 'tab'),
+      delays: [0, 3, 5, 10].map((n) => ({ label: n ? n + ' s' : 'Off', on: st.delay === n, pick: () => this.setState({ delay: n }), bg: st.delay === n ? '#2c2f35' : 'transparent', fg: st.delay === n ? '#ffffff' : '#a7a9ad', shadow: st.delay === n ? '0 1px 3px rgba(0,0,0,0.4)' : 'none' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

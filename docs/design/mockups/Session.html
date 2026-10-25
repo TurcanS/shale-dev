@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack session</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,border-color 140ms ease-out,transform 80ms ease-out}
+button:hover{background-color:#23262b}
+button:active{transform:scale(.98)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Session" style="width: 760px; height: 320px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+<header style="display: flex; align-items: baseline; gap: 10px; height: 26px;">
+<span style="font-weight: 650; font-size: 17px;">Session</span>
+<span style="font-size: 13px; color: #8c8f95;">Up 3 h 12 min · 2 apps have unsaved work</span>
+<span style="margin-left: auto; font-size: 12px; color: #8c8f95;">Esc to close</span>
+</header>
+<div style="flex: 1; display: flex; gap: 8px; min-height: 0;">
+<sc-for list="{{keys}}" as="k" hint-placeholder-count="4">
+<button onClick="{{k.go}}" aria-keyshortcuts="{{k.key}}" style="flex: 1; padding: 16px 14px 14px; border-radius: 16px; border: 1px solid {{k.border}}; background: {{k.bg}}; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; cursor: pointer;">
+<span style="width: 44px; height: 44px; border-radius: 14px; background: {{k.iconBg}}; color: {{k.iconFg}}; display: grid; place-items: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{k.icon}}"></path></svg></span>
+<span style="margin-top: auto; font-weight: 650; font-size: 15px;">{{k.label}}</span>
+<span style="font-size: 12px; line-height: 1.4; color: #a7a9ad;">{{k.text}}</span>
+<span style="padding: 2px 7px; border-radius: 6px; background: #2a2d33; font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf;">{{k.key}}</span>
+</button>
+</sc-for>
+<button aria-label="Hold to power off" onPointerDown="{{holdStart}}" onPointerUp="{{holdStop}}" onPointerLeave="{{holdStop}}" onKeyDown="{{keyDown}}" onKeyUp="{{keyUp}}" style="width: 150px; flex: none; padding: 14px; border-radius: 16px; border: 1px solid rgba(255,107,91,0.4); background: rgba(255,107,91,0.07); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; color: #ffb4a8;">
+<span style="position: relative; width: 76px; height: 76px;">
+<svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true"><circle cx="38" cy="38" r="33" fill="none" stroke="rgba(255,107,91,0.18)" stroke-width="5"></circle><circle cx="38" cy="38" r="33" fill="none" stroke="#ff6b5b" stroke-width="5" stroke-linecap="round" stroke-dasharray="207.3" stroke-dashoffset="{{dash}}" transform="rotate(-90 38 38)"></circle></svg>
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 25px; top: 25px;"><path d="M12 4v7M7.8 7.2a7 7 0 1 0 8.4 0"></path></svg>
+</span>
+<span style="font-weight: 650; font-size: 15px;">{{powerLabel}}</span>
+<span style="font-size: 12px; color: #c99a92;">{{powerHint}}</span>
+</button>
+</div>
+<div role="status" aria-live="polite" style="height: 34px; box-sizing: border-box; padding: 0 12px; border-radius: 10px; background: #1c1e22; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #c9c6bf;"><span style="width: 6px; height: 6px; border-radius: 50%; background: {{statusDot}};"></span>{{status}}</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":760,"height":320}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); this.state = { hold: 0, done: false, picked: null }; }
+  componentWillUnmount() { clearInterval(this.timer); }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4) };
+  }
+  start() {
+    if (this.timer || this.state.done) return;
+    const t0 = Date.now();
+    this.timer = setInterval(() => {
+      const p = Math.min(1, (Date.now() - t0) / 1000);
+      this.setState({ hold: p });
+      if (p >= 1) { clearInterval(this.timer); this.timer = null; this.setState({ done: true }); }
+    }, 30);
+  }
+  stop() { if (this.timer) { clearInterval(this.timer); this.timer = null; } if (!this.state.done) this.setState({ hold: 0 }); }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const keys = [
+      ['Lock', 'L', 'Music keeps playing.', 'M7 11h10v9H7zM9 11V8a3 3 0 0 1 6 0v3'],
+      ['Sleep', 'S', 'Wakes on any key.', 'M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z'],
+      ['Sign out', 'O', 'Asks the 2 unsaved apps first.', 'M10 5H5v14h5M14 8l4 4-4 4M18 12H9'],
+      ['Restart', 'R', 'Back in about 40 s.', 'M19 12a7 7 0 1 1-2.1-5M19 4v4h-4']
+    ].map(([label, key, text, icon]) => {
+      const on = st.picked === label;
+      return { label, key, text, icon, go: () => this.setState({ picked: label }),
+        bg: on ? s.soft : '#1c1e22', border: on ? s.line : 'transparent', iconBg: on ? s.a1 : '#2a2d33', iconFg: on ? '#17181a' : '#efece6' };
+    });
+    let status = 'Pick an action or press its letter. Power off needs a one-second hold.';
+    if (st.picked) status = st.picked === 'Sign out' ? 'Firefox and Obsidian have unsaved work · sign out anyway?' : st.picked + ' · in this demo nothing happens';
+    if (st.hold > 0 && !st.done) status = 'Keep holding · ' + Math.round(st.hold * 100) + '%';
+    if (st.done) status = 'Powering off · modules fade out one by one';
+    return {
+      s, keys, status, statusDot: st.hold > 0 || st.done ? '#ff6b5b' : (st.picked ? s.a1 : '#5b5f66'),
+      dash: (207.3 * (1 - st.hold)).toFixed(1),
+      powerLabel: st.done ? 'Good night' : 'Power off', powerHint: st.done ? 'demo stops here' : 'hold for 1 s',
+      holdStart: () => this.start(), holdStop: () => this.stop(),
+      keyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.start(); } },
+      keyUp: (e) => { if (e.key === 'Enter' || e.key === ' ') this.stop(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

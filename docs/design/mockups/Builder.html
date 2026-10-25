@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Build your rack</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#121316}
+@keyframes bdIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.bd-mod{animation:bdIn 180ms cubic-bezier(.2,.8,.2,1) both}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.bd-mod{animation:none}button{transition:none}}
+</style>
+</helmet>
+<div style="width: 1600px; height: 900px; box-sizing: border-box; background: #121316; padding: 28px 32px; display: flex; gap: 28px; font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<main style="flex: 1; display: flex; flex-direction: column; gap: 18px; min-width: 0;">
+<div style="display: flex; align-items: flex-end; gap: 24px;">
+<div>
+<div style="font-weight: 650; font-size: 12px; letter-spacing: 0.2em; color: #a7a9ad;">Character · 2</div>
+<h1 style="margin: 4px 0 0; font-family: 'Martian Mono', monospace; font-weight: 250; font-size: 34px; letter-spacing: -0.05em;">Build your own rack</h1>
+</div>
+<p style="margin: 0 0 4px; max-width: 520px; font-size: 14px; line-height: 1.5; color: #c9c6bf;">Your desktop and your bar are two rows of modules. Pull modules from the drawer, move them, take them out. The whole layout is saved as a patch sheet you can switch with one press.</p>
+</div>
+
+<section aria-label="Bar row" style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Bar</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #a7a9ad;">{{barUsed}} / 16 HP</span></div>
+<div style="display: flex; flex-direction: column; width: 372px;">
+<div style="display: flex; gap: 3px; background: #121316; padding: 3px; height: 50px; box-sizing: content-box;">
+<sc-for list="{{barMods}}" as="m" hint-placeholder-count="2">
+<div class="bd-mod" style="position: relative; width: {{m.px}}; background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 6px; overflow: hidden; display: flex; align-items: center; gap: 6px; padding: 4px 6px 0 8px; box-sizing: border-box;">
+
+<span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em;">{{m.name}}</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #c9c6bf; white-space: nowrap;">{{m.mini}}</span></span>
+<button aria-label="Remove {{m.name}} from the bar" onClick="{{m.remove}}" style="margin-left: auto; flex: none; width: 24px; height: 24px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#efece6" stroke-width="1.8"></path></svg></button>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section aria-label="Desktop row" style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Desktop</span><span style="font-family: 'Martian Mono', monospace; font-size: 12px; color: #a7a9ad;">{{deskUsed}} / 42 HP</span></div>
+<div style="display: flex; flex-direction: column; width: 936px;">
+<div style="display: flex; gap: 3px; background: #121316; padding: 3px; height: 190px;">
+<sc-for list="{{deskMods}}" as="m" hint-placeholder-count="4">
+<div class="bd-mod" style="position: relative; width: {{m.px}}; flex: none; background: {{m.face}}; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;">
+<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
+<span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em;">{{m.name}}</span>
+<span style="font-family: 'Martian Mono', monospace; font-weight: 250; font-size: 30px; letter-spacing: -0.05em; white-space: nowrap; overflow: hidden;">{{m.mini}}</span>
+<span style="font-size: 12px; color: #a7a9ad; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{m.text}}</span>
+<span style="margin-top: auto; display: flex; gap: 4px;">
+<button aria-label="Move {{m.name}} left" onClick="{{m.left}}" disabled="{{m.first}}" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">‹</button>
+<button aria-label="Move {{m.name}} right" onClick="{{m.right}}" disabled="{{m.last}}" style="width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; cursor: pointer;">›</button>
+<button aria-label="Remove {{m.name}}" onClick="{{m.remove}}" style="margin-left: auto; width: 28px; height: 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; display: grid; place-items: center; cursor: pointer;"><svg width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2 L10 10 M10 2 L2 10" stroke="#efece6" stroke-width="1.8"></path></svg></button>
+</span>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{deskFree}}" hint-placeholder-val="{{ true }}">
+<div style="flex: 1; border: 1px dashed #45484e; border-radius: 6px; display: grid; place-items: center; font-family: 'Martian Mono', monospace; font-size: 12px; color: #8c8f95;">{{deskFreeText}}</div>
+</sc-if>
+</div>
+</div>
+</section>
+
+<section aria-label="Module drawer" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0;">
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Drawer</span>
+<span style="font-size: 13px; color: #a7a9ad;">Add to</span>
+<div role="group" aria-label="Add to which row" style="display: flex; gap: 4px;">
+<sc-for list="{{targets}}" as="t" hint-placeholder-count="2">
+<button aria-pressed="{{t.on}}" onClick="{{t.pick}}" style="height: 30px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: {{t.bg}}; color: {{t.fg}}; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">{{t.label}}</button>
+</sc-for>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;">
+<sc-for list="{{drawer}}" as="d" hint-placeholder-count="9">
+<div style="background: #1b1c1f; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;">
+<div style="padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
+<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">{{d.name}}</span><span style="font-family: 'Martian Mono', monospace; font-size: 11px; color: #a7a9ad;">{{d.hpText}}</span></div>
+<span style="font-size: 12px; line-height: 1.4; color: #c9c6bf;">{{d.text}}</span>
+<button onClick="{{d.add}}" disabled="{{d.blocked}}" style="margin-top: auto; height: 30px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); background: #272a2f; font-weight: 650; font-size: 11px; letter-spacing: 0.01em; cursor: pointer;">{{d.action}}</button>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+</main>
+
+<aside aria-label="Patch sheets" style="width: 300px; display: flex; flex-direction: column; gap: 12px;">
+<div style="background: linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22; border-radius: 16px; overflow: hidden;">
+
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">Patch sheets</span>
+<span style="font-size: 13px; color: #c9c6bf;">A sheet remembers both rows. Switch the whole rack in one press, or from Find: sheet evening.</span>
+<sc-for list="{{sheets}}" as="p" hint-placeholder-count="4">
+<button aria-pressed="{{p.on}}" onClick="{{p.load}}" disabled="{{p.empty}}" style="height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid {{p.border}}; background: {{p.bg}}; color: {{p.fg}}; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;">
+<span style="font-weight: 650; font-size: 12px; letter-spacing: 0.01em;">{{p.name}}</span>
+<span style="margin-left: auto; font-size: 12px;">{{p.desc}}</span>
+</button>
+</sc-for>
+<button onClick="{{save}}" style="height: 40px; border-radius: 10px; border: 0; background: #ff8a3d; color: #17181a; font-weight: 650; font-size: 12px; letter-spacing: 0.01em; cursor: pointer;">Save as mine</button>
+</div>
+</div>
+<div style="flex: 1; background: #141518; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-weight: 650; font-size: 11px; letter-spacing: 0.01em; color: #a7a9ad;">The rack says</span>
+<div role="log" aria-live="polite" style="display: flex; flex-direction: column; gap: 6px; font-family: 'Martian Mono', monospace; font-size: 12px; line-height: 1.5;">
+<sc-for list="{{log}}" as="l" hint-placeholder-count="4"><div style="color: {{l.c}};">{{l.t}}</div></sc-for>
+</div>
+</div>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      desk: ['clock', 'sky', 'note', 'system'], bar: ['timers', 'net'], target: 'desk', sheet: 'Work',
+      mine: null, log: [{ t: 'Patch sheet WORK loaded · 6 modules', ok: true }]
+    };
+  }
+  catalog() {
+    const A1 = '#3c3f45', A2 = '#3c3f45', A3 = '#3c3f45', A4 = '#3c3f45';
+    return {
+      clock: { name: 'Clock', hp: 8, barHp: 4, c: A3, mini: '21:44', bar: '21:44', text: 'Time, date, how much of the day is done' },
+      sky: { name: 'Sky', hp: 10, barHp: 0, c: A2, mini: '11°', bar: '', text: "Weather and the sun's arc" },
+      note: { name: 'Note', hp: 8, barHp: 0, c: A4, mini: '3 lines', bar: '', text: 'The running note' },
+      system: { name: 'System', hp: 6, barHp: 3, c: A1, mini: '12%', bar: 'CPU 12%', text: 'CPU, memory, temperature' },
+      player: { name: 'Player', hp: 10, barHp: 5, c: A1, mini: 'Playing', bar: 'Lofi Lion', text: "What's playing, with keys" },
+      agenda: { name: 'Agenda', hp: 8, barHp: 0, c: A3, mini: '14:00', bar: '', text: 'Next three events' },
+      timers: { name: 'Timers', hp: 6, barHp: 4, c: A3, mini: '4:12', bar: 'Tea 4:12', text: 'Named countdowns' },
+      batteries: { name: 'Batteries', hp: 6, barHp: 3, c: A2, mini: '70%', bar: 'Wh 70%', text: 'Headphones, mouse, pad' },
+      net: { name: 'Net', hp: 6, barHp: 3, c: A2, mini: '↓4.2', bar: '↓4.2 MB/s', text: 'Speed and data used today' }
+    };
+  }
+  presets() {
+    return {
+      WORK: { desk: ['clock', 'sky', 'note', 'system'], bar: ['timers', 'net'], desc: 'clock, note, timers' },
+      GAME: { desk: ['system', 'player', 'batteries'], bar: ['batteries', 'net'], desc: 'system, player, pads' },
+      EVENING: { desk: ['clock', 'sky', 'player'], bar: ['timers'], desc: 'sky, music, quiet' }
+    };
+  }
+  say(t, ok) { this.setState({ log: this.state.log.concat([{ t, ok }]).slice(-6) }); }
+  renderVals() {
+    const st = this.state;
+    const cat = this.catalog();
+    const used = (list, key) => list.reduce((n, id) => n + cat[id][key], 0);
+    const deskUsed = used(st.desk, 'hp'), barUsed = used(st.bar, 'barHp');
+    const move = (i, d) => { const a = st.desk.slice(); const j = i + d; [a[i], a[j]] = [a[j], a[i]]; this.setState({ desk: a, sheet: null }); this.say(cat[a[j]].name + ' moved ' + (d < 0 ? 'left' : 'right'), true); };
+    const finish = (id) => ({ face: id === 'clock' || id === 'player' ? '#1c1e22' : (id === 'note' ? '#1c1e22' : 'linear-gradient(rgba(255,138,61,0.05), rgba(255,138,61,0.05)) #1c1e22') });
+    const deskMods = st.desk.map((id, i) => Object.assign({}, cat[id], finish(id), {
+      px: (cat[id].hp * 22 - 3) + 'px', first: i === 0, last: i === st.desk.length - 1,
+      left: () => move(i, -1), right: () => move(i, 1),
+      remove: () => { this.setState({ desk: st.desk.filter((_, k) => k !== i), sheet: null }); this.say(cat[id].name + ' pulled · ' + (42 - deskUsed + cat[id].hp) + ' HP free', true); }
+    }));
+    const barMods = st.bar.map((id, i) => Object.assign({}, cat[id], {
+      px: (cat[id].barHp * 22 - 3) + 'px', mini: cat[id].bar,
+      remove: () => { this.setState({ bar: st.bar.filter((_, k) => k !== i), sheet: null }); this.say(cat[id].name + ' pulled from the bar', true); }
+    }));
+    const toBar = st.target === 'bar';
+    const drawer = Object.keys(cat).map((id) => {
+      const m = cat[id];
+      const list = toBar ? st.bar : st.desk;
+      const has = list.indexOf(id) >= 0;
+      const need = toBar ? m.barHp : m.hp;
+      const free = toBar ? 16 - barUsed : 42 - deskUsed;
+      let blocked = false, action = 'Add';
+      if (toBar && !m.barHp) { blocked = true; action = 'Too tall for the bar'; }
+      else if (has) { blocked = true; action = 'Installed'; }
+      else if (need > free) { blocked = true; action = 'Needs ' + need + ' HP · ' + free + ' Free'; }
+      return Object.assign({}, m, {
+        hpText: toBar ? (m.barHp ? m.barHp + ' HP' : '—') : m.hp + ' HP', blocked, action,
+        add: () => {
+          if (toBar) this.setState({ bar: st.bar.concat([id]), sheet: null });
+          else this.setState({ desk: st.desk.concat([id]), sheet: null });
+          this.say(m.name + ' installed on the ' + (toBar ? 'bar' : 'desktop') + ' · ' + (free - need) + ' HP free', true);
+        }
+      });
+    });
+    const presets = this.presets();
+    const sheets = ['Work', 'Game', 'Evening', 'Mine'].map((name) => {
+      const p = name === 'Mine' ? st.mine : presets[name];
+      const on = st.sheet === name;
+      return {
+        name, on, empty: !p, desc: p ? (name === 'Mine' ? (p.desk.length + p.bar.length) + ' modules' : p.desc) : 'nothing saved yet',
+        bg: on ? 'rgba(255,138,61,0.14)' : '#272a2f', fg: on ? '#ff8a3d' : '#efece6', border: on ? 'rgba(255,138,61,0.4)' : 'transparent',
+        load: () => { if (!p) return; this.setState({ desk: p.desk.slice(), bar: p.bar.slice(), sheet: name }); this.say('Patch sheet ' + name + ' loaded · ' + (p.desk.length + p.bar.length) + ' modules', true); }
+      };
+    });
+    const targets = [['desk', 'Desktop'], ['bar', 'Bar']].map(([id, label]) => {
+      const on = st.target === id;
+      return { label, on, pick: () => this.setState({ target: id }), bg: on ? '#2c2f35' : 'transparent', fg: on ? '#ffffff' : '#a7a9ad' };
+    });
+    return {
+      deskMods, barMods, drawer, sheets, targets,
+      deskUsed, barUsed, deskFree: deskUsed < 42, deskFreeText: (42 - deskUsed) + ' HP free',
+      save: () => { this.setState({ mine: { desk: st.desk.slice(), bar: st.bar.slice() }, sheet: 'Mine' }); this.say('Saved as Mine · ' + (st.desk.length + st.bar.length) + ' modules', true); },
+      log: st.log.map((l) => ({ t: '› ' + l.t, c: l.ok ? '#c9c6bf' : '#ffb4a8' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

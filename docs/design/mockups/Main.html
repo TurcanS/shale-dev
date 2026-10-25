@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0b111a}
+@keyframes rIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes rSlide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes rFade{from{opacity:0}to{opacity:1}}
+@keyframes rVu{0%{transform:scaleY(.3)}35%{transform:scaleY(.9)}60%{transform:scaleY(.5)}100%{transform:scaleY(1)}}
+.r-pnl{animation:rIn 170ms cubic-bezier(.2,.8,.2,1) both}
+.r-toast{animation:rSlide 200ms cubic-bezier(.2,.8,.2,1) both}
+.r-fade{animation:rFade 180ms ease-out both}
+.r-vu{transform-origin:bottom;animation:rVu 800ms ease-in-out infinite alternate}
+.r-cable{transition:d 340ms cubic-bezier(.3,1.35,.5,1)}
+button{font:inherit;color:inherit;transition:transform 70ms ease-out,filter 120ms ease-out}
+button:hover{filter:brightness(1.15)}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.r-pnl,.r-toast,.r-fade,.r-vu{animation:none}.r-cable,button{transition:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 1600px; height: 900px; overflow: hidden; background: #0b111a; font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<svg width="1600" height="900" viewBox="0 0 1600 900" style="position: absolute; left: 0; top: 0;" aria-hidden="true">
+<defs><linearGradient id="rmSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#090f1a"></stop><stop offset="0.62" stop-color="#14233a"></stop><stop offset="1" stop-color="#1f3149"></stop></linearGradient></defs>
+<rect width="1600" height="900" fill="url(#rmSky)"></rect>
+<circle cx="1244" cy="186" r="96" fill="#e9e4d6" opacity="0.04"></circle>
+<circle cx="1244" cy="186" r="34" fill="#e7e1d1" opacity="0.92"></circle>
+<circle cx="190" cy="120" r="1.4" fill="#cfd8e6"></circle><circle cx="420" cy="96" r="1" fill="#cfd8e6"></circle><circle cx="640" cy="150" r="1.2" fill="#cfd8e6"></circle><circle cx="880" cy="80" r="1" fill="#cfd8e6"></circle><circle cx="1010" cy="210" r="1.3" fill="#cfd8e6"></circle><circle cx="1420" cy="100" r="1" fill="#cfd8e6"></circle>
+<path d="M0 520 L120 460 L220 490 L340 410 L460 480 L560 430 L700 500 L820 390 L940 460 L1060 420 L1180 480 L1300 400 L1420 460 L1520 430 L1600 460 L1600 900 L0 900 Z" fill="#192739"></path>
+<path d="M0 610 L160 550 L280 590 L420 530 L560 600 L700 560 L860 620 L1000 550 L1140 610 L1280 570 L1440 630 L1600 580 L1600 900 L0 900 Z" fill="#111c2a"></path>
+<path d="M0 720 L200 680 L380 710 L560 660 L760 720 L980 680 L1180 730 L1400 690 L1600 720 L1600 900 L0 900 Z" fill="#0a111a"></path>
+<rect x="612" y="702" width="4" height="3" fill="#ffb35c" opacity="0.85"></rect><rect x="640" y="710" width="4" height="3" fill="#ffb35c" opacity="0.7"></rect><rect x="668" y="698" width="4" height="3" fill="#ffb35c" opacity="0.85"></rect><rect x="1020" y="702" width="4" height="3" fill="#ffb35c" opacity="0.7"></rect>
+</svg>
+
+<section aria-label="Desktop widgets" style="position: absolute; left: 24px; bottom: 24px; display: flex; gap: 12px; align-items: flex-end;">
+
+<div style="width: 250px; height: 214px; box-sizing: border-box; padding: 18px; background: rgba(18,19,22,0.78); backdrop-filter: blur(18px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07), 0 20px 40px rgba(0,0,0,0.35); border-radius: 22px; display: flex; flex-direction: column;">
+<span style="font-size: 14px; color: #a7a9ad;">{{dateLine}}</span>
+<span style="font-weight: 600; font-size: 64px; line-height: 1.05; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;">{{time}}</span>
+<span style="margin-top: auto; display: flex; align-items: center; gap: 8px; font-size: 13px;"><span style="width: 3px; height: 16px; border-radius: 2px; background: {{s.a1}};"></span>14:00 Dentist</span>
+<span style="margin-top: 12px; height: 4px; border-radius: 2px; background: #2a2d33;"><span style="display: block; height: 4px; width: {{dayPct}}; border-radius: 2px; background: {{s.a1}};"></span></span>
+<span style="margin-top: 6px; font-size: 11px; color: #8c8f95;">{{dayPct}} of the day gone · week 43</span>
+</div>
+
+<div style="width: 290px; height: 214px; box-sizing: border-box; padding: 18px; background: rgba(18,19,22,0.78); backdrop-filter: blur(18px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07), 0 20px 40px rgba(0,0,0,0.35); border-radius: 22px; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 10px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c9c6bf" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M7 15a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 6.5a4 4 0 0 1 .5 8.5zM9 18l-1 2M13 18l-1 2M17 18l-1 2"></path></svg><span style="font-weight: 600; font-size: 30px;">11°</span><span style="display: flex; flex-direction: column;"><span style="font-size: 13px; font-weight: 600;">Light rain</span><span style="font-size: 12px; color: #8c8f95;">Feels 8°</span></span></div>
+<svg width="254" height="88" viewBox="0 0 266 92" aria-hidden="true" style="display: block; margin-top: auto;">
+<line x1="4" y1="84" x2="262" y2="84" stroke="#2a2d33" stroke-width="1.5"></line>
+<path d="M23 84 A110 72 0 0 1 243 84" fill="none" stroke="#2a2d33" stroke-width="2" stroke-dasharray="2 5"></path>
+<path d="{{arcDone}}" fill="none" stroke="{{s.a1}}" stroke-width="3" stroke-linecap="round"></path>
+<circle cx="{{sunX}}" cy="{{sunY}}" r="7" fill="{{sunFill}}" stroke="{{s.a1}}" stroke-width="2.5"></circle>
+</svg>
+<div style="display: flex; justify-content: space-between; font-size: 11px; color: #8c8f95; font-variant-numeric: tabular-nums;"><span>07:43</span><span style="color: #efece6;">{{skyStatus}}</span><span>18:21</span></div>
+</div>
+
+<div style="width: 260px; height: 214px; box-sizing: border-box; padding: 16px; background: rgba(18,19,22,0.78); backdrop-filter: blur(18px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07), 0 20px 40px rgba(0,0,0,0.35); border-radius: 22px; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: baseline; justify-content: space-between;"><span style="font-weight: 600; font-size: 15px;">Note</span><span style="font-size: 12px; color: #8c8f95;">{{noteCount}} items</span></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 6px; overflow: hidden;">
+<sc-for list="{{notes}}" as="n" hint-placeholder-count="3"><span style="display: flex; align-items: center; gap: 8px; font-size: 14px;"><span style="width: 14px; height: 14px; flex: none; box-sizing: border-box; border-radius: 50%; border: 1.5px solid #6b6f76;"></span>{{n}}</span></sc-for>
+</div>
+<input value="{{draft}}" onChange="{{onDraft}}" onKeyDown="{{onDraftKey}}" placeholder="Add a line, then Enter" aria-label="Add to the note" style="height: 32px; box-sizing: border-box; border: 0; border-radius: 10px; background: rgba(255,255,255,0.06); color: #efece6; font: 13px 'Hanken Grotesk', sans-serif; padding: 0 10px; outline: none;">
+</div>
+
+<div style="width: 200px; height: 214px; box-sizing: border-box; padding: 16px; background: rgba(18,19,22,0.78); backdrop-filter: blur(18px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07), 0 20px 40px rgba(0,0,0,0.35); border-radius: 22px; display: flex; flex-direction: column; gap: 10px;">
+<span style="font-weight: 600; font-size: 15px;">System</span>
+<sc-for list="{{meters}}" as="m" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px;">
+<svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14" fill="none" stroke="#2a2d33" stroke-width="4"></circle><circle cx="18" cy="18" r="14" fill="none" stroke="{{m.c}}" stroke-width="4" stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="{{m.dash}}" transform="rotate(-90 18 18)"></circle></svg>
+<span style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: #8c8f95;">{{m.label}}</span><span style="font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums;">{{m.value}}</span></span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<sc-if value="{{anyPanel}}" hint-placeholder-val="{{ true }}">
+<button aria-label="Close panel" onClick="{{closePanel}}" style="position: absolute; left: 0; top: 52px; width: 1600px; height: 848px; background: transparent; border: 0; padding: 0; cursor: default; transition: none;"></button>
+</sc-if>
+
+<div style="position: absolute; left: 8px; top: 8px; width: 1584px; height: 44px;">
+<dc-import name="Bar" wallpaper="{{wall}}" open="{{panel}}" on-open="{{openPanel}}" hint-size="1584px,44px"></dc-import>
+</div>
+
+<sc-if value="{{showControl}}" hint-placeholder-val="{{ true }}">
+<div class="r-pnl" style="position: absolute; left: 1028px; top: 60px; width: 560px; height: 680px;"><dc-import name="Control" wallpaper="{{wall}}" on-open="{{openPanel}}" hint-size="560px,680px"></dc-import></div>
+</sc-if>
+<sc-if value="{{showLauncher}}" hint-placeholder-val="{{ false }}">
+<div class="r-pnl" style="position: absolute; left: 460px; top: 150px; width: 680px; height: 480px;"><dc-import name="Launcher" wallpaper="{{wall}}" hint-size="680px,480px"></dc-import></div>
+</sc-if>
+<sc-if value="{{showAlmanac}}" hint-placeholder-val="{{ false }}">
+<div class="r-pnl" style="position: absolute; left: 580px; top: 60px; width: 440px; height: 620px;"><dc-import name="Almanac" wallpaper="{{wall}}" hint-size="440px,620px"></dc-import></div>
+</sc-if>
+<sc-if value="{{showInbox}}" hint-placeholder-val="{{ false }}">
+<div class="r-pnl" style="position: absolute; left: 1168px; top: 60px; width: 420px; height: 580px;"><dc-import name="Inbox" wallpaper="{{wall}}" hint-size="420px,580px"></dc-import></div>
+</sc-if>
+<sc-if value="{{showMedia}}" hint-placeholder-val="{{ false }}">
+<div class="r-pnl" style="position: absolute; left: 300px; top: 60px; width: 460px; height: 260px;"><dc-import name="Media" wallpaper="{{wall}}" hint-size="460px,260px"></dc-import></div>
+</sc-if>
+<sc-if value="{{showWalls}}" hint-placeholder-val="{{ false }}">
+<div class="r-pnl" style="position: absolute; left: 380px; top: 150px; width: 840px; height: 500px;"><dc-import name="Wallpapers" wallpaper="{{wall}}" on-pick="{{pickWall}}" hint-size="840px,500px"></dc-import></div>
+</sc-if>
+
+<sc-if value="{{toast}}" hint-placeholder-val="{{ true }}">
+<section class="r-toast" role="status" aria-live="polite" aria-label="New notification" style="position: absolute; right: 24px; bottom: 24px; width: 360px; box-sizing: border-box; padding: 14px; background: #1c1e22; border-radius: 18px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07), 0 20px 40px rgba(0,0,0,0.5); display: flex; gap: 12px;">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: {{s.a1}}; color: #17181a; display: grid; place-items: center;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"></path></svg></span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
+<div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8c8f95;"><span style="font-weight: 600; color: #c9c6bf;">Mail</span>· now
+<button aria-label="Dismiss" onClick="{{dismissToast}}" style="margin-left: auto; width: 24px; height: 24px; padding: 0; border-radius: 7px; border: 0; background: transparent; color: #8c8f95; display: grid; place-items: center; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>
+<span style="font-weight: 600; font-size: 14px;">Invoice 0142 is ready</span>
+<span style="font-size: 13px; color: #a7a9ad;">Hetzner · the PDF is attached.</span>
+<div style="display: flex; gap: 6px; margin-top: 8px;"><button style="height: 30px; padding: 0 14px; border-radius: 8px; border: 0; background: {{s.a1}}; color: #17181a; font-weight: 600; font-size: 12px; cursor: pointer;">Open</button><button onClick="{{dismissToast}}" style="height: 30px; padding: 0 14px; border-radius: 8px; border: 0; background: #2a2d33; font-weight: 600; font-size: 12px; cursor: pointer;">Later</button></div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{osd}}" hint-placeholder-val="{{ false }}">
+<div class="r-pnl" role="status" aria-label="Volume 62" style="position: absolute; left: 640px; bottom: 80px; width: 320px; height: 56px; box-sizing: border-box; padding: 0 16px 0 10px; border-radius: 28px; background: rgba(28,30,34,0.94); box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 16px 34px rgba(0,0,0,0.45); display: flex; align-items: center; gap: 12px;">
+<span style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.08); color: {{s.a1}}; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h3l5-4v12l-5-4H4zM16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"></path></svg></span>
+<span style="position: relative; flex: 1; height: 6px; border-radius: 3px; background: #2a2d33;"><span style="position: absolute; left: 0; top: 0; bottom: 0; width: 62%; border-radius: 3px; background: {{s.a1}};"></span></span>
+<span style="font-weight: 650; font-size: 14px;">62</span>
+</div>
+</sc-if>
+
+<sc-if value="{{locked}}" hint-placeholder-val="{{ false }}">
+<div class="r-fade" style="position: absolute; left: 0; top: 0; width: 1600px; height: 900px;"><dc-import name="Lock" wallpaper="{{wall}}" on-unlock="{{unlock}}" hint-size="1600px,900px"></dc-import></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { wall: null, panel: 'control', locked: false, osd: false, toast: true, now: new Date(),
+      notes: ['Buy coffee filters', 'Call Dan about the bike', 'Send the Shale 1.2 notes'], draft: '' };
+  }
+  componentDidMount() { this.tick = setInterval(() => this.setState({ now: new Date() }), 20000); }
+  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.osdTimer); }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; the graphite takes a faint tint of the signal.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const [r, g, b] = rgb(p[0]);
+    const dim = '#' + rgb(p[0]).map((v) => Math.round(v * 0.4 + 36 * 0.6).toString(16).padStart(2, '0')).join('');
+    return { a1: p[0], a2: p[0], a3: p[0], a4: '#e7e2d6', comp: p[1], dim, tint: 'rgba(' + r + ',' + g + ',' + b + ',0.05)' };
+  }
+  renderVals() {
+    const st = this.state;
+    const wall = st.wall || this.props.wallpaper || 'night-ridge';
+    const s = this.stripes(wall);
+    const now = st.now;
+    const pad = (n) => String(n).padStart(2, '0');
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const m = now.getHours() * 60 + now.getMinutes();
+    const rise = 463, set = 1101;
+    const span = (x) => Math.floor(x / 60) + 'H' + pad(x % 60);
+    let f, status;
+    if (m >= rise && m <= set) { f = (m - rise) / (set - rise); status = 'SETS IN ' + span(set - m); }
+    else if (m > set) { f = 1; status = 'RISES IN ' + span(1440 - m + rise); }
+    else { f = 0; status = 'RISES IN ' + span(rise - m); }
+    const ang = Math.PI * f;
+    const sunX = 133 - 110 * Math.cos(ang), sunY = 84 - 72 * Math.sin(ang);
+    const open = (name) => {
+      if (name === 'lock') { this.setState({ locked: true, panel: null }); return; }
+      if (name === 'osd') { clearTimeout(this.osdTimer); this.setState({ osd: true }); this.osdTimer = setTimeout(() => this.setState({ osd: false }), 1800); return; }
+      this.setState({ panel: st.panel === name ? null : name });
+    };
+    return {
+      s, wall,
+      time: pad(now.getHours()) + ':' + pad(now.getMinutes()),
+      dateLine: days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()],
+      dayPct: Math.round(m / 14.4) + '%',
+      arcDone: f > 0.01 ? 'M23 84 A110 72 0 0 1 ' + sunX.toFixed(1) + ' ' + sunY.toFixed(1) : '',
+      sunX: sunX.toFixed(1), sunY: sunY.toFixed(1), sunFill: m >= rise && m <= set ? s.a2 : '#1c1e22', skyStatus: status,
+      notes: st.notes, noteCount: st.notes.length, draft: st.draft,
+      onDraft: (e) => this.setState({ draft: e.target.value }),
+      onDraftKey: (e) => { if (e.key === 'Enter' && st.draft.trim()) this.setState({ notes: st.notes.concat([st.draft.trim()]).slice(-5), draft: '' }); },
+      meters: [['CPU', '12%', 0.12, s.a1], ['Memory', '6.3 GB', 0.41, s.comp], ['Temperature', '48°', 0.48, '#e7e2d6']].map(([label, value, f, c]) => ({ label, value, c, dash: (88 * (1 - f)).toFixed(1) })),
+      panel: st.panel, anyPanel: !!st.panel,
+      showControl: st.panel === 'control', showLauncher: st.panel === 'launcher', showAlmanac: st.panel === 'almanac',
+      showInbox: st.panel === 'inbox', showMedia: st.panel === 'media', showWalls: st.panel === 'wallpapers',
+      openPanel: open, closePanel: () => this.setState({ panel: null }),
+      pickWall: (id) => this.setState({ wall: id }),
+      locked: st.locked, unlock: () => this.setState({ locked: false }),
+      osd: st.osd, toast: st.toast, dismissToast: () => this.setState({ toast: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

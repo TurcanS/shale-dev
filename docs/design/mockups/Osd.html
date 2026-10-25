@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack on-screen displays</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.o-fill{transition:width 160ms cubic-bezier(.2,.8,.2,1)}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){.o-fill,button{transition:none}}
+</style>
+</helmet>
+<section aria-label="On-screen displays" style="width: 1240px; height: 240px; box-sizing: border-box; padding: 0 10px; display: flex; align-items: center; gap: 16px; font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<sc-for list="{{bars}}" as="o" hint-placeholder-count="2">
+<div role="status" aria-label="{{o.label}} {{o.value}}" style="width: 320px; height: 56px; box-sizing: border-box; padding: 0 16px 0 10px; border-radius: 28px; background: rgba(28,30,34,0.92); box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 16px 34px rgba(0,0,0,0.45); display: flex; align-items: center; gap: 12px;">
+<span style="width: 36px; height: 36px; flex: none; border-radius: 50%; background: {{o.iconBg}}; color: {{o.iconFg}}; display: grid; place-items: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{o.icon}}"></path></svg></span>
+<span style="position: relative; flex: 1; height: 6px; border-radius: 3px; background: #2a2d33;"><span class="o-fill" style="position: absolute; left: 0; top: 0; bottom: 0; width: {{o.pct}}; border-radius: 3px; background: {{o.fill}}; box-shadow: {{o.glow}};"></span></span>
+<span style="width: 30px; text-align: right; font-weight: 650; font-size: 14px; font-variant-numeric: tabular-nums;">{{o.value}}</span>
+</div>
+</sc-for>
+</div>
+<sc-for list="{{chips}}" as="o" hint-placeholder-count="3">
+<div role="status" aria-label="{{o.label}} {{o.value}}" style="width: 196px; height: 124px; box-sizing: border-box; padding: 16px; border-radius: 24px; background: rgba(28,30,34,0.92); box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 16px 34px rgba(0,0,0,0.45); display: flex; flex-direction: column; gap: 6px;">
+<span style="width: 40px; height: 40px; border-radius: 13px; background: {{o.iconBg}}; color: {{o.iconFg}}; display: grid; place-items: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{o.icon}}"></path></svg></span>
+<span style="margin-top: auto; font-weight: 650; font-size: 16px;">{{o.value}}</span>
+<span style="font-size: 12px; color: #8c8f95;">{{o.label}}</span>
+</div>
+</sc-for>
+<div style="margin-left: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+<sc-for list="{{tries}}" as="t" hint-placeholder-count="5"><button onClick="{{t.go}}" style="height: 32px; padding: 0 12px; border-radius: 10px; border: 0; background: #1c1e22; font-weight: 600; font-size: 12px; cursor: pointer;">{{t.label}}</button></sc-for>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":1240,"height":240}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); this.state = { vol: 62, bright: 80, mic: false, layout: 0, caps: true }; }
+  stripes(wall) {
+    // One signal from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': '#ff8a3d', 'aurora': '#4fd1c5', 'ember-city': '#ff6b6b' }[wall] || '#ff8a3d';
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p.slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p, soft: a(0.16), glow: '0 0 12px ' + a(0.5) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const layouts = [['English', 'US'], ['Română', 'RO'], ['Русский', 'RU']];
+    const bars = [
+      { label: 'Volume', value: String(st.vol), pct: st.vol + '%', fill: 'linear-gradient(90deg, ' + s.soft + ', ' + s.a1 + ')', glow: s.glow, iconBg: s.soft, iconFg: s.a1,
+        icon: st.vol === 0 ? 'M4 10h3l5-4v12l-5-4H4zM16 10l4 4M20 10l-4 4' : 'M4 10h3l5-4v12l-5-4H4zM16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10' },
+      { label: 'Brightness', value: String(st.bright), pct: st.bright + '%', fill: '#e7e2d6', glow: 'none', iconBg: '#2a2d33', iconFg: '#efece6',
+        icon: 'M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4' }
+    ];
+    const chips = [
+      { label: 'Microphone', value: st.mic ? 'Live' : 'Muted', iconBg: st.mic ? s.soft : 'rgba(255,107,91,0.16)', iconFg: st.mic ? s.a1 : '#ffb4a8',
+        icon: 'M12 4a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3zM6 11a6 6 0 0 0 12 0M12 17v3' + (st.mic ? '' : 'M4 4l16 16') },
+      { label: 'Keyboard · ' + layouts[st.layout][1], value: layouts[st.layout][0], iconBg: '#2a2d33', iconFg: '#efece6', icon: 'M3 7h18v10H3zM7 11h.01M11 11h.01M15 11h.01M8 14.5h8' },
+      { label: 'Caps lock', value: st.caps ? 'On' : 'Off', iconBg: st.caps ? '#e7e2d6' : '#2a2d33', iconFg: st.caps ? '#17181a' : '#efece6', icon: 'M12 5l7 7h-4v6H9v-6H5z' }
+    ];
+    const tries = [
+      ['Volume +', () => this.setState({ vol: Math.min(100, st.vol + 5) })], ['Volume −', () => this.setState({ vol: Math.max(0, st.vol - 5) })],
+      ['Light +', () => this.setState({ bright: Math.min(100, st.bright + 10) })], ['Mic', () => this.setState({ mic: !st.mic })],
+      ['Layout', () => this.setState({ layout: (st.layout + 1) % 3 })], ['Caps', () => this.setState({ caps: !st.caps })]
+    ].map(([label, go]) => ({ label, go }));
+    return { bars, chips, tries };
+  }
+}
+</script>
+</body>
+</html>

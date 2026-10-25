@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack focus session</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.f-ring{transition:stroke-dashoffset 900ms linear}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.97)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion: reduce){.f-ring,button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Focus session" style="width: 440px; height: 440px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 12px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+<header style="display: flex; align-items: center; gap: 10px; height: 30px;">
+<span style="font-weight: 650; font-size: 17px;">Focus</span>
+<span style="display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border-radius: 12px; background: {{chipBg}}; color: {{chipFg}}; font-weight: 600; font-size: 12px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor;"></span>{{stateWord}}</span>
+<span style="margin-left: auto; font-size: 12px; color: #8c8f95;">demo: 1 s = 1 min</span>
+</header>
+
+<sc-if value="{{showRing}}" hint-placeholder-val="{{ true }}">
+<div style="flex: 1; display: flex; align-items: center; gap: 20px;">
+<div style="position: relative; width: 196px; height: 196px; flex: none;">
+<svg width="196" height="196" viewBox="0 0 196 196" aria-hidden="true">
+<circle cx="98" cy="98" r="86" fill="none" stroke="#1c1e22" stroke-width="10"></circle>
+<circle class="f-ring" cx="98" cy="98" r="86" fill="none" stroke="{{s.a1}}" stroke-width="10" stroke-linecap="round" stroke-dasharray="540.4" stroke-dashoffset="{{dash}}" transform="rotate(-90 98 98)" style="filter: drop-shadow(0 0 6px {{s.soft}});"></circle>
+</svg>
+<div role="timer" aria-label="{{left}} left" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;"><span style="font-weight: 600; font-size: 44px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;">{{left}}</span><span style="font-size: 13px; color: #8c8f95;">{{under}}</span></div>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 12px; color: #8c8f95;">Length</span>
+<div role="radiogroup" aria-label="Length" style="display: flex; padding: 3px; gap: 2px; border-radius: 10px; background: #1c1e22;">
+<sc-for list="{{lengths}}" as="l" hint-placeholder-count="3"><button role="radio" aria-checked="{{l.on}}" onClick="{{l.pick}}" disabled="{{l.locked}}" style="flex: 1; height: 28px; padding: 0; border-radius: 7px; border: 0; background: {{l.bg}}; color: {{l.fg}}; box-shadow: {{l.shadow}}; font-weight: 600; font-size: 12px; cursor: pointer;">{{l.label}}</button></sc-for>
+</div></div>
+<div style="padding: 10px 12px; border-radius: 12px; background: #1c1e22; display: flex; align-items: center; gap: 10px;"><span style="min-width: 26px; height: 26px; border-radius: 8px; background: #2a2d33; display: grid; place-items: center; font-weight: 650; font-size: 13px;">{{held}}</span><span style="font-size: 13px; line-height: 1.35; color: #c9c6bf;">notifications held until you finish</span></div>
+<span style="font-size: 12px; line-height: 1.5; color: #8c8f95;">Calls and alarms still ring. The bar clock shows a thin ring while this runs.</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showSummary}}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: baseline; gap: 10px;"><span style="font-weight: 650; font-size: 28px;">{{doneLine}}</span><span style="font-size: 13px; color: #8c8f95;">{{held}} came in while you worked</span></div>
+<sc-for list="{{summary}}" as="m" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: #1c1e22; box-shadow: {{m.ring}};"><span style="width: 28px; height: 28px; border-radius: 8px; background: {{m.tile}}; color: {{m.tileFg}}; display: grid; place-items: center; font-weight: 700; font-size: 12px;">{{m.initial}}</span><span style="display: flex; flex-direction: column;"><span style="font-size: 12px; color: #8c8f95;">{{m.app}}</span><span style="font-size: 14px;">{{m.text}}</span></span></div>
+</sc-for>
+</div>
+</sc-if>
+
+<div style="display: flex; gap: 8px;">
+<button onClick="{{primary}}" style="flex: 1; height: 44px; border-radius: 12px; border: 0; background: {{primaryBg}}; color: {{primaryFg}}; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 650; font-size: 14px; cursor: pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{primaryIcon}}"></path></svg>{{primaryText}}</button>
+<button onClick="{{end}}" disabled="{{endDisabled}}" style="height: 44px; padding: 0 18px; border-radius: 12px; border: 0; background: #1c1e22; font-weight: 600; font-size: 14px; cursor: pointer;">End now</button>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":440,"height":440}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); this.state = { len: 25, left: 25 * 60, phase: 'idle', held: 0 }; }
+  componentWillUnmount() { clearInterval(this.timer); }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.45), tint: a(0.14), line: a(0.4) };
+  }
+  run() {
+    clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      const left = Math.max(0, this.state.left - 60);
+      const held = this.state.held + (Math.random() < 0.3 ? 1 : 0);
+      if (left === 0) { clearInterval(this.timer); this.setState({ left, held, phase: 'done' }); }
+      else this.setState({ left, held });
+    }, 1000);
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const total = st.len * 60;
+    const mm = Math.floor(st.left / 60), ss = st.left % 60;
+    const running = st.phase === 'running';
+    const lengths = [25, 50, 90].map((n) => {
+      const on = st.len === n;
+      return { label: n + ' min', on, locked: st.phase === 'running' || st.phase === 'paused', pick: () => this.setState({ len: n, left: n * 60 }), bg: on ? '#2c2f35' : 'transparent', fg: on ? '#ffffff' : '#a7a9ad', shadow: on ? '0 1px 3px rgba(0,0,0,0.4)' : 'none' };
+    });
+    const play = 'M8 5l11 7-11 7z', pause = 'M7 5h3.5v14H7zM13.5 5H17v14h-3.5z';
+    let primaryText = 'Start', primaryIcon = play, primary = () => { this.setState({ phase: 'running' }); this.run(); };
+    if (running) { primaryText = 'Pause'; primaryIcon = pause; primary = () => { clearInterval(this.timer); this.setState({ phase: 'paused' }); }; }
+    if (st.phase === 'paused') { primaryText = 'Resume'; primary = () => { this.setState({ phase: 'running' }); this.run(); }; }
+    if (st.phase === 'done') { primaryText = 'Start another'; primary = () => this.setState({ phase: 'idle', left: st.len * 60, held: 0 }); }
+    const summary = [['Mail', 'Invoice 0142 is ready', true], ['Discord', 'Ana: the new bar looks great', false], ['Updates', '26 packages can be updated', false]]
+      .map(([app, text, urgent]) => ({ app, text, initial: app[0], ring: urgent ? 'inset 0 0 0 1px ' + s.line : 'none', tile: urgent ? s.a1 : '#2a2d33', tileFg: urgent ? '#17181a' : '#c9c6bf' }));
+    const words = { idle: ['Ready', '#2a2d33', '#a7a9ad'], running: ['Running · quiet on', s.tint, s.a1], paused: ['Paused', '#2a2d33', '#c9c6bf'], done: ['Finished', s.tint, s.a1] }[st.phase];
+    return {
+      s, lengths, summary,
+      left: String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0'), under: running ? 'until ' + new Date(Date.now() + st.left * 1000).toTimeString().slice(0, 5) : 'left',
+      dash: (540.4 * (1 - st.left / total)).toFixed(1), held: st.held,
+      stateWord: words[0], chipBg: words[1], chipFg: words[2],
+      showRing: st.phase !== 'done', showSummary: st.phase === 'done', doneLine: st.len + ' min done',
+      primary, primaryText, primaryIcon, primaryBg: running ? '#2a2d33' : s.a1, primaryFg: running ? '#efece6' : '#17181a',
+      end: () => { clearInterval(this.timer); this.setState({ phase: 'done', held: Math.max(st.held, 3) }); }, endDisabled: st.phase === 'idle' || st.phase === 'done'
+    };
+  }
+}
+</script>
+</body>
+</html>

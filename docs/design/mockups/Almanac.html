@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rack calendar and weather</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..800&amp;family=Martian+Mono:wght@200..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;transition:background-color 140ms ease-out,transform 80ms ease-out}
+button:active{transform:scale(.95)}
+button:focus-visible{outline:2px solid #efece6;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){button{transition:none}}
+</style>
+</helmet>
+<section aria-label="Calendar and weather" style="width: 440px; height: 620px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #121316; border-radius: 22px; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(0,0,0,0.35); font-family: 'Hanken Grotesk', sans-serif; color: #efece6;">
+
+<header style="display: flex; align-items: baseline; gap: 10px; padding: 2px 4px 0;">
+<span style="font-weight: 650; font-size: 22px;">{{dayName}} {{dayNum}}</span>
+<span style="font-size: 14px; color: #8c8f95;">{{monthLine}}</span>
+</header>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 6px;">
+<span style="font-weight: 600; font-size: 14px;">{{gridTitle}}</span>
+<button onClick="{{goToday}}" style="margin-left: auto; height: 26px; padding: 0 10px; border-radius: 8px; border: 0; background: #2a2d33; font-weight: 600; font-size: 12px; cursor: pointer;">Today</button>
+<button onClick="{{prev}}" aria-label="Previous month" style="width: 26px; height: 26px; padding: 0; border-radius: 8px; border: 0; background: #2a2d33; display: grid; place-items: center; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<button onClick="{{next}}" aria-label="Next month" style="width: 26px; height: 26px; padding: 0; border-radius: 8px; border: 0; background: #2a2d33; display: grid; place-items: center; cursor: pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, 1fr); font-size: 11px; color: #8c8f95; text-align: center;"><sc-for list="{{weekdays}}" as="w" hint-placeholder-count="7"><span>{{w}}</span></sc-for></div>
+<div role="grid" style="display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px;">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="42">
+<button onClick="{{c.pick}}" aria-label="{{c.label}}" style="position: relative; height: 30px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: {{c.fg}};"><span style="width: 28px; height: 28px; border-radius: 9px; background: {{c.bg}}; box-shadow: {{c.ring}}; display: grid; place-items: center; font-size: 13px; font-weight: {{c.weight}}; font-variant-numeric: tabular-nums;">{{c.d}}</span><span style="position: absolute; bottom: 1px; width: 4px; height: 4px; border-radius: 50%; background: {{c.dot}};"></span></button>
+</sc-for>
+</div>
+</div>
+
+<div style="background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+<span style="font-weight: 600; font-size: 14px;">{{agendaTitle}}</span>
+<sc-for list="{{agenda}}" as="e" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 10px;"><span style="width: 3px; align-self: stretch; border-radius: 2px; background: {{e.c}};"></span><span style="width: 44px; font-size: 13px; color: #c9c6bf; font-variant-numeric: tabular-nums;">{{e.t}}</span><span style="display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 600;">{{e.title}}</span><span style="font-size: 12px; color: #8c8f95;">{{e.sub}}</span></span></div>
+</sc-for>
+<sc-if value="{{noEvents}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #8c8f95;">Nothing planned.</span></sc-if>
+</div>
+
+<div style="flex: 1; min-height: 0; background: #1c1e22; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 12px;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c9c6bf" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M7 15a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 6.5a4 4 0 0 1 .5 8.5zM9 18l-1 2M13 18l-1 2M17 18l-1 2"></path></svg>
+<span style="font-weight: 650; font-size: 28px; font-variant-numeric: tabular-nums;">11°</span>
+<span style="display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 600;">Light rain</span><span style="font-size: 12px; color: #8c8f95;">Feels 8° · wind 14 km/h W</span></span>
+<span style="margin-left: auto; display: flex; gap: 12px;">
+<sc-for list="{{forecast}}" as="f" hint-placeholder-count="3"><span style="display: flex; flex-direction: column; align-items: center; gap: 1px;"><span style="font-size: 11px; color: #8c8f95;">{{f.d}}</span><span style="font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;">{{f.t}}</span></span></sc-for>
+</span>
+</div>
+<svg width="100%" height="58" viewBox="0 0 392 58" preserveAspectRatio="none" aria-hidden="true">
+<line x1="0" y1="52" x2="392" y2="52" stroke="#2a2d33" stroke-width="1.5"></line>
+<path d="M36 52 A160 46 0 0 1 356 52" fill="none" stroke="#2a2d33" stroke-width="2" stroke-dasharray="2 5"></path>
+<path d="{{arcDone}}" fill="none" stroke="{{s.a1}}" stroke-width="2.5" stroke-linecap="round"></path>
+<circle cx="{{sunX}}" cy="{{sunY}}" r="6" fill="{{sunFill}}" stroke="{{s.a1}}" stroke-width="2"></circle>
+</svg>
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #8c8f95; font-variant-numeric: tabular-nums;"><span>Sunrise 07:43</span><span style="color: #efece6;">{{skyStatus}}</span><span>Sunset 18:21</span></div>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","default":"night-ridge","options":["night-ridge","aurora","ember-city"]},"$preview":{"width":440,"height":620}}'>
+class Component extends DCLogic {
+  constructor(...args) { super(...args); const n = new Date(); this.state = { offset: 0, now: n, pick: n.getDate() }; }
+  stripes(wall) {
+    // One signal and one second colour come from the wallpaper; "on" is the signal at low strength.
+    const p = { 'night-ridge': ['#ff8a3d', '#7fb2c4'], 'aurora': ['#4fd1c5', '#d9b26a'], 'ember-city': ['#ff6b6b', '#8fb8a8'] }[wall] || ['#ff8a3d', '#7fb2c4'];
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(p[0].slice(i, i + 2), 16));
+    const a = (x) => 'rgba(' + r + ',' + g + ',' + b + ',' + x + ')';
+    return { a1: p[0], comp: p[1], soft: a(0.14), line: a(0.4) };
+  }
+  renderVals() {
+    const s = this.stripes(this.props.wallpaper ?? 'night-ridge');
+    const st = this.state;
+    const now = st.now;
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const view = new Date(now.getFullYear(), now.getMonth() + st.offset, 1);
+    const startDow = (view.getDay() + 6) % 7;
+    const inMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+    const prevLen = new Date(view.getFullYear(), view.getMonth(), 0).getDate();
+    const events = { 3: [['09:30', 'Dentist', 'Old Town clinic']], 11: [['18:00', 'Climbing', 'with Dan']], 17: [['10:00', 'Rent due', '']], 24: [['20:00', 'Movie night', '']],
+      [now.getDate()]: [['14:00', 'Dentist', 'Old Town clinic'], ['19:30', 'Call with Dan', 'about the bike']], 28: [['12:00', 'Lunch', 'Café Lumen']] };
+    const cells = [];
+    for (let i = 0; i < 42; i++) {
+      const d = i - startDow + 1;
+      const inside = d >= 1 && d <= inMonth;
+      const today = inside && st.offset === 0 && d === now.getDate();
+      const picked = inside && d === st.pick;
+      cells.push({
+        d: inside ? d : (d < 1 ? prevLen + d : d - inMonth), label: inside ? months[view.getMonth()] + ' ' + d : '',
+        bg: today ? s.a1 : (picked ? '#2c2f35' : 'transparent'), fg: today ? '#17181a' : (inside ? '#efece6' : '#4a4e55'), weight: today ? 700 : 500,
+        ring: picked && !today ? 'inset 0 0 0 1px ' + s.line : 'none',
+        dot: inside && events[d] && !today ? s.a1 : 'transparent',
+        pick: () => { if (inside) this.setState({ pick: d }); }
+      });
+    }
+    const list = st.offset === 0 && events[st.pick] ? events[st.pick] : [];
+    const agenda = list.map(([t, title, sub], i) => ({ t, title, sub, c: i === 0 ? s.a1 : '#8c8f95' }));
+    const m = now.getHours() * 60 + now.getMinutes();
+    const rise = 463, set = 1101;
+    const span = (x) => Math.floor(x / 60) + ' h ' + String(x % 60).padStart(2, '0');
+    let f, status;
+    if (m >= rise && m <= set) { f = (m - rise) / (set - rise); status = 'Sets in ' + span(set - m); }
+    else if (m > set) { f = 1; status = 'Rises in ' + span(1440 - m + rise); }
+    else { f = 0; status = 'Rises in ' + span(rise - m); }
+    const ang = Math.PI * f;
+    const sunX = 196 - 160 * Math.cos(ang), sunY = 52 - 46 * Math.sin(ang);
+    const isToday = st.offset === 0 && st.pick === now.getDate();
+    return {
+      s, dayNum: now.getDate(), dayName: days[now.getDay()], monthLine: months[now.getMonth()] + ' ' + now.getFullYear() + ' · week 43',
+      gridTitle: months[view.getMonth()] + ' ' + view.getFullYear(), weekdays: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'], cells,
+      prev: () => this.setState({ offset: st.offset - 1 }), next: () => this.setState({ offset: st.offset + 1 }), goToday: () => this.setState({ offset: 0, pick: now.getDate() }),
+      agenda, noEvents: agenda.length === 0, agendaTitle: isToday ? 'Today' : months[view.getMonth()] + ' ' + st.pick,
+      forecast: [{ d: 'Sun', t: '9°' }, { d: 'Mon', t: '12°' }, { d: 'Tue', t: '8°' }],
+      sunX: sunX.toFixed(1), sunY: sunY.toFixed(1),
+      arcDone: f > 0.01 ? 'M36 52 A160 46 0 0 1 ' + sunX.toFixed(1) + ' ' + sunY.toFixed(1) : '',
+      sunFill: m >= rise && m <= set ? s.a1 : '#1c1e22', skyStatus: status
+    };
+  }
+}
+</script>
+</body>
+</html>
