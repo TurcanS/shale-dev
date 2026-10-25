@@ -52,6 +52,11 @@ Prompt:
 > Network and Mixer details, then the session menu, per PANELS.md and the Control, Network, Mixer and Session
 > mockups. Push and summarise what to test.
 
+Carry-over from stage 2: set `glow: true` on Control's volume slider and `showTitle: false` on its three main
+sliders (per-app rows keep their titles). Chip, Undo bar, key-hint and ring-meter components don't exist yet; add
+them to `components/` when a panel in this or a later stage first needs one, and reuse them after that. Activity's
+Clear history button may sit 2 px high (old bottom padding in Activity.qml); fix it in stage 9.
+
 ## Stage 5: Find, Notifications, toasts and OSD
 Files: `features/Launcher.qml`, `core/search.js` (only if the grouping needs it), `features/Notifications.qml`,
 `features/NotificationCard.qml`, `features/Toasts.qml`.
