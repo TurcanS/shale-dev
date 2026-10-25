@@ -28,8 +28,11 @@ ColumnLayout {
     // With Control's header and padding, the page is 440 high.
     Layout.preferredHeight: 358
     function primary() {
-        if (phase === "done")
+        if (phase === "done") {
+            // Read here, so the digest card doesn't wait on the desktop and the page doesn't show it again.
             summary = null;
+            Focus.digest = null;
+        }
         else if (phase === "running")
             Focus.pause();
         else if (phase === "paused")
