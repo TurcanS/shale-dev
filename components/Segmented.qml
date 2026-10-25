@@ -28,7 +28,7 @@ Rectangle {
     readonly property real widest: {
         let widest = 0;
         for (let i = 0; i < segments.count; i++) {
-            const item = segments.itemAt(i);
+            const item = segments.itemAt(i) as Button;
             if (item)
                 widest = Math.max(widest, item.implicitContentWidth + 12);
         }
