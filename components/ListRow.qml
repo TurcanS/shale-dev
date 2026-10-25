@@ -99,7 +99,8 @@ Button {
                     color: Theme.text
                     font.weight: root.inline || root.selected && root.interactive ? Font.DemiBold : Font.Medium
                     Layout.fillWidth: !root.inline
-                    Layout.maximumWidth: root.inline ? titles.width * 0.7 : Infinity
+                    // From the row's own width: bound to the grid's width, it laid the grid out again and again.
+                    Layout.maximumWidth: root.inline ? root.availableWidth * 0.6 : Infinity
                 }
                 Label {
                     visible: root.subtitle !== ""
