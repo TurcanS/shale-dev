@@ -46,7 +46,8 @@ ShellRoot {
         Services.dnd = Qt.binding(() => ShellState.setting("dnd", false) || Focus.active);
         Services.locked = Qt.binding(() => ShellState.locked);
         Services.amplification = Qt.binding(() => ShellState.setting("amplification", false));
-        Services.trackStreams = Qt.binding(() => ShellState.panel === "control" && ShellState.detail === "audio");
+        // App streams are bound while Control shows them: per-app levels on its main page and the mixer.
+        Services.trackStreams = Qt.binding(() => ShellState.panel === "control" && (ShellState.detail === "" || ShellState.detail === "audio"));
     }
     Connections {
         target: Services

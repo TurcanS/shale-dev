@@ -10,6 +10,8 @@ Rectangle {
     property var current: null
     // Equal-width segments that fill the row, or segments sized to their labels.
     property bool fill: true
+    // With fill, size the segments to their labels instead of equally, so long labels keep their room.
+    property bool proportional: false
     property int segmentHeight: Theme.controlHeight
     property color trackColor: Theme.module
     signal activated(var key)
@@ -94,7 +96,7 @@ Rectangle {
                 // White on the chosen option, quiet on the others until hovered.
                 foreground: !enabled ? Theme.textFaint : selected ? "#ffffff" : hovered || visualFocus ? Theme.text : Theme.textMuted
                 Layout.fillWidth: root.fill
-                Layout.preferredWidth: root.fill ? 1 : implicitWidth
+                Layout.preferredWidth: root.fill && !root.proportional ? 1 : implicitWidth
                 Layout.fillHeight: true
                 Accessible.name: modelData.accessibleName || text || hint
                 Accessible.role: Accessible.RadioButton

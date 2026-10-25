@@ -14,12 +14,13 @@ const sections = [
     {id: "levels", title: "Volume and brightness", icon: "volume"},
     {id: "media", title: "Now playing", icon: "music"}
 ];
-// Settings stays: it is the way back to this page.
+// The power row at the foot of the page. Settings stays (it is the way back to this page) and sits in the header;
+// Session is Sleep, Restart and Hold to power off.
 const footer = [
     {id: "capture", title: "Capture", icon: "camera"},
     {id: "settings", title: "Settings", icon: "settings", required: true},
     {id: "lock", title: "Lock", icon: "lock"},
-    {id: "session", title: "Session", icon: "power"}
+    {id: "session", title: "Session", icon: "power", description: "Sleep, Restart and Hold to power off"}
 ];
 
 function find(list, id) {
