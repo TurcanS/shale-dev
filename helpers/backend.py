@@ -594,6 +594,40 @@ def clipboard_target(text):
     return None
 
 
+# Pinned clipboard entries live outside cliphist, so a wipe or cliphist's own trimming never takes them: an index of
+# {"pin", "text" (cliphist's preview line), "file"} and each entry's full contents beside it, readable by you only.
+CLIPBOARD_PINS = STATE / "clipboard-pins"
+PIN_ID = re.compile(r"[0-9a-f]{16}")
+PIN_FILE = re.compile(r"[0-9a-f]{16}\.(png|jpg|data)")
+MAX_PINS = 50
+
+
+def clipboard_pins():
+    try:
+        pins = json.loads((CLIPBOARD_PINS / "pins.json").read_text())
+    except (OSError, ValueError):
+        return []
+    if not isinstance(pins, list):
+        return []
+    return [pin for pin in pins if isinstance(pin, dict) and isinstance(pin.get("text"), str)
+            and PIN_ID.fullmatch(str(pin.get("pin", ""))) and PIN_FILE.fullmatch(str(pin.get("file", "")))]
+
+
+def clipboard_pin(pins, identity):
+    """The pin with this id, else an error; the file name was checked when the index was read."""
+    pin = next((pin for pin in pins if pin["pin"] == identity), None) if PIN_ID.fullmatch(str(identity)) else None
+    if pin is None:
+        raise BackendError("invalid", "That pin is gone.")
+    return pin
+
+
+def pin_data(pin):
+    try:
+        return (CLIPBOARD_PINS / pin["file"]).read_bytes()
+    except OSError:
+        raise BackendError("failed", "This pin's contents are missing. Unpin it.") from None
+
+
 PROPERTIES = "org.freedesktop.DBus.Properties"
 SERVICE_MISSING = ("org.freedesktop.DBus.Error.ServiceUnknown", "org.freedesktop.DBus.Error.NameHasNoOwner")
 FLATPAK_SCOPE = re.compile(r"app-flatpak-([A-Za-z0-9_.-]+?)-\d+\.scope")
@@ -703,6 +737,7 @@ class Backend:
         # Clipboard entries deleted, and wipes so far: a preview still being decoded for one must not be saved after.
         self.clipboard_deleted = set()
         self.clipboard_wipes = 0
+        self.clipboard_pin_lock = asyncio.Lock()
         # Leaves the key-recording submap if Settings never says it's done.
         self.record_timeout = None
         # Closes links left open after a device switched off and runs auto-connect; set up by watch_bluetooth.
@@ -1880,10 +1915,21 @@ class Backend:
             data = (await run("cliphist", "list")).decode(errors="replace")
             query = str(p.get("query", "")).casefold()
             limit = min(1000, max(1, int(number(p, "limit", 100))))
+            saved, pins = clipboard_pins(), []
+            for pin in saved:
+                if query in pin["text"].casefold():
+                    entry = {"pin": pin["pin"], "text": pin["text"]}
+                    if label := clipboard_label(pin["text"]):
+                        entry["label"] = label
+                        if not pin["file"].endswith(".data"):
+                            entry["image"] = str(CLIPBOARD_PINS / pin["file"])
+                    pins.append(entry)
+            # Copying a pin puts it back in cliphist; it shows once, as the pin.
+            pinned = {pin["text"] for pin in saved}
             entries = []
             for line in data.splitlines():
                 identity, _, text = line.partition("\t")
-                if query in text.casefold():
+                if query in text.casefold() and text not in pinned:
                     entry = {"id": identity, "text": text, "raw": line}
                     label = clipboard_label(text)
                     if label:
@@ -1892,7 +1938,7 @@ class Backend:
                 if len(entries) >= limit:
                     break
             paths = []
-            for entry in entries:
+            for entry in pins + entries:
                 text = entry["text"].strip()
                 if "label" in entry:
                     continue
@@ -1909,7 +1955,72 @@ class Backend:
                 for (entry, _), kind in zip(paths, kinds):
                     if kind:
                         entry.update(kind)
-            return {"entries": entries}
+            return {"entries": entries, "pins": pins}
+        if method == "clipboard.pin":
+            entry = str(p.get("entry", ""))
+            if not entry.partition("\t")[0].isdigit() or "\n" in entry:
+                raise BackendError("invalid", "Select a clipboard entry.")
+            text = entry.partition("\t")[2]
+            async with self.clipboard_pin_lock:
+                pins = clipboard_pins()
+                if any(pin["text"] == text for pin in pins):
+                    return {"done": True}
+                if len(pins) >= MAX_PINS:
+                    raise BackendError("invalid", f"Up to {MAX_PINS} pins. Unpin one first.")
+                data = await run("cliphist", "decode", data=entry.encode())
+                if len(data) > 20 * 1024 * 1024:
+                    raise BackendError("invalid", "This entry is too large to pin.")
+                extension = ".png" if data.startswith(b"\x89PNG\r\n\x1a\n") else ".jpg" if data.startswith(b"\xff\xd8\xff") else ".data"
+                identity = os.urandom(8).hex()
+                CLIPBOARD_PINS.mkdir(parents=True, exist_ok=True, mode=0o700)
+                path = CLIPBOARD_PINS / (identity + extension)
+                with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "wb") as stream:
+                    stream.write(data)
+                atomic_json(CLIPBOARD_PINS / "pins.json", [{"pin": identity, "text": text, "file": path.name}] + pins)
+            return {"done": True}
+        if method == "clipboard.unpin":
+            async with self.clipboard_pin_lock:
+                pins = clipboard_pins()
+                pin = clipboard_pin(pins, p.get("pin"))
+                atomic_json(CLIPBOARD_PINS / "pins.json", [x for x in pins if x is not pin])
+                (CLIPBOARD_PINS / pin["file"]).unlink(missing_ok=True)
+            # Removing (not just unpinning) also takes the copies the pin hid from history.
+            if p.get("forget") is True:
+                for line in (await run("cliphist", "list")).decode(errors="replace").splitlines():
+                    if line.partition("\t")[2] == pin["text"] and line.partition("\t")[0].isdigit():
+                        await run("cliphist", "delete", data=line.encode())
+            return {"done": True}
+        if method == "clipboard.text":
+            # The full text for the preview (cliphist's list line is cut and flattened); "" for images and other data.
+            if "pin" in p:
+                data = pin_data(clipboard_pin(clipboard_pins(), p.get("pin")))
+            else:
+                entry = str(p.get("entry", ""))
+                if not entry.partition("\t")[0].isdigit() or "\n" in entry:
+                    raise BackendError("invalid", "Select a clipboard entry.")
+                data = await run("cliphist", "decode", data=entry.encode())
+            try:
+                text = data[:65536].decode()
+            except UnicodeDecodeError as error:
+                # Cut inside a character: keep what came before it; anything else isn't text.
+                text = data[:error.start].decode() if len(data) > 65536 and error.start > 65532 else ""
+            return {"text": text, "cut": len(data) > 65536 and text != ""}
+        if method in ("clipboard.copy", "clipboard.open") and "pin" in p:
+            data = pin_data(clipboard_pin(clipboard_pins(), p.get("pin")))
+            if method.endswith("copy"):
+                await run("wl-copy", data=data)
+                return {"done": True}
+            try:
+                text = data.decode().strip() if len(data) <= 65536 else ""
+            except UnicodeDecodeError:
+                text = ""
+            try:
+                target = await asyncio.wait_for(asyncio.to_thread(clipboard_target, text), 3)
+            except asyncio.TimeoutError:
+                raise BackendError("failed", "That location isn't responding.")
+            if not target:
+                raise BackendError("invalid", "This entry can't be opened.")
+            return target
         if method in ("clipboard.copy", "clipboard.delete", "clipboard.open"):
             entry = str(p.get("entry", ""))
             if not entry.partition("\t")[0].isdigit() or "\n" in entry:
