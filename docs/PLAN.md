@@ -132,6 +132,19 @@ Prompt:
 > Do stage 9 of docs/PLAN.md on branch `redesign`: System monitor and Activity per PANELS.md and their mockups. Keep
 > every stat and the Activity consent and history behaviour. Push and summarise.
 
+Carry-over from stage 8: Clipboard has pins now (`clipboard.pin`, `clipboard.unpin` with `forget`, `clipboard.text`,
+and `pins` beside `entries` in `clipboard.list`); pinned entries are copied to `~/.local/state/shale/clipboard-pins`
+(0600, up to 50) so Clear and cliphist's trimming never take them, and a history entry that matches a pin shows only
+as the pin. Removing goes through the undo bar and is sent when it goes or the panel closes. Enter copies (the button
+says Copy, not Paste: nothing types into the app), Delete removes while the search is empty (Shift+Delete always),
+Ctrl+P pins, Ctrl+Tab steps the filter. Capture and Overview draw their own header (title, tabs or search, close).
+Capture reads the hint from the live screenshot shortcuts and lists recent shots with `FolderListModel`; Colour is
+the fourth screenshot mode. Overview shows pages 1–8 plus any later or scratch page that has windows, places windows
+from Hyprland's `at`/`size`, picks a window on click (double-click or Enter focuses it), and the number keys go to or
+move to a page while the search is empty. Not built for lack of data: a source app and copy time per clipboard entry
+(cliphist keeps neither), snippets, Save off and Pin above windows for screenshots, the Show the pointer switch for
+recordings, and system sound and microphone together (wf-recorder takes one source).
+
 ## Stage 10: Settings
 Files: `features/Settings.qml`, `features/*Settings.qml`, `features/UpdatePage.qml`.
 
