@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eu
-config="$HOME/.config/quickshell/shale"
+# SHALE_CONFIG points the commands at another checkout of the shell (a development copy); the installed one otherwise.
+config="${SHALE_CONFIG:-$HOME/.config/quickshell/shale}"
 version() {
   v=
   [ -r "$config/COMMIT" ] && read -r v < "$config/COMMIT" || true
