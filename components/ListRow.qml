@@ -11,6 +11,10 @@ Button {
     property string image: ""
     property bool positive: false
     property bool interactive: true
+    // Lists on a case (Find): no fill at rest, the subtitle on the title's line, the image inside the tile.
+    property bool quiet: false
+    property bool inline: false
+    property bool tileImage: false
     // A trailing check marks the current choice in single-choice lists.
     property bool checkmark: selected
     property alias trailing: trailingRow.data
@@ -33,7 +37,8 @@ Button {
     // A module at rest; the chosen row lays the accent wash over it.
     background: Rectangle {
         radius: root.cornerRadius
-        color: root.highlighted ? Theme.mix(Theme.module, Theme.text, 0.05) : Theme.module
+        color: root.quiet ? (root.highlighted && !root.selected ? root.wash : "transparent")
+             : root.highlighted ? Theme.mix(Theme.module, Theme.text, 0.05) : Theme.module
         Behavior on color { ColorAnimation { duration: Theme.fast } }
         Rectangle {
             anchors.fill: parent
@@ -56,13 +61,24 @@ Button {
                 size: 30
                 color: selected ? Theme.accent : Theme.keyTile
                 glyphColor: selected ? Theme.accentInk : Theme.textSecondary
-                visible: root.image === ""
-                glyph: root.glyph
+                visible: root.image === "" || root.tileImage
+                glyph: tileIcon.visible ? "" : root.glyph
                 selected: root.selected && root.interactive
                 positive: root.positive
+                Image {
+                    id: tileIcon
+                    anchors.centerIn: parent
+                    visible: root.tileImage && status === Image.Ready
+                    source: root.tileImage ? root.image : ""
+                    sourceSize.width: 20
+                    sourceSize.height: 20
+                    width: 20
+                    height: 20
+                    fillMode: Image.PreserveAspectFit
+                }
             }
             Image {
-                visible: root.image !== ""
+                visible: root.image !== "" && !root.tileImage
                 source: root.image
                 sourceSize.width: 24
                 sourceSize.height: 24
@@ -72,20 +88,24 @@ Button {
                 Layout.rightMargin: 4
                 fillMode: Image.PreserveAspectFit
             }
-            ColumnLayout {
+            GridLayout {
+                id: titles
                 Layout.fillWidth: true
-                spacing: 2
+                columns: root.inline ? 2 : 1
+                columnSpacing: Theme.gapS
+                rowSpacing: 2
                 Label {
                     text: root.text
                     color: Theme.text
-                    font.weight: root.selected && root.interactive ? Font.DemiBold : Font.Medium
-                    Layout.fillWidth: true
+                    font.weight: root.inline || root.selected && root.interactive ? Font.DemiBold : Font.Medium
+                    Layout.fillWidth: !root.inline
+                    Layout.maximumWidth: root.inline ? titles.width * 0.7 : Infinity
                 }
                 Label {
                     visible: root.subtitle !== ""
                     text: root.subtitle
                     color: Theme.textDim
-                    font.pixelSize: Theme.small
+                    font.pixelSize: root.inline ? Theme.label : Theme.small
                     Layout.fillWidth: true
                 }
             }

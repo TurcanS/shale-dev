@@ -3,9 +3,9 @@ import QtQuick.Layouts
 import "../core"
 import "../components" as C
 
-// The panel case. The page decides its size and header: title, headerNote (a short status beside the title;
-// a page with noteClicked() makes it a button), panelWidth, panelHeight, showHeader, chromeless, canGoBack/back()
-// and headerTools (a Component shown beside the close button).
+// The panel case. The page decides its size and header: title, headerCount (a round count beside the title, when
+// above 0), headerNote (a short status beside the title; a page with noteClicked() makes it a button), panelWidth,
+// panelHeight, showHeader, chromeless, canGoBack/back() and headerTools (a Component shown beside the close button).
 Rectangle {
     id: root
     property string panel: "launcher"
@@ -57,6 +57,24 @@ Rectangle {
                 elide: Text.ElideNone
                 Layout.leftMargin: root.canGoBack ? -2 : 2
                 Layout.preferredHeight: 32
+            }
+            Rectangle {
+                readonly property int count: root.page("headerCount", 0)
+                visible: count > 0
+                implicitWidth: Math.max(22, countLabel.implicitWidth + 12)
+                implicitHeight: 20
+                radius: 10
+                color: Theme.key
+                Layout.leftMargin: -2
+                C.Label {
+                    id: countLabel
+                    anchors.centerIn: parent
+                    text: parent.count
+                    color: Theme.textSecondary
+                    font.pixelSize: 12
+                    font.weight: 650
+                    font.features: ({"tnum": 1})
+                }
             }
             C.Label {
                 readonly property string note: root.page("headerNote", "")
