@@ -4,8 +4,9 @@ import "../core"
 import "../components" as C
 
 // The panel case. The page decides its size and header: title, headerCount (a round count beside the title, when
-// above 0), headerNote (a short status beside the title; a page with noteClicked() makes it a button), panelWidth,
-// panelHeight, showHeader, chromeless, canGoBack/back() and headerTools (a Component shown beside the close button).
+// above 0), headerNote (a short status beside the title; a page with noteClicked() makes it a button), titleSize,
+// panelWidth, panelHeight, showHeader, chromeless, canGoBack/back() and headerTools (a Component shown beside the
+// close button).
 Rectangle {
     id: root
     property string panel: "launcher"
@@ -52,7 +53,7 @@ Rectangle {
             }
             C.Label {
                 text: root.page("title", "Shale")
-                font.pixelSize: 17
+                font.pixelSize: root.page("titleSize", 17)
                 font.weight: 650
                 elide: Text.ElideNone
                 Layout.leftMargin: root.canGoBack ? -2 : 2
