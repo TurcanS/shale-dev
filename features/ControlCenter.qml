@@ -928,6 +928,12 @@ FocusScope {
                 id: controlContent
                 width: controlScroll.availableWidth
                 spacing: Theme.gapS
+                C.FocusScroller {
+                    flickable: controlScroll.contentItem
+                    content: controlContent
+                    Layout.preferredHeight: 0
+                    Layout.preferredWidth: 0
+                }
                 ColumnLayout {
                     visible: ShellState.detail === ""
                     Layout.fillWidth: true

@@ -523,6 +523,10 @@ FocusScope {
                     width: settingsScroll.availableWidth - 24
                     implicitHeight: pages.implicitHeight + 22
                     transform: Translate { y: (1 - root.pageProgress) * Theme.panelRise * 0.75 }
+                    C.FocusScroller {
+                        flickable: settingsScroll.contentItem
+                        content: scrollContent
+                    }
                     ColumnLayout {
                         id: pages
                         width: parent.width
