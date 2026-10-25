@@ -104,7 +104,7 @@ FocusScope {
             }
             C.Segmented {
                 Layout.fillWidth: false
-                Layout.preferredWidth: 196
+                Layout.preferredWidth: Math.max(196, implicitWidth)
                 segmentHeight: 32
                 enabled: !root.pending
                 model: [{key: "screenshot", text: "Screenshot"}, {key: "recording", text: "Record", accessibleName: "Record the screen"}]
@@ -241,7 +241,7 @@ FocusScope {
                     text: "Delay"
                     C.Segmented {
                         Layout.fillWidth: false
-                        Layout.preferredWidth: 4 * 52 + 3 * 2 + 6
+                        Layout.preferredWidth: Math.max(4 * 52 + 3 * 2 + 6, implicitWidth)
                         segmentHeight: 32
                         trackColor: Theme.well
                         enabled: !root.pending

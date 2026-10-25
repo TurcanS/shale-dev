@@ -24,6 +24,16 @@ Rectangle {
         return -1;
     }
     readonly property Item currentItem: currentIndex >= 0 && segments.count === (root.model || []).length ? segments.itemAt(currentIndex) : null
+    // Equal segments share the widest label's width (with a little room), so none of them elides.
+    readonly property real widest: {
+        let widest = 0;
+        for (let i = 0; i < segments.count; i++) {
+            const item = segments.itemAt(i);
+            if (item)
+                widest = Math.max(widest, item.implicitContentWidth + 12);
+        }
+        return widest;
+    }
     implicitWidth: row.implicitWidth + 6
     implicitHeight: segmentHeight
     Layout.fillWidth: fill
@@ -96,7 +106,9 @@ Rectangle {
                 // White on the chosen option, quiet on the others until hovered.
                 foreground: !enabled ? Theme.textFaint : selected ? "#ffffff" : hovered || visualFocus ? Theme.text : Theme.textMuted
                 Layout.fillWidth: root.fill
-                Layout.preferredWidth: root.fill && !root.proportional ? 1 : implicitWidth
+                Layout.preferredWidth: root.fill && !root.proportional ? root.widest : implicitWidth
+                // Never narrower than the label, so a large text size widens the control instead of eliding it.
+                Layout.minimumWidth: root.fill && !root.proportional ? root.widest : implicitContentWidth + 12
                 Layout.fillHeight: true
                 Accessible.name: modelData.accessibleName || text || hint
                 Accessible.role: Accessible.RadioButton
