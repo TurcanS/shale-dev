@@ -11,6 +11,9 @@ PanelWindow {
     readonly property bool showing: ShellState.panel !== "" && ShellState.screenName === outputName && !ShellState.locked
     property string retainedPanel: "launcher"
     property real progress: showing ? 1 : 0
+    // Settings → Appearance → Panel size. Every panel lays out at its own size and is drawn this much smaller or
+    // larger, like a zoom; text and icons are vectors, so they stay sharp.
+    readonly property real zoom: Theme.panelScale
     IpcHandler {
         target: "surface-" + host.outputName
         function status(): string {
@@ -63,9 +66,12 @@ PanelWindow {
     }
     // The case's long soft shadow; skipped when effects are trimmed.
     RectangularShadow {
-        anchors.fill: content
+        x: content.x
+        y: content.y
+        width: content.width * host.zoom
+        height: content.height * host.zoom
         visible: !content.chromeless && !Theme.lowPower && host.visible
-        radius: content.radius
+        radius: content.radius * host.zoom
         blur: Theme.caseShadow.blur
         offset.x: Theme.caseShadow.x
         offset.y: Theme.caseShadow.y
@@ -78,11 +84,13 @@ PanelWindow {
     PanelContent {
         id: content
         panel: host.retainedPanel
-        width: Math.min(parent.width - 24, preferredWidth)
-        height: Math.min(parent.height - 90, preferredHeight)
+        width: Math.min((parent.width - 24) / host.zoom, preferredWidth)
+        height: Math.min((parent.height - 90) / host.zoom, preferredHeight)
+        scale: host.zoom
+        transformOrigin: Item.TopLeft
         // Panels opened from the bar's right end line up with it, 8 px in from the screen edge.
-        x: ["control", "notifications"].indexOf(panel) >= 0 ? parent.width - width - 8 : (parent.width - width) / 2
-        y: (["control", "notifications", "calendar"].indexOf(panel) >= 0 ? ShellState.barBottom + 8 : Math.max(ShellState.barBottom + 11, (parent.height - height) * 0.38))
+        x: ["control", "notifications"].indexOf(panel) >= 0 ? parent.width - width * host.zoom - 8 : (parent.width - width * host.zoom) / 2
+        y: (["control", "notifications", "calendar"].indexOf(panel) >= 0 ? ShellState.barBottom + 8 : Math.max(ShellState.barBottom + 11, (parent.height - height * host.zoom) * 0.38))
         entering: host.progress < 1
         transform: Translate {
             y: (1 - host.progress) * Theme.panelRise
@@ -117,7 +125,6 @@ PanelWindow {
         }
         opacity: host.progress
         enabled: host.showing
-        scale: 1
         visible: host.visible
         active: host.visible
     }

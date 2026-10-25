@@ -85,6 +85,8 @@ QtObject {
     readonly property int icon: 16
     readonly property int iconLarge: 20
     readonly property real disabledOpacity: 0.45
+    // How large panels are drawn (Settings → Appearance → Panel size); PanelHost scales each panel by it.
+    readonly property real panelScale: ShellState.setting("panelSize", 85) / 100
     readonly property int titleSize: 18
     property color accent: ShellState.setting("accentColor", defaultAccent)
     // Accent changes (for example from a new wallpaper) cross-fade instead of snapping.

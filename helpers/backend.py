@@ -55,7 +55,7 @@ def user_dir(name, fallback, home=None):
 
 DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
             "dnd": False, "amplification": False, "persistNotifications": False,
-            "fontSize": 14, "batterySaving": False, "saverRefresh": True, "windowPreviews": True,
+            "fontSize": 14, "panelSize": 85, "batterySaving": False, "saverRefresh": True, "windowPreviews": True,
             "hideFullscreen": True, "hiddenOutputs": [], "pinnedApps": [], "appUsage": {}, "captureDelay": 0,
             "accentColor": "#9ad6c6", "surfaceTone": "charcoal", "accentFromWallpaper": False, "accentManual": "#9ad6c6",
             "eqEnabled": False, "eqPreset": "flat", "eqBands": [0] * len(equalizer.BANDS), "visualizer": True, "barMedia": True, "trackChangeCard": True, "mediaRemaining": False,
@@ -223,6 +223,8 @@ def check_setting(key, value):
         raise BackendError("invalid", "Unsupported settings version.")
     if key == "fontSize" and value not in (12, 14, 16, 18):
         raise BackendError("invalid", "Choose a supported text size.")
+    if key == "panelSize" and value not in (80, 85, 90, 100):
+        raise BackendError("invalid", "Choose a supported panel size.")
     if key == "captureDelay" and value not in (0, 3, 5, 10):
         raise BackendError("invalid", "Choose a supported capture delay.")
     if key == "surfaceTone" and value not in ("charcoal", "midnight", "warm"):

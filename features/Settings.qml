@@ -122,7 +122,7 @@ FocusScope {
     ]
     // The settings each page owns, for its reset button.
     readonly property var resetKeys: ({
-            Appearance: ["fontSize", "accentColor", "accentManual", "accentFromWallpaper", "surfaceTone", "visualizer", "wallpaperDirectory", "lockScreen", "lockStyle"],
+            Appearance: ["fontSize", "panelSize", "accentColor", "accentManual", "accentFromWallpaper", "surfaceTone", "visualizer", "wallpaperDirectory", "lockScreen", "lockStyle"],
             Bar: ["hideFullscreen", "barMedia", "trackChangeCard", "hiddenOutputs", "barLayout", "barStyle", "clockFormat", "clockSeconds",
                   "workspaceStyle", "workspaceSlots", "trayIcons", "batteryPercent"],
             "Control center": ["controlLayout"],
@@ -333,6 +333,21 @@ FocusScope {
                             model: [12, 14, 16, 18].map(size => ({key: size, text: String(size)}))
                             current: Theme.body
                             onActivated: key => ShellState.setSetting("fontSize", key)
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.gapM
+                        C.Label {
+                            text: "Panel size"
+                            Layout.fillWidth: true
+                        }
+                        C.Segmented {
+                            fill: false
+                            Layout.preferredWidth: 220
+                            model: [80, 85, 90, 100].map(size => ({key: size, text: size + "%"}))
+                            current: ShellState.setting("panelSize", 85)
+                            onActivated: key => ShellState.setSetting("panelSize", key)
                         }
                     }
                     ColorSettings {
