@@ -25,12 +25,23 @@ Button {
     focusPolicy: interactive ? Qt.StrongFocus : Qt.NoFocus
     implicitHeight: rowContent.implicitHeight + topPadding + bottomPadding
     padding: Theme.gapM - 2
-    topPadding: Theme.gapS
-    bottomPadding: Theme.gapS
+    topPadding: 7
+    bottomPadding: 7
+    cornerRadius: Theme.radiusKey + 2
+    // A whole row only gives a little under the pointer.
+    scale: down && !Theme.reduced ? 0.99 : 1
+    // A module at rest; the chosen row lays the accent wash over it.
     background: Rectangle {
-        radius: Theme.controlRadius
-        color: root.selected && root.interactive ? (root.highlighted ? Theme.selectionHover : Theme.selection) : root.highlighted ? Theme.hover : Theme.surface
+        radius: root.cornerRadius
+        color: root.highlighted ? Theme.mix(Theme.module, Theme.text, 0.05) : Theme.module
         Behavior on color { ColorAnimation { duration: Theme.fast } }
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            color: Theme.accentSoft
+            opacity: root.selected && root.interactive ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: Theme.fast } }
+        }
     }
     contentItem: ColumnLayout {
         // Named: contentItem is created late, and a binding through it doesn't see later size changes.
@@ -39,9 +50,12 @@ Button {
         opacity: root.enabled ? 1 : Theme.disabledOpacity
         RowLayout {
             Layout.fillWidth: true
-            Layout.minimumHeight: 36
+            Layout.minimumHeight: 30
             spacing: Theme.gapM
             GlyphTile {
+                size: 30
+                color: selected ? Theme.accent : Theme.keyTile
+                glyphColor: selected ? Theme.accentInk : Theme.textSecondary
                 visible: root.image === ""
                 glyph: root.glyph
                 selected: root.selected && root.interactive
@@ -63,14 +77,14 @@ Button {
                 spacing: 2
                 Label {
                     text: root.text
-                    color: root.selected && root.interactive ? Theme.accentText : Theme.text
-                    font.weight: Font.Medium
+                    color: Theme.text
+                    font.weight: root.selected && root.interactive ? Font.DemiBold : Font.Medium
                     Layout.fillWidth: true
                 }
                 Label {
                     visible: root.subtitle !== ""
                     text: root.subtitle
-                    color: Theme.muted
+                    color: Theme.textDim
                     font.pixelSize: Theme.small
                     Layout.fillWidth: true
                 }

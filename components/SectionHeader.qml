@@ -11,9 +11,9 @@ RowLayout {
     spacing: Theme.gapS
     Label {
         id: label
-        color: Theme.muted
-        font.pixelSize: Theme.small
-        font.weight: Font.Medium
+        color: Theme.textMuted
+        font.pixelSize: Theme.label
+        font.weight: Font.DemiBold
         Layout.fillWidth: true
         Accessible.role: Accessible.Heading
     }

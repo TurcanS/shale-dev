@@ -2,9 +2,11 @@ import QtQuick
 import QtQuick.Layouts
 import "../core"
 
-// A labelled headline number with an optional note, for summary rows.
+// A labelled headline number with an optional note, for summary rows: a stat tile, one step below a module.
 Card {
     id: stat
+    color: Theme.moduleAlt
+    radius: Theme.radiusCard
     property string label: ""
     property string value: ""
     property string note: ""
@@ -16,8 +18,8 @@ Card {
         anchors.fill: parent
         anchors.margins: Theme.gapM - 2
         spacing: 1
-        Label { text: stat.label; font.pixelSize: Theme.small; color: Theme.muted; Layout.fillWidth: true }
-        Label { text: stat.value; font.family: Theme.mono; font.pixelSize: Theme.body + 4; font.weight: Font.DemiBold; Layout.fillWidth: true }
-        Caption { visible: stat.note !== ""; text: stat.note; color: Theme.disabled; Layout.fillWidth: true }
+        Label { text: stat.label; font.pixelSize: Theme.small; color: Theme.textDim; Layout.fillWidth: true }
+        Label { text: stat.value; font.pixelSize: Theme.body + 8; font.weight: 650; font.features: {"tnum": 1}; Layout.fillWidth: true }
+        Caption { visible: stat.note !== ""; text: stat.note; color: Theme.textFaint; Layout.fillWidth: true }
     }
 }

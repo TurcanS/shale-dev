@@ -9,9 +9,6 @@ C.HoldButton {
     text: "Reset this page"
     glyph: "refresh"
     Layout.fillWidth: true
-    implicitHeight: Math.max(62, Theme.body * 2 + 30)
-    topPadding: Theme.gapS
-    bottomPadding: 20
     onTriggeredChanged: if (triggered) rearm.restart()
     Timer {
         id: rearm

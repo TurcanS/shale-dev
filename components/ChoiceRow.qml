@@ -30,6 +30,8 @@ RowLayout {
     }
     C.Segmented {
         fill: false
+        // Sits on a grouped settings row, a step lighter than a module.
+        trackColor: Theme.well
         model: root.model
         current: root.current
         Accessible.name: root.label

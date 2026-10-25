@@ -5,6 +5,8 @@ import "../core"
 // Qualified: QtQuick.Controls has its own Label, which would ignore the shell font and text size.
 import "." as C
 
+// Secondary keys by default; accent is the primary action (accent fill, dark ink), danger is destructive (danger
+// edge, wash and text), selected is "on" (accent wash, accent edge and text), flat has no key until hovered.
 AbstractButton {
     id: root
     property string glyph: ""
@@ -17,14 +19,18 @@ AbstractButton {
     property bool accent: false
     // Optional status tint for the label: "warning" or "danger".
     property string tone: ""
-    property int labelSize: Theme.body
-    property real cornerRadius: height > 42 ? Theme.controlRadius : Theme.radiusSmall
-    // Label and glyph share one colour so state reads the same on both.
-    readonly property color foreground: !enabled ? Theme.disabled : danger || tone === "danger" ? Theme.danger : tone === "warning" ? Theme.warning : accent ? Theme.background : selected ? Theme.accentText : Theme.text
-    implicitWidth: Math.max(28, contentItem.implicitWidth + leftPadding + rightPadding)
+    property int labelSize: Theme.label
+    property real cornerRadius: height > 40 ? Theme.radiusCard : Theme.radiusKey
+    readonly property bool iconOnly: text === "" && glyph !== ""
+    // Label and glyph share one colour so state reads the same on both. Controls built on Button may set their own.
+    property color foreground: !enabled ? Theme.textFaint : danger || tone === "danger" ? Theme.dangerText : tone === "warning" ? Theme.warning : accent ? Theme.accentInk : selected ? Theme.accentText : Theme.text
+    // Hover and press tints for keys without a fill of their own; translucent so they work on any surface.
+    readonly property color wash: Qt.rgba(1, 1, 1, down ? 0.1 : 0.06)
+    implicitWidth: iconOnly ? Math.max(implicitHeight, contentItem.implicitWidth + leftPadding + rightPadding)
+                            : Math.max(28, contentItem.implicitWidth + leftPadding + rightPadding)
     implicitHeight: Theme.controlHeight
     Layout.minimumWidth: 0
-    padding: 10
+    padding: iconOnly ? 8 : height > 32 ? 16 : 12
     topPadding: 4
     bottomPadding: 4
     hoverEnabled: true
@@ -33,20 +39,41 @@ AbstractButton {
     Accessible.role: Accessible.Button
     onHoveredChanged: if (tooltip) hovered ? tooltip.show(root) : tooltip.hide(root, false)
     onPressedChanged: if (tooltip && pressed) tooltip.hide(root, true)
-    scale: Theme.reduced ? 1 : down ? 0.98 : 1
+    scale: down && !Theme.reduced ? Theme.pressScale : 1
     Behavior on scale {
         NumberAnimation {
-            duration: Theme.fast
+            duration: Theme.press
             easing.type: Easing.OutCubic
         }
     }
     background: Rectangle {
+        readonly property bool lit: root.hovered || root.down || root.visualFocus
         radius: root.cornerRadius
-        color: !root.enabled ? (root.flat ? "transparent" : Theme.surface) : root.accent ? (root.hovered || root.visualFocus ? Theme.accentHover : Theme.accent) : root.selected ? (root.hovered || root.down || root.visualFocus ? Theme.selectionHover : Theme.selection) : (root.hovered || root.down || root.visualFocus ? Theme.hover : (root.flat ? "transparent" : Theme.raised))
-        border.width: 0
+        color: !root.enabled ? (root.flat ? "transparent" : Theme.module)
+             : root.accent ? (lit ? Theme.accentHover : Theme.accent)
+             : root.danger && !root.flat ? (lit ? Theme.dangerSoft : Theme.dangerWash)
+             : root.danger ? (lit ? Theme.dangerWash : "transparent")
+             : root.selected ? Theme.accentSoft
+             : root.flat ? (lit ? root.wash : "transparent")
+             : lit ? Theme.keyHover : Theme.key
+        border.width: root.enabled && !root.flat && (root.selected && !root.accent || root.danger) ? 1 : 0
+        border.color: root.danger ? Theme.dangerLine : Theme.accentLine
         Behavior on color {
             ColorAnimation {
                 duration: Theme.fast
+            }
+        }
+        // The "on" wash stays translucent; hovering it lays a light wash on top instead of swapping colours.
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            visible: root.enabled && root.selected && !root.accent && !root.danger
+            color: root.wash
+            opacity: parent.lit ? 1 : 0
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: Theme.fast
+                }
             }
         }
     }
@@ -57,8 +84,9 @@ AbstractButton {
         visible: root.visualFocus
         color: "transparent"
         radius: root.background && root.background.radius !== undefined ? root.background.radius : root.cornerRadius
-        border.width: 1.5
-        border.color: Theme.accent
+        border.width: 2
+        border.color: root.accent ? Theme.accentInk : Theme.text
+        opacity: 0.85
     }
     contentItem: Item {
         implicitWidth: contents.implicitWidth
@@ -78,6 +106,7 @@ AbstractButton {
                 visible: root.text !== ""
                 text: root.text
                 font.pixelSize: root.labelSize
+                font.weight: root.accent ? 650 : Font.DemiBold
                 color: root.foreground
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignVCenter

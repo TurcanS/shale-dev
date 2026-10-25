@@ -2,7 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import "../core"
 
-// A single choice among a few options: [{key, text, glyph?, hint?}]. Arrow keys move the choice.
+// A single choice among a few options: [{key, text, glyph?, hint?}]. Arrow keys move the choice. A module-coloured
+// track (set trackColor to Theme.well inside a module); the chosen option is a raised key that slides between options.
 Rectangle {
     id: root
     property var model: []
@@ -10,12 +11,21 @@ Rectangle {
     // Equal-width segments that fill the row, or segments sized to their labels.
     property bool fill: true
     property int segmentHeight: Theme.controlHeight
-    property color trackColor: Theme.surface
+    property color trackColor: Theme.module
     signal activated(var key)
+    readonly property int currentIndex: {
+        const list = root.model || [];
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].key === root.current)
+                return i;
+        }
+        return -1;
+    }
+    readonly property Item currentItem: currentIndex >= 0 && segments.count === (root.model || []).length ? segments.itemAt(currentIndex) : null
     implicitWidth: row.implicitWidth + 6
     implicitHeight: segmentHeight
     Layout.fillWidth: fill
-    radius: segmentHeight > 30 ? Theme.radiusSmall + 2 : Theme.radiusSmall
+    radius: segmentHeight > 30 ? Theme.radiusKey : Theme.radiusSegment + 1
     color: trackColor
     Accessible.role: Accessible.Grouping
     function step(index, delta) {
@@ -26,6 +36,40 @@ Rectangle {
         item.forceActiveFocus(Qt.TabFocusReason);
         root.activated(root.model[next].key);
     }
+    // The chosen option, drawn once under the labels so it can slide; a 1 px darker edge below stands in for its
+    // small drop shadow.
+    Item {
+        id: indicator
+        readonly property bool placed: !!root.currentItem && root.currentItem.width > 0
+        // Slides only between options, so it doesn't fly in from the corner when the control first lays out.
+        property bool settled: false
+        x: placed ? row.x + root.currentItem.x : 0
+        y: placed ? row.y + root.currentItem.y : 0
+        width: placed ? root.currentItem.width : 0
+        height: placed ? root.currentItem.height : 0
+        visible: placed
+        onPlacedChanged: if (placed) Qt.callLater(() => indicator.settled = true)
+        Behavior on x {
+            enabled: indicator.settled
+            NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
+        }
+        Behavior on width {
+            enabled: indicator.settled
+            NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
+        }
+        Rectangle {
+            anchors.fill: parent
+            anchors.topMargin: 1
+            anchors.bottomMargin: -1
+            radius: root.radius - 3
+            color: Qt.rgba(0, 0, 0, 0.4)
+        }
+        Rectangle {
+            anchors.fill: parent
+            radius: root.radius - 3
+            color: Theme.keySelected
+        }
+    }
     RowLayout {
         id: row
         anchors.fill: parent
@@ -35,6 +79,7 @@ Rectangle {
             id: segments
             model: root.model
             Button {
+                id: segment
                 required property var modelData
                 required property int index
                 text: modelData.text || ""
@@ -42,10 +87,12 @@ Rectangle {
                 hint: modelData.hint || ""
                 flat: true
                 selected: root.current === modelData.key
-                cornerRadius: root.radius - 2
+                cornerRadius: root.radius - 3
                 implicitHeight: root.segmentHeight - 6
-                padding: root.segmentHeight > 30 ? 10 : 8
-                labelSize: root.segmentHeight > 30 ? Theme.body : Theme.small
+                padding: root.segmentHeight > 30 ? 12 : 10
+                labelSize: root.segmentHeight > 36 ? Theme.label : Theme.small
+                // White on the chosen option, quiet on the others until hovered.
+                foreground: !enabled ? Theme.textFaint : selected ? "#ffffff" : hovered || visualFocus ? Theme.text : Theme.textMuted
                 Layout.fillWidth: root.fill
                 Layout.preferredWidth: root.fill ? 1 : implicitWidth
                 Layout.fillHeight: true
@@ -56,6 +103,12 @@ Rectangle {
                 Keys.onLeftPressed: root.step(index, -1)
                 Keys.onRightPressed: root.step(index, 1)
                 onClicked: root.activated(modelData.key)
+                background: Rectangle {
+                    radius: segment.cornerRadius
+                    color: Qt.rgba(1, 1, 1, segment.down ? 0.06 : 0.035)
+                    opacity: !segment.selected && (segment.hovered || segment.down) ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: Theme.fast } }
+                }
             }
         }
     }

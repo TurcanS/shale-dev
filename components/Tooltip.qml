@@ -72,12 +72,12 @@ PopupWindow {
     mask: Region {}
     Rectangle {
         anchors.fill: parent
-        radius: 8
-        color: Theme.raised
+        radius: Theme.radiusSegment + 1
+        color: Theme.keySelected
         border.width: 1
-        border.color: Theme.border
+        border.color: Theme.edge
         opacity: root.reveal
-        transform: Translate { y: Theme.reduced ? 0 : (1 - root.reveal) * -4 }
+        transform: Translate { y: Theme.reduced || Theme.lowPower ? 0 : (1 - root.reveal) * -4 }
         Label {
             id: label
             anchors.fill: parent
