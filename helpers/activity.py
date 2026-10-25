@@ -616,7 +616,7 @@ class ActivityStore:
         return {"today": active(today), "average7": average(7), "average30": average(30), "thisWeek": this_week,
                 "lastWeek": last_week if shift_day(today, -7) >= origin else None, "streak": current, "longestStreak": longest,
                 "typicalStart": median(starts), "typicalEnd": median(ends),
-                "busiestHour": max(range(24), key=lambda hour: hours[hour]) if any(hours) else None}
+                "busiestHour": max(range(24), key=lambda hour: hours[hour]) if any(hours) else None, "hours": hours}
 
     def overview(self, first=1):
         daily = self._daily()
