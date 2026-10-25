@@ -101,6 +101,15 @@ Prompt:
 > Do stage 7 of docs/PLAN.md on branch `redesign`: the lock screen per PANELS.md and previews/Lock.png. Don't change
 > the PAM flow or the security behaviour. Push and summarise.
 
+Carry-over from stage 6: the Player has no equalizer of its own any more (it lives in Control → Sound; the Player's
+"on <output>" opens Sound), and Control is 460 px wide while it shows the Player. Pages can set `titleSize` for the
+PanelContent header (Clock and sky uses 22). Sunrise and sunset are worked out in `WeatherCard.qml` from the city's
+position and shown in the computer's time zone. Not built for lack of data, candidates for a later backend stage:
+calendar events (the agenda shows the picked day with Copy date / Copy time, the month has no event dots), wind,
+wallpaper Fill / Fit / Centre and the Caption switch (`wallpaper.apply` always uses cover), the resolution and size of
+local wallpapers, and more than one wallpaper folder (the "Add wallpapers" tile opens the folder). In Wallpapers,
+Up and Down now move a row of the grid.
+
 ## Stage 8: Clipboard, Capture, Overview
 Files: `features/Clipboard.qml`, `features/Capture.qml`, `features/Overview.qml`.
 
