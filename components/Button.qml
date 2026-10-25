@@ -39,6 +39,14 @@ AbstractButton {
     focusPolicy: Qt.StrongFocus
     Accessible.name: text || hint
     Accessible.role: Accessible.Button
+    // Return and Enter press a focused key, as Space does. A key with its own Keys.onReturnPressed keeps it: Qt calls
+    // that first and stops there.
+    Keys.onPressed: event => {
+        if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && !event.isAutoRepeat && enabled) {
+            clicked();
+            event.accepted = true;
+        }
+    }
     onHoveredChanged: if (tooltip) hovered ? tooltip.show(root) : tooltip.hide(root, false)
     onPressedChanged: if (tooltip && pressed) tooltip.hide(root, true)
     scale: down && !Theme.reduced ? Theme.pressScale : 1

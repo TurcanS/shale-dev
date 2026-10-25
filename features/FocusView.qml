@@ -302,8 +302,6 @@ ColumnLayout {
             text: ({ready: "Start", running: "Pause", paused: "Resume", done: "Start another"})[root.phase]
             labelSize: 14
             onClicked: root.primary()
-            Keys.onReturnPressed: root.primary()
-            Keys.onEnterPressed: root.primary()
         }
         C.Button {
             implicitHeight: 44
