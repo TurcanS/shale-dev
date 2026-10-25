@@ -57,6 +57,11 @@ sliders (per-app rows keep their titles). Chip, Undo bar, key-hint and ring-mete
 them to `components/` when a panel in this or a later stage first needs one, and reuse them after that. Activity's
 Clear history button may sit 2 px high (old bottom padding in Activity.qml); fix it in stage 9.
 
+Carry-over from stage 3: `components/Button.qml` works out its width from its content item in a way that misses
+late font loading, so buttons with custom content can clip; fix it at the start of stage 4 (the bar keys work around
+it today). The owner chose a 38 px bar with no Search pill and no Wallpapers or Lock items; that overrides
+`previews/Bar.png` and the bar in `previews/Main.png`.
+
 ## Stage 5: Find, Notifications, toasts and OSD
 Files: `features/Launcher.qml`, `core/search.js` (only if the grouping needs it), `features/Notifications.qml`,
 `features/NotificationCard.qml`, `features/Toasts.qml`.
