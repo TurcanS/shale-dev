@@ -530,7 +530,7 @@ FocusScope {
                     bottomPadding: 6
                     text: ShellState.setting("accentFromWallpaper", false)
                           ? "Each wallpaper gives the shell its accent colour and a second colour for charts. The dots are what you get."
-                          : "The dots are the accent each wallpaper would give the shell. Turn on Match wallpaper in Settings → Appearance to use it."
+                          : "The dots are the accent each wallpaper would give the shell. Pick From wallpaper in Settings → Appearance to use it."
                     color: Theme.textDim
                     font.pixelSize: 12
                     lineHeight: 1.25
