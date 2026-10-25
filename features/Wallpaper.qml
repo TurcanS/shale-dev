@@ -315,8 +315,10 @@ FocusScope {
             Layout.fillHeight: true
             spacing: Theme.gapM
             // The chosen wallpaper, its details and what to do with it.
+            // A fixed 480 px: a long status line or an empty grid must not let it take the grid's room.
             ColumnLayout {
                 Layout.preferredWidth: 480
+                Layout.fillWidth: false
                 Layout.fillHeight: true
                 spacing: 10
                 ClippingRectangle {
