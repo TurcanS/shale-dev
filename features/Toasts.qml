@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
@@ -10,19 +11,61 @@ Scope {
     id: root
     required property var screen
     readonly property bool target: ShellState.targetScreen() === screen.name
+    // Microphone mute and keyboard layout changes show as OSD cards. Every screen has a copy of this scope; only the
+    // target screen's reports, and a microphone that just appeared settles first so start-up stays quiet.
+    property bool micSettled: false
+    Timer {
+        id: micSettle
+        interval: 2000
+        running: true
+        onTriggered: root.micSettled = true
+    }
+    Connections {
+        target: Services
+        function onInputChanged() {
+            root.micSettled = false;
+            micSettle.restart();
+        }
+        function onMicMutedChanged() {
+            if (root.micSettled && root.target)
+                ShellState.osd((Services.micMuted ? "Muted" : "On") + " · Microphone", -1, Services.micMuted ? "mic-off" : "mic", Services.micMuted);
+        }
+    }
+    readonly property var languages: ({us: "English", gb: "English", au: "English", ca: "Canadian", ie: "Irish", de: "German", at: "German", ch: "Swiss",
+        fr: "French", be: "Belgian", es: "Spanish", latam: "Spanish", pt: "Portuguese", br: "Portuguese", it: "Italian", nl: "Dutch",
+        se: "Swedish", no: "Norwegian", dk: "Danish", fi: "Finnish", is: "Icelandic", pl: "Polish", cz: "Czech", sk: "Slovak",
+        hu: "Hungarian", ro: "Romanian", bg: "Bulgarian", hr: "Croatian", si: "Slovenian", rs: "Serbian", gr: "Greek", tr: "Turkish",
+        ru: "Russian", ua: "Ukrainian", by: "Belarusian", lt: "Lithuanian", lv: "Latvian", ee: "Estonian", il: "Hebrew", ara: "Arabic",
+        ir: "Persian", in: "Indian", jp: "Japanese", kr: "Korean", cn: "Chinese", th: "Thai", vn: "Vietnamese"})
+    // The last layout seen: keyboard, its layouts and the active one. Only a switch among the same layouts shows.
+    property string layoutSeen: ""
+    Connections {
+        target: ShellState
+        function onKeyboardChanged() {
+            const keyboard = ShellState.keyboard || {};
+            const layouts = keyboard.layouts || [];
+            const set = (keyboard.name || "") + "|" + JSON.stringify(layouts);
+            const previous = root.layoutSeen;
+            root.layoutSeen = set + "|" + keyboard.index;
+            const current = layouts[keyboard.index];
+            if (!root.target || !current || layouts.length < 2 || previous === root.layoutSeen || previous.slice(0, previous.lastIndexOf("|")) !== set)
+                return;
+            const code = String(current.code || "");
+            ShellState.osd((root.languages[code] || code.toUpperCase()) + " · Keyboard · " + [code.toUpperCase(), current.variant || ""].filter(part => part).join(" "), -1, "keyboard");
+        }
+    }
+    // Notification toasts: the Notifications card, stacked up from the bottom right corner, newest lowest.
     PanelWindow {
         id: popups
+        // Transparent room around the cards for their shadow; the mask keeps it from taking clicks.
+        readonly property int room: 32
         screen: root.screen
         anchors {
-            top: true
+            bottom: true
             right: true
         }
-        margins {
-            top: ShellState.barBottom + 11
-            right: 12
-        }
-        implicitWidth: Math.min(380, screen.width - 24)
-        implicitHeight: Math.max(1, Math.min(screen.height - 96, popupList.contentHeight))
+        implicitWidth: Math.min(360, screen.width - 48) + room + 24
+        implicitHeight: Math.max(1, Math.min(screen.height - ShellState.barBottom - 96, popupList.contentHeight)) + room + 24
         property int retiring: 0
         readonly property bool wanted: root.target && !ShellState.locked && (Services.popupModel.count > 0 || retiring > 0) && ShellState.panel !== "notifications"
         // Applied after the change settles: mapping the window as the session unlocks updates the focused
@@ -34,36 +77,62 @@ Scope {
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.namespace: "shale-notifications"
         WlrLayershell.layer: WlrLayer.Overlay
+        mask: Region {
+            item: popupList
+        }
         ListView {
             id: popupList
-            anchors.fill: parent
-            spacing: Theme.gapS
-            clip: true
+            x: popups.room
+            y: popups.room
+            width: parent.width - popups.room - 24
+            height: parent.height - popups.room - 24
+            spacing: 10
             interactive: contentHeight > height
             boundsBehavior: Flickable.StopAtBounds
             model: Services.popupModel
-            delegate: NotificationCard {
-                id: popupCard
+            delegate: Item {
+                id: popupItem
                 required property var notificationData
-                notification: notificationData
-                popup: true
                 width: popupList.width
+                height: popupCard.implicitHeight
                 ListView.onRemove: {
                     popups.retiring++;
                     removal.start();
                 }
                 SequentialAnimation {
                     id: removal
-                    PropertyAction { target: popupCard; property: "ListView.delayRemove"; value: true }
-                    NumberAnimation { target: popupCard; property: "opacity"; to: 0; duration: Theme.leave }
+                    PropertyAction { target: popupItem; property: "ListView.delayRemove"; value: true }
+                    NumberAnimation { target: popupItem; property: "opacity"; to: 0; duration: Theme.leave }
                     ScriptAction { script: popups.retiring-- }
-                    PropertyAction { target: popupCard; property: "ListView.delayRemove"; value: false }
+                    PropertyAction { target: popupItem; property: "ListView.delayRemove"; value: false }
+                }
+                RectangularShadow {
+                    anchors.fill: popupCard
+                    visible: !Theme.lowPower
+                    radius: popupCard.radius
+                    blur: 32
+                    offset.y: 14
+                    color: Qt.rgba(0, 0, 0, 0.45)
+                }
+                NotificationCard {
+                    id: popupCard
+                    notification: popupItem.notificationData
+                    popup: true
+                    width: parent.width
+                    height: implicitHeight
                 }
             }
             add: Transition {
                 ParallelAnimation {
-                    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Theme.enter }
-                    NumberAnimation { property: "x"; from: Theme.reduced ? 0 : 10; to: 0; duration: Theme.enter; easing.type: Easing.OutCubic }
+                    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Theme.panelEnter }
+                    NumberAnimation {
+                        property: "x"
+                        from: Theme.reduced ? 0 : 24
+                        to: 0
+                        duration: Theme.reduced ? 0 : 200
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: Theme.easeOut
+                    }
                 }
             }
             displaced: Transition {
@@ -71,18 +140,37 @@ Scope {
             }
         }
     }
+    // Levels (volume, brightness) as a round pill with a slim bar and the value; everything else (microphone,
+    // keyboard layout, Do not disturb, countdowns) as a small card with a title and what it is about.
     PanelWindow {
         id: osdWindow
         readonly property bool level: ShellState.osdValue >= 0
+        readonly property bool volume: ShellState.osdGlyph === "volume" || ShellState.osdGlyph === "mute"
+        // "Muted · Microphone" → Muted over Microphone; the older one-line labels get the same shape.
+        readonly property var card: {
+            const label = ShellState.osdLabel;
+            const dnd = /^Do not disturb (on|off)$/.exec(label);
+            if (dnd)
+                return {title: dnd[1] === "on" ? "On" : "Off", subtitle: "Do not disturb"};
+            const countdown = /^Screenshot in (\d+)$/.exec(label);
+            if (countdown)
+                return {title: "In " + countdown[1], subtitle: "Screenshot"};
+            const parts = label.split(" · ");
+            return {title: parts[0], subtitle: parts.slice(1).join(" · ")};
+        }
+        // Something switched on (Do not disturb): a light tile with dark ink.
+        readonly property bool lit: ShellState.osdGlyph === "bell-off"
+        // Transparent room for the shadow; nothing here takes clicks.
+        readonly property int room: 40
         property real reveal: root.target && ShellState.osdVisible && !ShellState.locked ? 1 : 0
         Behavior on reveal { NumberAnimation { duration: Theme.fast; easing.type: Easing.OutCubic } }
         screen: root.screen
         anchors {
             bottom: true
         }
-        margins.bottom: ShellState.toast !== "" ? 92 : 64
-        implicitWidth: 300
-        implicitHeight: 44
+        margins.bottom: (ShellState.toast !== "" ? 92 : 64) - room
+        implicitWidth: (level ? 320 : 196) + 2 * room
+        implicitHeight: (level ? 56 : 124) + 2 * room
         visible: root.target && !ShellState.locked && reveal > 0
         color: "transparent"
         exclusionMode: ExclusionMode.Ignore
@@ -90,78 +178,145 @@ Scope {
         WlrLayershell.layer: WlrLayer.Overlay
         // Nothing here is clickable, so clicks reach the windows underneath.
         mask: Region {}
-        // A pill that fills with the level; countdowns show only their label.
-        Rectangle {
-            id: pill
+        Item {
+            id: osd
             anchors.fill: parent
-            radius: height / 2
-            color: Theme.panel
-            border.width: 1
-            border.color: Theme.border
+            anchors.margins: osdWindow.room
             opacity: osdWindow.reveal
-            clip: true
             transform: [
                 Scale {
-                    origin.x: pill.width / 2
-                    origin.y: pill.height / 2
+                    origin.x: osd.width / 2
+                    origin.y: osd.height / 2
                     xScale: Theme.reduced ? 1 : 0.94 + 0.06 * osdWindow.reveal
                     yScale: xScale
                 },
                 Translate { y: Theme.reduced ? 0 : (1 - osdWindow.reveal) * 6 }
             ]
-            Rectangle {
-                visible: osdWindow.level
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.margins: 1
-                // Never narrower than the round end, so low levels still read as a filled cap.
-                width: Math.max(height, (parent.width - 2) * Math.max(0, Math.min(1, ShellState.osdValue)))
-                opacity: ShellState.osdValue > 0 ? 1 : 0.5
-                radius: height / 2
-                // Muted keeps the real level visible, just quieter.
-                color: ShellState.osdMuted ? Theme.raised : Theme.selection
-                Behavior on color { ColorAnimation { duration: Theme.fast } }
-                Behavior on width { NumberAnimation { duration: Theme.fast; easing.type: Easing.OutCubic } }
+            RectangularShadow {
+                anchors.fill: osdCase
+                visible: !Theme.lowPower
+                radius: osdCase.radius
+                blur: 30
+                offset.y: 14
+                color: Qt.rgba(0, 0, 0, 0.45)
             }
-            RowLayout {
+            Rectangle {
+                id: osdCase
                 anchors.fill: parent
-                anchors.leftMargin: 13
+                radius: osdWindow.level ? height / 2 : 24
+                color: Qt.rgba(Theme.module.r, Theme.module.g, Theme.module.b, 0.92)
+                border.width: 1
+                border.color: Qt.rgba(1, 1, 1, 0.07)
+            }
+            // The level pill: icon disc, slim bar, value.
+            RowLayout {
+                visible: osdWindow.level
+                anchors.fill: parent
+                anchors.leftMargin: 10
                 anchors.rightMargin: 16
                 spacing: Theme.gapM
-                C.Icon {
-                    id: osdIcon
-                    name: ShellState.osdGlyph
-                    size: 18
-                    opacity: ShellState.osdMuted ? 0.6 : 1
-                    // A small bump on every change confirms the key press even at 0% or 100%.
-                    SequentialAnimation {
-                        id: bump
-                        NumberAnimation { target: osdIcon; property: "scale"; to: 1.2; duration: 70; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: osdIcon; property: "scale"; to: 1; duration: 160; easing.type: Easing.OutBack }
+                Rectangle {
+                    Layout.preferredWidth: 36
+                    Layout.preferredHeight: 36
+                    radius: 18
+                    color: ShellState.osdMuted ? Theme.dangerSoft : osdWindow.volume ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.16) : Theme.key
+                    Behavior on color { ColorAnimation { duration: Theme.fast } }
+                    C.Icon {
+                        id: osdIcon
+                        anchors.centerIn: parent
+                        name: ShellState.osdGlyph
+                        color: ShellState.osdMuted ? Theme.dangerText : osdWindow.volume ? Theme.accent : Theme.text
                     }
-                    Connections {
-                        target: ShellState
-                        function onOsdSerialChanged() {
-                            if (!Theme.reduced && osdWindow.reveal > 0)
-                                bump.restart();
+                }
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 6
+                    radius: 3
+                    color: Theme.key
+                    RectangularShadow {
+                        anchors.fill: levelFill
+                        visible: osdWindow.volume && !ShellState.osdMuted && !Theme.lowPower && levelFill.width > 0
+                        radius: levelFill.radius
+                        blur: 12
+                        color: Theme.accentGlow
+                    }
+                    Rectangle {
+                        id: levelFill
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        width: parent.width * Math.max(0, Math.min(1, ShellState.osdValue))
+                        radius: 3
+                        // Volume runs from the accent wash to the accent; brightness is light; muted keeps the real
+                        // level visible, just quieter.
+                        color: ShellState.osdMuted ? Theme.textFaint : Theme.text
+                        gradient: osdWindow.volume && !ShellState.osdMuted ? volumeGradient : undefined
+                        Behavior on width { NumberAnimation { duration: Theme.fast; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut } }
+                        Gradient {
+                            id: volumeGradient
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0; color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.16) }
+                            GradientStop { position: 1; color: Theme.accent }
                         }
                     }
                 }
                 C.Label {
-                    text: ShellState.osdLabel
-                    font.pixelSize: Theme.small
-                    color: osdWindow.level ? Theme.muted : Theme.text
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
-                    horizontalAlignment: osdWindow.level ? Text.AlignLeft : Text.AlignHCenter
+                    text: Math.round(ShellState.osdValue * 100)
+                    color: ShellState.osdMuted ? Theme.textDim : Theme.text
+                    font.pixelSize: 14
+                    font.weight: 650
+                    font.features: ({"tnum": 1})
+                    horizontalAlignment: Text.AlignRight
+                    Layout.preferredWidth: 30
+                }
+            }
+            // The card: tile, then the title and what it is about at the bottom.
+            ColumnLayout {
+                visible: !osdWindow.level
+                anchors.fill: parent
+                anchors.margins: 16
+                spacing: 6
+                Rectangle {
+                    id: cardTile
+                    Layout.preferredWidth: 40
+                    Layout.preferredHeight: 40
+                    radius: 13
+                    color: ShellState.osdMuted ? Theme.dangerSoft : osdWindow.lit ? Theme.mix(Theme.knob, Theme.textSecondary, 0.35) : Theme.key
+                    C.Icon {
+                        id: cardIcon
+                        anchors.centerIn: parent
+                        name: ShellState.osdGlyph
+                        color: ShellState.osdMuted ? Theme.dangerText : osdWindow.lit ? Theme.accentInk : Theme.text
+                    }
+                }
+                Item {
+                    Layout.fillHeight: true
                 }
                 C.Label {
-                    visible: osdWindow.level
-                    text: Math.round(ShellState.osdValue * 100) + "%"
-                    font.family: Theme.mono
-                    font.pixelSize: Theme.small
-                    color: ShellState.osdMuted ? Theme.muted : Theme.text
+                    text: osdWindow.card.title
+                    font.pixelSize: 16
+                    font.weight: 650
+                    Layout.fillWidth: true
+                }
+                C.Label {
+                    visible: text !== ""
+                    text: osdWindow.card.subtitle
+                    color: Theme.textDim
+                    font.pixelSize: 12
+                    Layout.fillWidth: true
+                }
+            }
+            // A small bump on every change confirms the key press even at 0% or 100%.
+            SequentialAnimation {
+                id: bump
+                property Item icon: osdWindow.level ? osdIcon : cardIcon
+                NumberAnimation { target: bump.icon; property: "scale"; to: 1.2; duration: 70; easing.type: Easing.OutQuad }
+                NumberAnimation { target: bump.icon; property: "scale"; to: 1; duration: 160; easing.type: Easing.OutBack }
+            }
+            Connections {
+                target: ShellState
+                function onOsdSerialChanged() {
+                    if (!Theme.reduced && !Theme.lowPower && osdWindow.reveal > 0)
+                        bump.restart();
                 }
             }
         }
@@ -209,10 +364,10 @@ Scope {
         WlrLayershell.layer: WlrLayer.Overlay
         Rectangle {
             anchors.fill: parent
-            radius: Theme.panelRadius
-            color: Theme.panel
+            radius: 18
+            color: Theme.module
             border.width: 1
-            border.color: Theme.border
+            border.color: Qt.rgba(1, 1, 1, 0.07)
             opacity: trackWindow.reveal
             transform: Translate { y: Theme.reduced ? 0 : (1 - trackWindow.reveal) * -8 }
             HoverHandler {
@@ -295,10 +450,10 @@ Scope {
         WlrLayershell.layer: WlrLayer.Overlay
         Rectangle {
             anchors.fill: parent
-            radius: Theme.panelRadius
-            color: Theme.panel
+            radius: 18
+            color: Theme.module
             border.width: 1
-            border.color: Theme.border
+            border.color: Qt.rgba(1, 1, 1, 0.07)
             opacity: digestWindow.reveal
             transform: Translate { y: Theme.reduced ? 0 : (1 - digestWindow.reveal) * -8 }
             ColumnLayout {
@@ -453,27 +608,30 @@ Scope {
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.namespace: "shale-message"
         WlrLayershell.layer: WlrLayer.Overlay
+        // The same surface as the notification toasts: a tile says what kind of message it is.
         Rectangle {
             anchors.fill: parent
-            color: Theme.raised
+            color: Theme.module
             opacity: messageWindow.reveal
             transform: Translate { y: Theme.reduced ? 0 : (1 - messageWindow.reveal) * 6 }
-            radius: Theme.controlRadius
-            border.width: 0
-            Rectangle {
-                visible: messageWindow.retainedKind === "error"
-                x: 0
-                anchors.verticalCenter: parent.verticalCenter
-                width: 3
-                height: 20
-                radius: 1.5
-                color: Theme.danger
-            }
+            radius: 14
+            border.width: 1
+            border.color: messageWindow.retainedKind === "error" ? Theme.dangerLine : Qt.rgba(1, 1, 1, 0.07)
             RowLayout {
                 anchors.fill: parent
-                anchors.margins: 12
-                C.Icon {
-                    name: messageWindow.retainedKind === "error" ? "alert" : messageWindow.retainedKind === "success" ? "check" : "info"
+                anchors.leftMargin: 12
+                anchors.rightMargin: 8
+                spacing: Theme.gapM
+                Rectangle {
+                    Layout.preferredWidth: 30
+                    Layout.preferredHeight: 30
+                    radius: 9
+                    color: messageWindow.retainedKind === "error" ? Theme.dangerSoft : messageWindow.retainedKind === "success" ? Theme.accentSoft : Theme.key
+                    C.Icon {
+                        anchors.centerIn: parent
+                        name: messageWindow.retainedKind === "error" ? "alert" : messageWindow.retainedKind === "success" ? "check" : "info"
+                        color: messageWindow.retainedKind === "error" ? Theme.dangerText : messageWindow.retainedKind === "success" ? Theme.accentText : Theme.textSecondary
+                    }
                 }
                 C.Label {
                     id: messageLabel
@@ -481,12 +639,14 @@ Scope {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
                     maximumLineCount: 2
-                    color: messageWindow.retainedKind === "error" ? Theme.danger : Theme.text
+                    color: messageWindow.retainedKind === "error" ? Theme.dangerText : Theme.text
                 }
                 C.Button {
                     visible: !!messageWindow.retainedAction
                     text: messageWindow.retainedAction ? messageWindow.retainedAction.label : ""
-                    implicitHeight: 32
+                    implicitHeight: 30
+                    cornerRadius: 8
+                    labelSize: 12
                     onClicked: {
                         const action = messageWindow.retainedAction;
                         ShellState.toast = "";
@@ -497,6 +657,9 @@ Scope {
                 C.Button {
                     glyph: "close"
                     flat: true
+                    implicitWidth: 28
+                    implicitHeight: 28
+                    foreground: hovered || visualFocus ? Theme.text : Theme.textDim
                     hint: "Dismiss message"
                     onClicked: ShellState.toast = ""
                 }
