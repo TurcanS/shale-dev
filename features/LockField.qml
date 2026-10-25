@@ -10,15 +10,15 @@ Item {
     required property var context
     readonly property alias masked: field.masked
     readonly property alias fieldFocus: field.activeFocus
-    // Room on the left for something drawn over the field, such as your picture.
-    property int leftInset: 22
+    // Room on the left for something drawn over the field.
+    property int leftInset: 18
     // Any key reaching the field, for styles that wake on activity.
     signal keyPressed()
     function focusField() {
         field.forceActiveFocus();
     }
-    implicitWidth: 330
-    implicitHeight: 52
+    implicitWidth: 340
+    implicitHeight: 48
     Connections {
         target: root.context
         function onFailed() {
@@ -38,15 +38,15 @@ Item {
         echoMode: masked ? TextInput.Password : TextInput.Normal
         passwordCharacter: "●"
         enabled: !root.context.busy && !root.context.unlocking
-        placeholderText: root.context.prompt || (root.context.busy ? "Checking…" : "Enter password")
-        placeholderTextColor: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.5)
+        placeholderText: root.context.prompt || (root.context.busy ? "Checking…" : "Password")
+        placeholderTextColor: Qt.rgba(Theme.text.r, Theme.text.g, Theme.text.b, 0.45)
         color: Theme.text
         font.family: Theme.font
-        font.pixelSize: text === "" || !masked ? Theme.body + 1 : 12
+        font.pixelSize: text === "" || !masked ? 15 : 12
         font.letterSpacing: text === "" || !masked ? 0 : 4
         selectionColor: Theme.selectionHover
         leftPadding: root.leftInset
-        rightPadding: 56
+        rightPadding: 50
         verticalAlignment: TextInput.AlignVCenter
         Accessible.name: root.context.prompt || "Password"
         Component.onCompleted: {
@@ -68,12 +68,12 @@ Item {
             root.keyPressed();
             event.accepted = false;
         }
+        // A dark pill with a hairline edge; a failed check turns the edge red.
         background: Rectangle {
             radius: height / 2
-            color: field.activeFocus ? Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.78) : Qt.rgba(Theme.panel.r, Theme.panel.g, Theme.panel.b, 0.62)
+            color: Qt.rgba(Theme.caseColor.r, Theme.caseColor.g, Theme.caseColor.b, 0.7)
             border.width: 1
-            border.color: root.context.status !== "" ? Theme.danger : field.activeFocus ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.6) : Qt.rgba(1, 1, 1, 0.08)
-            Behavior on color { ColorAnimation { duration: Theme.fast } }
+            border.color: root.context.status !== "" ? Qt.rgba(Theme.danger.r, Theme.danger.g, Theme.danger.b, 0.6) : Qt.rgba(1, 1, 1, 0.1)
             Behavior on border.color { ColorAnimation { duration: Theme.fast } }
         }
     }
@@ -90,19 +90,25 @@ Item {
         running: field.activeFocus && capsWatch.running
         onTriggered: root.context.checkCapsLock()
     }
+    // The round accent key at the end of the field. It answers only once something is typed.
     C.Button {
+        id: unlockKey
         anchors.right: parent.right
-        anchors.rightMargin: 7
+        anchors.rightMargin: 6
         anchors.verticalCenter: parent.verticalCenter
-        implicitWidth: 38
-        implicitHeight: 38
-        cornerRadius: 19
-        accent: root.context.password !== ""
-        flat: root.context.password === ""
-        glyph: "chevron"
+        implicitWidth: 36
+        implicitHeight: 36
+        cornerRadius: 18
+        accent: true
+        glyph: "arrow-right"
         hint: "Unlock"
         enabled: root.context.password !== "" && !root.context.busy
         focusPolicy: Qt.NoFocus
+        foreground: Theme.accentInk
         onClicked: root.context.submit()
+        background: Rectangle {
+            radius: unlockKey.cornerRadius
+            color: unlockKey.enabled && (unlockKey.hovered || unlockKey.down) ? Theme.accentHover : Theme.accent
+        }
     }
 }
