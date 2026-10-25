@@ -102,6 +102,9 @@ Rectangle {
                 Accessible.role: Accessible.RadioButton
                 Accessible.checkable: true
                 Accessible.checked: selected
+                // One Tab stop for the whole control, on the chosen option (the first when none is); the arrows
+                // move between options.
+                focusPolicy: index === Math.max(0, root.currentIndex) ? Qt.StrongFocus : Qt.ClickFocus
                 Keys.onLeftPressed: root.step(index, -1)
                 Keys.onRightPressed: root.step(index, 1)
                 onClicked: root.activated(modelData.key)
