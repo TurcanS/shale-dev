@@ -116,7 +116,8 @@ PanelWindow {
         id: iris
         anchors.fill: parent
         visible: false
-        layer.enabled: true
+        // A full-screen texture: kept only while a fold or reveal can run.
+        layer.enabled: root.armed
         readonly property real cx: width / 2
         // The particle clock sits at 40% of the height; the classic one is the 168 px box under the date line,
         // placed as LockClassic places it.
