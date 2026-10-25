@@ -4,7 +4,8 @@ import QtQuick
 // to show it, with a little room around it. Place it anywhere in the same window.
 Item {
     id: root
-    property Flickable flickable: null
+    // A Flickable, or a ScrollView's contentItem (declared as an Item).
+    property Item flickable: null
     property Item content: null
     property int margin: 12
     visible: false
