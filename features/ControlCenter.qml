@@ -78,10 +78,9 @@ FocusScope {
     function back() {
         ShellState.detail = "";
     }
-    // The mixer sets its channel strips beside the equalizer, so the case widens for it.
-    readonly property int panelWidth: ShellState.detail === "audio" ? 720 : 560
-    // Fits the page, header and padding included, within a 720 px ceiling.
-    readonly property int panelHeight: preferredContentHeight > 0 ? Math.max(200, Math.min(720, preferredContentHeight + 70)) : 620
+    readonly property int panelWidth: 420
+    // Fits the page, header and padding included, within a 620 px ceiling.
+    readonly property int panelHeight: preferredContentHeight > 0 ? Math.max(200, Math.min(620, preferredContentHeight + 70)) : 620
     readonly property Component headerTools: ShellState.detail === "" ? settingsTool : ["wifi", "power", "update"].indexOf(ShellState.detail) >= 0 ? refreshTool : null
     // Settings → Control center is one of Settings' pages; this is the way there.
     Component {
@@ -529,7 +528,7 @@ FocusScope {
         required property var modelData
         readonly property string name: root.outputName(modelData)
         selected: modelData === Services.output
-        implicitHeight: 44
+        implicitHeight: 36
         leftPadding: 10
         rightPadding: 10
         cornerRadius: Theme.radiusCard
@@ -917,11 +916,11 @@ FocusScope {
             ColumnLayout {
                 id: controlContent
                 width: controlScroll.availableWidth
-                spacing: 10
+                spacing: Theme.gapS
                 ColumnLayout {
                     visible: ShellState.detail === ""
                     Layout.fillWidth: true
-                    spacing: 10
+                    spacing: Theme.gapS
                     // A newer Shale, or what the last update brought: the page behind the arrow lists the changes.
                     C.ListRow {
                         visible: Updates.available || !!Updates.recent
@@ -970,14 +969,14 @@ FocusScope {
                     C.Card {
                         visible: root.arrangement.sections.levels
                         Layout.fillWidth: true
-                        implicitHeight: levelRows.implicitHeight + 24
+                        implicitHeight: levelRows.implicitHeight + 20
                         ColumnLayout {
                             id: levelRows
                             anchors.fill: parent
-                            anchors.leftMargin: 14
-                            anchors.rightMargin: 14
-                            anchors.topMargin: 12
-                            anchors.bottomMargin: 12
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            anchors.topMargin: 10
+                            anchors.bottomMargin: 10
                             spacing: 6
                             C.SliderRow {
                                 Layout.fillWidth: true
@@ -1026,18 +1025,18 @@ FocusScope {
                     C.Card {
                         visible: root.arrangement.sections.levels && Services.audioAvailable && Services.audioOutputs.length > 0
                         Layout.fillWidth: true
-                        implicitHeight: outputModule.implicitHeight + 24
+                        implicitHeight: outputModule.implicitHeight + 20
                         ColumnLayout {
                             id: outputModule
                             anchors.fill: parent
-                            anchors.leftMargin: 14
-                            anchors.rightMargin: 14
-                            anchors.topMargin: 12
-                            anchors.bottomMargin: 12
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            anchors.topMargin: 10
+                            anchors.bottomMargin: 10
                             spacing: 10
                             ModuleHeader {
                                 title: "Output"
-                                note: "every playing app follows"
+                                note: "playing apps follow"
                                 Layout.minimumHeight: 0
                             }
                             GridLayout {
@@ -1062,30 +1061,41 @@ FocusScope {
                     C.Card {
                         visible: root.arrangement.sections.focus
                         Layout.fillWidth: true
-                        implicitHeight: focusModule.implicitHeight + 24
-                        ColumnLayout {
+                        implicitHeight: focusModule.implicitHeight + 20
+                        // Title and state on the left, the lengths on the right, in one line.
+                        RowLayout {
                             id: focusModule
                             anchors.fill: parent
-                            anchors.leftMargin: 14
-                            anchors.rightMargin: 14
-                            anchors.topMargin: 12
-                            anchors.bottomMargin: 12
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            anchors.topMargin: 10
+                            anchors.bottomMargin: 10
                             spacing: Theme.gapS
-                            ModuleHeader {
-                                title: "Focus"
-                                note: Focus.active ? Focus.minutesText(Focus.remainingSeconds) + " left · notifications held" : "not running"
-                                noteRight: true
-                                SmallKey {
-                                    visible: Focus.active
-                                    text: "+5 min"
-                                    hint: "Five more minutes"
-                                    onClicked: Focus.extend(5)
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 0
+                                C.Label {
+                                    text: "Focus"
+                                    font.weight: Font.DemiBold
+                                    Layout.fillWidth: true
+                                }
+                                C.Label {
+                                    text: Focus.active ? Focus.minutesText(Focus.remainingSeconds) + " left · held" : "not running"
+                                    color: Theme.textDim
+                                    font.pixelSize: 12
+                                    Layout.fillWidth: true
                                 }
                             }
+                            SmallKey {
+                                visible: Focus.active
+                                text: "+5"
+                                hint: "Five more minutes"
+                                onClicked: Focus.extend(5)
+                            }
                             C.Segmented {
-                                Layout.fillWidth: true
+                                fill: false
                                 trackColor: Theme.well
-                                segmentHeight: 36
+                                segmentHeight: 32
                                 model: [{key: 0, text: "Off", hint: "No focus session"}, {key: 25, text: "25", hint: "Focus for 25 minutes"},
                                         {key: 50, text: "50", hint: "Focus for 50 minutes"}, {key: 90, text: "90", hint: "Focus for 90 minutes"}]
                                 current: Focus.active ? Focus.lastMinutes : 0
@@ -1112,7 +1122,8 @@ FocusScope {
                         }
                     }
                 }
-                // The mixer: channel strips for the output, each app and the microphone, beside the equalizer.
+                // The mixer: channel strips for the output, each app and the microphone (scrolling sideways when
+                // there are many), then the equalizer.
                 ColumnLayout {
                     visible: ShellState.detail === "audio"
                     Layout.fillWidth: true
@@ -1124,14 +1135,12 @@ FocusScope {
                         title: "Audio unavailable"
                         subtitle: "No output device or audio service"
                     }
-                    RowLayout {
+                    ColumnLayout {
                         visible: Services.audioAvailable
                         Layout.fillWidth: true
                         spacing: Theme.gapS
                         C.Card {
                             Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            Layout.minimumWidth: 300
                             implicitHeight: mixer.implicitHeight + 24
                             ColumnLayout {
                                 id: mixer
@@ -1198,7 +1207,7 @@ FocusScope {
                                 }
                                 Flickable {
                                     Layout.fillWidth: true
-                                    Layout.preferredHeight: 330
+                                    Layout.preferredHeight: 236
                                     contentWidth: strips.implicitWidth
                                     contentHeight: height
                                     flickableDirection: Flickable.HorizontalFlick
@@ -1271,8 +1280,8 @@ FocusScope {
                             }
                         }
                         Equalizer {
-                            Layout.preferredWidth: 320
-                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+                            graphHeight: 130
                             active: ShellState.detail === "audio"
                         }
                     }
@@ -1893,7 +1902,8 @@ FocusScope {
             }
         }
         // The power row, in the order Settings → Control center gives its buttons: Capture, Lock, and the session
-        // keys (Sleep, Restart, which asks for a second press, and Hold to power off). Settings sits in the header.
+        // keys (Sleep, Restart, which asks for a second press, and Hold to power off, which takes the rest of the
+        // row). Settings sits in the header.
         RowLayout {
             id: actionFooter
             visible: ShellState.detail === ""
@@ -1907,7 +1917,7 @@ FocusScope {
                     })[item.id] || []), [])
                 Loader {
                     required property string modelData
-                    Layout.fillWidth: modelData !== "capture"
+                    Layout.fillWidth: modelData === "poweroff"
                     Layout.minimumWidth: 0
                     Layout.preferredHeight: 44
                     sourceComponent: ({
@@ -1933,8 +1943,9 @@ FocusScope {
     Component {
         id: lockKey
         PowerKey {
-            text: "Lock"
             glyph: "lock"
+            hint: "Lock"
+            implicitWidth: 44
             enabled: !root.leaving
             onClicked: ShellState.action("lock")
         }
@@ -1942,18 +1953,20 @@ FocusScope {
     Component {
         id: sleepKey
         PowerKey {
-            text: "Sleep"
             glyph: "moon"
             hint: "Sleep · locks first"
+            implicitWidth: 44
             enabled: !root.leaving
             onClicked: ShellState.action("suspend")
         }
     }
     Component {
         id: restartKey
+        // Armed, it spells out the question until the second press or the timeout.
         PowerKey {
-            text: root.restartArmed ? "Restart?" : "Restart"
+            text: root.restartArmed ? "Restart?" : ""
             glyph: "refresh"
+            implicitWidth: root.restartArmed ? implicitContentWidth + leftPadding + rightPadding : 44
             hint: root.restartArmed ? "Press again to restart" : "Restart"
             selected: root.restartArmed
             enabled: !root.leaving

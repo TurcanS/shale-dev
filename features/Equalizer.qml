@@ -10,6 +10,8 @@ import "../components" as C
 Rectangle {
     id: root
     property bool active: false
+    // The graph's height when nothing stretches it.
+    property int graphHeight: 200
     readonly property var frequencies: ["31", "62", "125", "250", "500", "1k", "2k", "4k", "8k", "16k"]
     // Mirrors PRESETS in helpers/equalizer.py.
     readonly property var presets: ({
@@ -171,8 +173,8 @@ Rectangle {
             id: graph
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.preferredHeight: 200
-            Layout.minimumHeight: 150
+            Layout.preferredHeight: root.graphHeight
+            Layout.minimumHeight: Math.min(130, root.graphHeight)
             radius: Theme.radiusCard
             color: Theme.well
             clip: true

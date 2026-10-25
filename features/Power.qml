@@ -10,7 +10,7 @@ FocusScope {
     id: root
     readonly property string title: "Session"
     readonly property string headerNote: [uptime, ShellState.recording.active ? "recording in progress" : ""].filter(part => part).join(" · ")
-    readonly property int panelWidth: 480
+    readonly property int panelWidth: 440
     readonly property int panelHeight: Theme.body >= 18 ? 236 : 212
 
     property bool leaving: false
@@ -93,8 +93,8 @@ FocusScope {
         Layout.preferredWidth: 1
         Layout.minimumWidth: 0
         topPadding: 10
-        leftPadding: 10
-        rightPadding: 10
+        leftPadding: 8
+        rightPadding: 8
         bottomPadding: 10
         cornerRadius: Theme.radiusCard + 2
         readonly property bool spotlit: hovered || visualFocus
@@ -182,7 +182,7 @@ FocusScope {
                 id: powerOff
                 text: "Power off"
                 destructive: true
-                Layout.preferredWidth: 96
+                Layout.preferredWidth: 88
                 Layout.fillHeight: true
                 implicitHeight: 100
                 padding: 8
