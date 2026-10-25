@@ -201,3 +201,23 @@ arrows. `core/icons.js` gained `grip` (rebuilt with `scripts/build-icons.py`).
 ## Stage 12: polish
 A pass over everything the owner flagged while testing: spacing, contrast, keyboard focus rings, reduced motion,
 fractional scaling. Then `scripts/dev promote` on the owner's machine moves the result to the public repo.
+
+Carry-over from stage 11: widgets are `features/Widgets.qml` (one bottom-layer window per output, created by a
+`LazyLoader` in `shell.qml` only while `widgets` is on; namespace `shale-widgets`, never takes the keyboard, an input
+mask of the cards only, unmapped while that output's page has a fullscreen window and while locked) with the cards
+`WidgetsCard` (the translucent case), `WidgetsClock`, `WidgetsSky`, `WidgetsNote` and `WidgetsSystem`, drawn at
+design pixels (Panel size doesn't scale them). Settings: `widgets` (off), `widgetCards` (order of the shown cards, up
+to six), `widgetCorner`; Settings → Desktop (`features/DesktopSettings.qml`, OrderRow and DropLine). The sun
+calculation moved from `WeatherCard.qml` to `core/sky.js`, shared with the Sky card. The note is
+`~/.local/state/shale/note.json` (`note.get`, `note.set`, `note.add`) behind the `services/Note.qml` singleton; Find's
+`note …` appends a line (footer hint `note …` while the Note card is shown). The desktop never takes the keyboard, so
+the Note card's add field opens Find with `note ` typed. The System card samples `system.sample` every 5 s (10 s with
+effects trimmed) while it is on screen. The Focus page is Control's detail `focus` (`features/FocusView.qml`, 440 px,
+opened from the Focus module's name); PanelContent gained `headerChip` ({text, on}) for its state chip.
+`services/Focus.qml` gained pause and resume (`pause()`, `unpause()`, `paused`, and `paused` / `pausedFor` in
+`focusSession`; the `focus` IPC target has `pause`): a paused session stays active, so notifications stay held exactly
+as before. `shale page` and `scripts/shale` don't know `focus` or pause yet. Not built for lack of data: the Clock
+card's next event (no calendar events). Not built: the blur behind the cards, which needs a Hyprland layer rule for
+`shale-widgets` in `integration/shale.lua` (left out because the Lua field names couldn't be checked here). For
+stage 12: check clicks between and around the cards reach the desktop, the top corners sit under the bar, and the
+Focus ring's halo (two wider translucent rings, hidden with effects trimmed).
