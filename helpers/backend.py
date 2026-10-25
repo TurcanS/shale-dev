@@ -2058,7 +2058,19 @@ class Backend:
             await run("wl-copy", data=value.encode())
             return {"color": value}
         if method == "system.sample":
-            return await self.sysmon.sample(nvidia=p.get("nvidia") is True, history=p.get("history") is True)
+            return await self.sysmon.sample(nvidia=p.get("nvidia") is True, history=p.get("history") is True,
+                                            processes=p.get("processes") if p.get("processes") in ("cpu", "memory") else None)
+        if method == "system.end":
+            pid, start = p.get("pid"), p.get("start")
+            if type(pid) is not int or type(start) is not int:
+                raise BackendError("invalid", "Choose a process.")
+            # The start time must still match: the pid may have been reused since the list was read.
+            found = self.sysmon.process(pid)
+            if not found or found["start"] != start:
+                raise BackendError("unavailable", "The process has already exited.")
+            if pid in self.sysmon.lineage(os.getpid()) or found["name"] in sysmon.PROTECTED_PROCESSES:
+                raise BackendError("unavailable", "Ending this would end your session.")
+            return await quit_process(pid)
         if method == "capture.screenshot":
             async with self.capture_lock:
                 return await self.screenshot(p)
