@@ -13,7 +13,7 @@ Card {
     property string note: ""
     property int valueSize: Theme.body + 8
     property int noteSize: Theme.caption
-    property color noteColor: Theme.textFaint
+    property color noteColor: Theme.textDim
     property int inset: Theme.gapM - 2
     Layout.fillWidth: true
     Layout.preferredWidth: 1

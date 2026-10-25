@@ -415,7 +415,7 @@ FocusScope {
                 C.Label {
                     visible: root.kind === "screenshot" && root.shotCount === 0
                     text: "No screenshots yet"
-                    color: Theme.textFaint
+                    color: Theme.textDim
                     font.pixelSize: 12
                     Layout.preferredHeight: 46
                 }

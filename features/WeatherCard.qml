@@ -475,7 +475,7 @@ Rectangle {
         C.Label {
             visible: root.hasLocation && !root.searching && !!root.weather && !!root.weather.stale
             text: "Offline · updated " + (root.weather ? root.age(root.weather.fetched) : "")
-            color: Theme.textFaint
+            color: Theme.textDim
             font.pixelSize: 11
             Layout.fillWidth: true
         }

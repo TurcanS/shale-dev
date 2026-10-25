@@ -47,7 +47,7 @@ ColumnLayout {
                 text: String(change.modelData.sha || "").slice(0, 7) + (change.modelData.time ? " · " + Updates.ago(change.modelData.time) : "")
                 font.family: Theme.mono
                 font.pixelSize: 11
-                color: Theme.textFaint
+                color: Theme.textDim
                 Layout.fillWidth: true
                 Layout.topMargin: 1
             }

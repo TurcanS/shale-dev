@@ -44,7 +44,7 @@ WidgetsCard {
             C.Label {
                 visible: lines.count === 0
                 text: Note.loaded ? "Nothing on the note yet." : ""
-                color: Theme.textFaint
+                color: Theme.textDim
                 font.pixelSize: 13
                 width: lines.width
             }
