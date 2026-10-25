@@ -25,9 +25,10 @@ FocusScope {
     }
     // The month grid is one Tab stop: the picked day, or the first of the month when the picked day is elsewhere.
     readonly property date tabDay: picked.getFullYear() === month.getFullYear() && picked.getMonth() === month.getMonth() ? picked : month
-    // Arrow keys in the grid move the picked day (a week up or down), into the next month when they cross one.
-    function moveDay(days) {
-        const day = new Date(picked.getFullYear(), picked.getMonth(), picked.getDate() + days);
+    // Arrow keys in the grid pick the day next to the focused one (a week up or down), into the next month when they
+    // cross one.
+    function moveDay(from, days) {
+        const day = new Date(from.getFullYear(), from.getMonth(), from.getDate() + days);
         if (day.getFullYear() !== month.getFullYear() || day.getMonth() !== month.getMonth())
             month = new Date(day.getFullYear(), day.getMonth(), 1);
         picked = day;
@@ -180,11 +181,11 @@ FocusScope {
                             text: String(day.getDate())
                             hint: Qt.formatDateTime(day, "dddd, d MMMM yyyy")
                             Accessible.name: (outside ? "Go to " : "Show ") + hint
-                            focusPolicy: root.sameDay(day, root.tabDay) ? Qt.StrongFocus : Qt.ClickFocus
-                            Keys.onLeftPressed: root.moveDay(-1)
-                            Keys.onRightPressed: root.moveDay(1)
-                            Keys.onUpPressed: root.moveDay(-7)
-                            Keys.onDownPressed: root.moveDay(7)
+                            focusPolicy: activeFocus || root.sameDay(day, root.tabDay) ? Qt.StrongFocus : Qt.ClickFocus
+                            Keys.onLeftPressed: root.moveDay(day, -1)
+                            Keys.onRightPressed: root.moveDay(day, 1)
+                            Keys.onUpPressed: root.moveDay(day, -7)
+                            Keys.onDownPressed: root.moveDay(day, 7)
                             // Days from a neighbouring month go there; days in view are picked for the agenda.
                             onClicked: {
                                 if (outside)
