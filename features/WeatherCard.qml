@@ -11,6 +11,8 @@ Rectangle {
     id: root
     readonly property var location: ShellState.setting("weatherLocation", {})
     readonly property bool hasLocation: !!preview || (!!location && !!location.name)
+    // Changes with the city, so the forecast is fetched again for the new one.
+    readonly property string locationKey: hasLocation && !preview ? location.latitude + "," + location.longitude : ""
     readonly property string units: ShellState.setting("weatherUnits", "metric")
     // Fixed data for UI previews; disables all requests.
     property var preview: null
