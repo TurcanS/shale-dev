@@ -49,27 +49,30 @@ PanelWindow {
     WlrLayershell.namespace: "shale-panel"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: showing ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    // Every panel rises 8 px and fades in; leaving is quicker. Reduced motion is instant.
     Behavior on progress {
         NumberAnimation {
-            duration: host.showing ? Theme.enter : Theme.leave
-            easing.type: Easing.OutCubic
+            duration: host.showing ? Theme.panelEnter : Theme.panelLeave
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: Theme.easeOut
         }
     }
     MouseArea {
         anchors.fill: parent
         onClicked: ShellState.close()
     }
-    // Lifts the panel off the wallpaper; skipped when effects are trimmed.
+    // The case's long soft shadow; skipped when effects are trimmed.
     RectangularShadow {
         anchors.fill: content
         visible: !content.chromeless && !Theme.lowPower && host.visible
         radius: content.radius
-        blur: 28
-        offset.y: 8
-        color: Qt.rgba(0, 0, 0, 0.5)
+        blur: Theme.caseShadow.blur
+        offset.x: Theme.caseShadow.x
+        offset.y: Theme.caseShadow.y
+        color: Theme.caseShadow.color
         opacity: host.progress
         transform: Translate {
-            y: Theme.reduced ? 0 : (1 - host.progress) * -8
+            y: (1 - host.progress) * Theme.panelRise
         }
     }
     PanelContent {
@@ -77,10 +80,12 @@ PanelWindow {
         panel: host.retainedPanel
         width: Math.min(parent.width - 24, preferredWidth)
         height: Math.min(parent.height - 90, preferredHeight)
-        x: ["control", "notifications"].indexOf(panel) >= 0 ? parent.width - width - 12 : (parent.width - width) / 2
-        y: (["control", "notifications", "calendar"].indexOf(panel) >= 0 ? ShellState.barBottom + 9 : Math.max(ShellState.barBottom + 11, (parent.height - height) * 0.38))
+        // Panels opened from the bar's right end line up with it, 8 px in from the screen edge.
+        x: ["control", "notifications"].indexOf(panel) >= 0 ? parent.width - width - 8 : (parent.width - width) / 2
+        y: (["control", "notifications", "calendar"].indexOf(panel) >= 0 ? ShellState.barBottom + 8 : Math.max(ShellState.barBottom + 11, (parent.height - height) * 0.38))
+        entering: host.progress < 1
         transform: Translate {
-            y: Theme.reduced ? 0 : (1 - host.progress) * -8
+            y: (1 - host.progress) * Theme.panelRise
         }
         Behavior on width {
             enabled: !Theme.reduced && host.showing && host.progress > 0.99
