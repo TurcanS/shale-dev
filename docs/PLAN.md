@@ -86,6 +86,12 @@ Prompt:
 > Do stage 6 of docs/PLAN.md on branch `redesign`: Clock and sky, Player and Wallpapers per PANELS.md and the
 > Almanac, Media and Wallpapers mockups. Push and summarise.
 
+Carry-over from stage 5: reuse `components/UndoBar.qml` (Clipboard in stage 8) and the PanelContent header count.
+Panels are drawn at the Panel size setting (default 85%); size new panels in design pixels and let that setting
+scale them. Still missing data: a Caps Lock state outside the lock screen (no Caps Lock OSD card yet) and calendar
+events (Find's glance strip shows the date instead of the next event). Clearing one app's notifications is now
+Shift+Delete or Shift-click on ×. Settings has a new Displays page (stage 10 restyles it with the rest).
+
 ## Stage 7: Lock screen
 Files: `features/Lock*.qml`.
 Done: matches `previews/Lock.png`; unlock, wrong password, Caps Lock, media, power and the transition all work;

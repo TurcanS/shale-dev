@@ -32,7 +32,8 @@ environment has no Wayland session, so you cannot run the shell here.
   `FontLoader`.
 - `tests/` is not in this repo (it is local only). Don't create it.
 - If `/usr/lib/qt6/bin/qmllint` (or `qmllint6`) exists, lint the QML you changed. If it doesn't, say so in the summary.
-- Don't touch `docs/design/`, `docs/PLAN.md`, `docs/DEV.md`, `scripts/dev` or this file unless asked.
+- Don't touch `docs/design/`, `docs/DEV.md`, `scripts/dev` or this file unless asked. In `docs/PLAN.md` you may only
+  add a short "Carry-over from stage N" note just above the next stage: what later stages must reuse, fix or know.
 
 ## End of a session
 Finish with a short summary for the owner: what changed (files), what to look at when testing (which panels, which
