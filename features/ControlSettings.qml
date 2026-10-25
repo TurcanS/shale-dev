@@ -4,62 +4,83 @@ import "../core"
 import "../core/controlItems.js" as ControlItems
 import "../components" as C
 
-// Settings → Control center: the order of its tiles and buttons, and which parts it shows.
+// Settings → Control: the order of its tiles and buttons, and which parts it shows.
 ColumnLayout {
     id: root
-    spacing: Theme.gapM
+    spacing: 8
     readonly property var setting: ShellState.setting("controlLayout", {})
     readonly property var arrangement: ControlItems.layout(setting)
     function save(value) {
         ShellState.setSetting("controlLayout", value);
     }
-    // One reorderable entry: its switch, then earlier and later.
+    // One reorderable entry: its glyph, name and line, earlier and later, then its switch.
     component Entry: RowLayout {
         id: entry
         property var item: ({})
         property bool shown: true
         property bool first: false
         property bool last: false
+        // Read by Find a setting.
+        readonly property string label: item.title || ""
+        readonly property string description: item.required ? "Always shown" : item.description || ""
         signal toggled()
         signal moved(int step)
         Layout.fillWidth: true
-        spacing: Theme.gapXs
-        C.Toggle {
+        Layout.preferredHeight: Math.max(entry.description !== "" ? 58 : 50, Theme.body + 36)
+        Layout.leftMargin: 14
+        Layout.rightMargin: Theme.gapL
+        spacing: Theme.gapM
+        C.Icon {
+            name: entry.item.icon || "grid"
+            size: 16
+            color: entry.shown ? Theme.textDim : Theme.textFaint
+        }
+        ColumnLayout {
             Layout.fillWidth: true
-            flat: true
-            text: entry.item.title || ""
-            description: entry.item.required ? "Always shown" : entry.item.description || ""
-            enabled: !entry.item.required
-            selected: entry.shown
-            onClicked: entry.toggled()
+            spacing: 2
+            C.Label {
+                text: entry.label
+                color: entry.shown ? Theme.text : Theme.textFaint
+                Layout.fillWidth: true
+            }
+            C.Label {
+                visible: text !== ""
+                text: entry.description
+                color: Theme.textDim
+                font.pixelSize: Theme.small
+                Layout.fillWidth: true
+            }
         }
         C.Button {
             glyph: "chevron"
             rotation: -90
-            flat: true
+            cornerRadius: 8
             // Hidden entries sit after the shown ones; they keep no place of their own.
             enabled: !entry.first && entry.shown
-            hint: "Move " + (entry.item.title || "") + " earlier"
-            implicitWidth: 30
-            implicitHeight: 30
+            hint: "Move " + entry.label + " earlier"
+            implicitWidth: 28
+            implicitHeight: 28
             onClicked: entry.moved(-1)
         }
         C.Button {
             glyph: "chevron"
             rotation: 90
-            flat: true
+            cornerRadius: 8
             enabled: !entry.last && entry.shown
-            hint: "Move " + (entry.item.title || "") + " later"
-            implicitWidth: 30
-            implicitHeight: 30
-            Layout.rightMargin: Theme.gapS
+            hint: "Move " + entry.label + " later"
+            implicitWidth: 28
+            implicitHeight: 28
             onClicked: entry.moved(1)
         }
+        C.Switch {
+            Layout.leftMargin: Theme.gapXs
+            enabled: !entry.item.required
+            selected: entry.shown
+            hint: "Show " + entry.label
+            onClicked: entry.toggled()
+        }
     }
-    C.SectionHeader {
-        text: "Tiles"
-        Layout.topMargin: Theme.gapS
-    }
+    C.SectionHeader { text: "Tiles" }
     C.Caption {
         text: "Two to a row, in this order. Tiles for hardware this computer lacks stay out of sight."
         wrapMode: Text.WordWrap
@@ -82,7 +103,7 @@ ColumnLayout {
     }
     C.SectionHeader {
         text: "Below the tiles"
-        Layout.topMargin: Theme.gapS
+        Layout.topMargin: 2
     }
     C.Group {
         Repeater {
@@ -100,7 +121,7 @@ ColumnLayout {
     }
     C.SectionHeader {
         text: "Buttons"
-        Layout.topMargin: Theme.gapS
+        Layout.topMargin: 2
     }
     C.Group {
         Repeater {
@@ -117,10 +138,17 @@ ColumnLayout {
             }
         }
     }
-    C.Button {
-        text: "Open control center"
-        glyph: "settings"
-        Layout.fillWidth: true
-        onClicked: ShellState.open("control")
+    C.Group {
+        Layout.topMargin: 4
+        C.SettingRow {
+            label: "Control"
+            description: "See the arrangement in place"
+            C.Button {
+                text: "Open Control"
+                glyph: "sliders"
+                implicitHeight: 32
+                onClicked: ShellState.open("control")
+            }
+        }
     }
 }

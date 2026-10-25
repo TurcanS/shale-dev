@@ -8,47 +8,119 @@ import "../components" as C
 // Settings → Bar: where each item sits, how the bar looks, and the screens it shows on.
 ColumnLayout {
     id: root
-    spacing: Theme.gapM
+    spacing: 8
     readonly property var layout: BarItems.layout(ShellState.setting("barLayout", {}))
     readonly property var zoneNames: ({left: "Left", center: "Center", right: "Right", hidden: "Hidden"})
+    readonly property bool edge: ShellState.setting("barStyle", "floating") === "edge"
     function move(id, zone, step) {
         ShellState.setSetting("barLayout", BarItems.moved(ShellState.setting("barLayout", {}), id, zone, step));
     }
-    C.SectionHeader {
-        text: "Layout"
-        Layout.topMargin: Theme.gapS
+    // A zone's items as the bar draws them: status items next to each other share one key.
+    function runs(ids) {
+        const result = [];
+        for (const id of ids) {
+            const status = BarItems.status.indexOf(id) >= 0;
+            const last = result[result.length - 1];
+            if (status && last && last.status)
+                last.ids.push(id);
+            else
+                result.push({status: status, ids: [id]});
+        }
+        return result;
     }
-    // A small picture of the bar as arranged.
+    // A plain on/off preference on a group.
+    component SettingToggle: C.Toggle {
+        property string key: ""
+        property bool fallback: false
+        flat: true
+        Layout.fillWidth: true
+        selected: ShellState.setting(key, fallback)
+        onClicked: ShellState.setSetting(key, !ShellState.setting(key, fallback))
+    }
+    // One part of the small bar: an item's glyph, the page dots or the clock.
+    component PreviewItem: Item {
+        id: part
+        property string itemId: ""
+        readonly property var item: BarItems.find(itemId)
+        implicitWidth: itemId === "workspaces" ? dots.implicitWidth + 4 : itemId === "clock" ? clockText.implicitWidth + 8 : 16
+        implicitHeight: 16
+        Row {
+            id: dots
+            visible: part.itemId === "workspaces"
+            anchors.centerIn: parent
+            spacing: 3
+            Rectangle { width: 12; height: 5; radius: 2.5; color: Theme.accent; anchors.verticalCenter: parent.verticalCenter }
+            Rectangle { width: 5; height: 5; radius: 2.5; color: Theme.textFaint; anchors.verticalCenter: parent.verticalCenter }
+            Rectangle { width: 5; height: 5; radius: 2.5; color: Theme.textFaint; anchors.verticalCenter: parent.verticalCenter }
+        }
+        C.Label {
+            id: clockText
+            visible: part.itemId === "clock"
+            anchors.centerIn: parent
+            text: ShellState.setting("clock24h", true) ? "14:30" : "2:30"
+            color: Theme.textSecondary
+            font.pixelSize: 10
+            font.weight: Font.DemiBold
+            font.features: ({"tnum": 1})
+        }
+        C.Icon {
+            visible: part.itemId !== "workspaces" && part.itemId !== "clock"
+            anchors.centerIn: parent
+            name: part.item ? part.item.icon : ""
+            size: 11
+            color: Theme.textMuted
+        }
+    }
+    // A small picture of the bar as arranged, floating over a strip of desktop (or edge to edge).
     Rectangle {
         Layout.fillWidth: true
-        implicitHeight: 34
-        radius: ShellState.setting("barStyle", "floating") === "edge" ? 0 : Theme.radiusSmall + 2
-        color: Theme.panel
+        implicitHeight: 46
+        radius: Theme.radiusCard + 2
+        color: Theme.well
         border.width: 1
-        border.color: Theme.border
+        border.color: Theme.separator
+        clip: true
         Accessible.role: Accessible.Graphic
         Accessible.name: "Bar preview"
-        Repeater {
-            model: ["left", "center", "right"]
-            Row {
-                required property string modelData
-                anchors.verticalCenter: parent.verticalCenter
-                x: modelData === "left" ? 10 : modelData === "center" ? (parent.width - width) / 2 : parent.width - width - 10
-                spacing: 2
-                Repeater {
-                    model: root.layout[parent.modelData]
-                    Rectangle {
-                        required property string modelData
-                        readonly property var item: BarItems.find(modelData)
-                        width: 18
-                        height: 20
-                        radius: 5
-                        color: modelData === "control" ? Theme.raised : "transparent"
-                        C.Icon {
-                            anchors.centerIn: parent
-                            name: parent.item ? parent.item.icon : ""
-                            size: 12
-                            color: Theme.muted
+        Rectangle {
+            id: miniBar
+            x: root.edge ? 0 : 10
+            y: root.edge ? 0 : 10
+            width: parent.width - 2 * x
+            height: 26
+            radius: root.edge ? 0 : 8
+            color: Theme.caseColor
+            border.width: 1
+            border.color: Theme.hairline
+            Repeater {
+                model: ["left", "center", "right"]
+                Row {
+                    id: zoneRow
+                    required property string modelData
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: modelData === "left" ? 6 : modelData === "center" ? (miniBar.width - width) / 2 : miniBar.width - width - 6
+                    spacing: 3
+                    Repeater {
+                        model: root.runs(root.layout[zoneRow.modelData])
+                        Rectangle {
+                            id: run
+                            required property var modelData
+                            implicitWidth: runRow.implicitWidth + (modelData.status ? 8 : 2)
+                            implicitHeight: 18
+                            radius: 5
+                            color: modelData.status ? Theme.module : "transparent"
+                            Row {
+                                id: runRow
+                                anchors.centerIn: parent
+                                spacing: 1
+                                Repeater {
+                                    model: run.modelData.ids
+                                    PreviewItem {
+                                        required property string modelData
+                                        itemId: modelData
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -66,22 +138,24 @@ ColumnLayout {
             id: zone
             required property string modelData
             readonly property var ids: root.layout[modelData]
+            readonly property bool hidden: modelData === "hidden"
             Layout.fillWidth: true
-            spacing: Theme.gapXs + 2
-            C.Label {
+            spacing: 8
+            C.SectionHeader {
                 text: root.zoneNames[zone.modelData]
-                color: Theme.muted
-                font.pixelSize: Theme.small
-                font.weight: Font.DemiBold
-                Layout.topMargin: Theme.gapXs
+                Layout.topMargin: 2
             }
             C.Group {
-                C.Caption {
+                C.Label {
                     visible: zone.ids.length === 0
-                    text: zone.modelData === "hidden" ? "Every item is on the bar." : "Nothing here."
+                    text: zone.hidden ? "Every item is on the bar." : "Nothing here."
+                    color: Theme.textDim
+                    font.pixelSize: Theme.small
                     Layout.fillWidth: true
-                    Layout.margins: Theme.gapM
+                    Layout.preferredHeight: 46
+                    Layout.leftMargin: Theme.gapL
                 }
+                // Glyph, name, what it shows, earlier and later on the bar, then where it sits.
                 Repeater {
                     model: zone.ids
                     RowLayout {
@@ -90,59 +164,60 @@ ColumnLayout {
                         required property int index
                         readonly property var item: BarItems.find(modelData)
                         Layout.fillWidth: true
-                        Layout.preferredHeight: Math.max(48, Theme.body + 34)
-                        Layout.leftMargin: Theme.gapM
-                        Layout.rightMargin: Theme.gapS
-                        spacing: Theme.gapS
+                        Layout.preferredHeight: Math.max(50, Theme.body + 34)
+                        Layout.leftMargin: 14
+                        Layout.rightMargin: 10
+                        spacing: Theme.gapM
                         C.Icon {
                             name: row.item.icon
-                            color: zone.modelData === "hidden" ? Theme.disabled : Theme.muted
+                            size: 16
+                            color: zone.hidden ? Theme.textFaint : Theme.textDim
                         }
-                        ColumnLayout {
+                        C.Label {
+                            text: row.item.title
+                            color: zone.hidden ? Theme.textFaint : Theme.text
+                            Layout.preferredWidth: Math.max(170, Theme.body * 12)
+                        }
+                        C.Label {
+                            text: row.item.required ? (row.item.description ? row.item.description + " · always shown" : "Always shown") : row.item.description || ""
+                            color: Theme.textDim
+                            font.pixelSize: Theme.small
                             Layout.fillWidth: true
-                            spacing: 0
-                            C.Label {
-                                text: row.item.title
-                                color: zone.modelData === "hidden" ? Theme.muted : Theme.text
-                                elide: Text.ElideRight
-                                Layout.fillWidth: true
-                            }
-                            C.Caption {
-                                visible: text !== ""
-                                text: row.item.required ? (row.item.description ? row.item.description + " · always shown" : "Always shown") : row.item.description || ""
-                                elide: Text.ElideRight
-                                Layout.fillWidth: true
-                            }
+                            Layout.minimumWidth: 0
                         }
                         C.Button {
-                            visible: zone.modelData !== "hidden"
+                            visible: !zone.hidden
                             glyph: "chevron"
-                            rotation: 180
-                            flat: true
+                            rotation: -90
+                            cornerRadius: 8
                             enabled: row.index > 0
                             hint: "Move " + row.item.title + " left"
-                            implicitWidth: 30
-                            implicitHeight: 30
+                            implicitWidth: 28
+                            implicitHeight: 28
                             onClicked: root.move(row.modelData, "", -1)
                         }
                         C.Button {
-                            visible: zone.modelData !== "hidden"
+                            visible: !zone.hidden
                             glyph: "chevron"
-                            flat: true
+                            rotation: 90
+                            cornerRadius: 8
                             enabled: row.index < zone.ids.length - 1
                             hint: "Move " + row.item.title + " right"
-                            implicitWidth: 30
-                            implicitHeight: 30
+                            implicitWidth: 28
+                            implicitHeight: 28
                             onClicked: root.move(row.modelData, "", 1)
                         }
                         C.Segmented {
                             // One width for every row, with or without Hide, so the columns line up.
+                            proportional: true
                             Layout.fillWidth: false
                             Layout.preferredWidth: Math.max(236, Theme.body * 17)
                             segmentHeight: 30
+                            trackColor: Theme.well
                             model: [{key: "left", text: "Left"}, {key: "center", text: "Center"}, {key: "right", text: "Right"}]
                                 .concat(row.item.required ? [] : [{key: "hidden", text: "Hide", hint: "Hide " + row.item.title}])
                             current: zone.modelData
+                            Accessible.name: "Where " + row.item.title + " sits"
                             onActivated: key => root.move(row.modelData, key, 0)
                         }
                     }
@@ -152,59 +227,84 @@ ColumnLayout {
     }
     C.SectionHeader {
         text: "Look"
-        Layout.topMargin: Theme.gapM
-    }
-    C.ChoiceRow {
-        label: "Style"
-        model: [{key: "floating", text: "Floating"}, {key: "edge", text: "Edge to edge"}]
-        current: ShellState.setting("barStyle", "floating")
-        onActivated: key => ShellState.setSetting("barStyle", key)
-    }
-    C.ChoiceRow {
-        label: "Clock"
-        model: [{key: "time", text: "Time"}, {key: "day-time", text: "Day"}, {key: "date-time", text: "Date"}]
-        current: ShellState.setting("clockFormat", "date-time")
-        onActivated: key => ShellState.setSetting("clockFormat", key)
+        Layout.topMargin: 2
     }
     C.Group {
-        C.Toggle {
-            Layout.fillWidth: true
-            flat: true
+        C.ChoiceRow {
+            label: "Style"
+            description: "Floating keeps 8 px from the screen edges"
+            model: [{key: "floating", text: "Floating"}, {key: "edge", text: "Edge to edge"}]
+            current: ShellState.setting("barStyle", "floating")
+            onActivated: key => ShellState.setSetting("barStyle", key)
+        }
+        C.ChoiceRow {
+            label: "Clock"
+            description: "What the clock shows beside the time"
+            model: [{key: "time", text: "Time"}, {key: "day-time", text: "Day"}, {key: "date-time", text: "Date"}]
+            current: ShellState.setting("clockFormat", "date-time")
+            onActivated: key => ShellState.setSetting("clockFormat", key)
+        }
+        SettingToggle {
             text: "Show seconds"
-            selected: ShellState.setting("clockSeconds", false)
-            onClicked: ShellState.setSetting("clockSeconds", !selected)
+            description: "On the bar's clock"
+            key: "clockSeconds"
+        }
+        C.ChoiceRow {
+            label: "Pages"
+            description: "How the pages on a screen are drawn"
+            model: [{key: "numbers", text: "Numbers"}, {key: "dots", text: "Dots"}]
+            current: ShellState.setting("workspaceStyle", "dots")
+            onActivated: key => ShellState.setSetting("workspaceStyle", key)
+        }
+        C.ChoiceRow {
+            label: "Empty pages"
+            description: "Keep the first ones on the bar even without windows"
+            model: [{key: 0, text: "Hide"}, {key: 5, text: "1–5"}, {key: 10, text: "1–10"}]
+            current: ShellState.setting("workspaceSlots", 0)
+            onActivated: key => ShellState.setSetting("workspaceSlots", key)
+        }
+        C.ChoiceRow {
+            label: "Tray icons"
+            description: "The rest open from the tray button"
+            model: [{key: -1, text: "Auto", hint: "More on wider screens"}, {key: 0, text: "0"}, {key: 1, text: "1"}, {key: 2, text: "2"}, {key: 3, text: "3"}, {key: 5, text: "5"}]
+            current: ShellState.setting("trayIcons", -1)
+            onActivated: key => ShellState.setSetting("trayIcons", key)
+        }
+        C.ChoiceRow {
+            label: "Battery percentage"
+            description: "Low battery always shows it"
+            model: [{key: "auto", text: "Auto", hint: "Hidden on narrow screens"}, {key: "always", text: "Always"}, {key: "never", text: "Never"}]
+            current: ShellState.setting("batteryPercent", "auto")
+            onActivated: key => ShellState.setSetting("batteryPercent", key)
         }
     }
-    C.ChoiceRow {
-        label: "Workspaces"
-        model: [{key: "numbers", text: "Numbers"}, {key: "dots", text: "Dots"}]
-        current: ShellState.setting("workspaceStyle", "dots")
-        onActivated: key => ShellState.setSetting("workspaceStyle", key)
+    C.SectionHeader {
+        text: "Behaviour"
+        Layout.topMargin: 2
     }
-    C.ChoiceRow {
-        label: "Empty workspaces"
-        description: "Keep the first ones on the bar even without windows"
-        model: [{key: 0, text: "Hide"}, {key: 5, text: "1–5"}, {key: 10, text: "1–10"}]
-        current: ShellState.setting("workspaceSlots", 0)
-        onActivated: key => ShellState.setSetting("workspaceSlots", key)
-    }
-    C.ChoiceRow {
-        label: "Tray icons"
-        description: "The rest open from the tray button"
-        model: [{key: -1, text: "Auto", hint: "More on wider screens"}, {key: 0, text: "0"}, {key: 1, text: "1"}, {key: 2, text: "2"}, {key: 3, text: "3"}, {key: 5, text: "5"}]
-        current: ShellState.setting("trayIcons", -1)
-        onActivated: key => ShellState.setSetting("trayIcons", key)
-    }
-    C.ChoiceRow {
-        label: "Battery percentage"
-        description: "Low battery always shows it"
-        model: [{key: "auto", text: "Auto", hint: "Hidden on narrow screens"}, {key: "always", text: "Always"}, {key: "never", text: "Never"}]
-        current: ShellState.setting("batteryPercent", "auto")
-        onActivated: key => ShellState.setSetting("batteryPercent", key)
+    C.Group {
+        SettingToggle {
+            text: "Hide bar over fullscreen windows"
+            description: "It comes back when the window leaves fullscreen"
+            key: "hideFullscreen"
+            fallback: true
+        }
+        SettingToggle {
+            text: "Show what's playing in the bar"
+            description: "Cover and title, on bars wider than 1100 px"
+            key: "barMedia"
+            fallback: true
+        }
+        SettingToggle {
+            text: "Show a card when the track changes"
+            description: "Title and artist for a moment"
+            key: "trackChangeCard"
+            fallback: true
+        }
     }
     C.SectionHeader {
         text: "Show the bar on"
-        Layout.topMargin: Theme.gapM
+        Layout.topMargin: 2
     }
     C.Group {
         Repeater {
