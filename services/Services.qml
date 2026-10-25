@@ -28,7 +28,9 @@ QtObject {
     // The media equalizer's filter nodes are routed automatically and are not devices or apps.
     readonly property var audioOutputs: Pipewire.nodes.values.filter(n => (n.type & PwNodeType.Audio) && n.isSink && !n.isStream && !n.name.startsWith("shale_eq"))
     readonly property var audioInputs: Pipewire.nodes.values.filter(n => (n.type & PwNodeType.Audio) && !n.isSink && !n.isStream)
-    readonly property var audioStreams: Pipewire.nodes.values.filter(n => (n.type & PwNodeType.Audio) && n.isStream && !n.isSink && !n.name.startsWith("shale_eq"))
+    // Apps playing sound. A playback stream carries the Sink flag (AudioOutStream); recording streams, such as the
+    // visualizer's cava listening to the output, are AudioInStream and are not apps to mix.
+    readonly property var audioStreams: Pipewire.nodes.values.filter(n => (n.type & PwNodeType.AudioOutStream) === PwNodeType.AudioOutStream && !n.name.startsWith("shale_eq"))
     // Apps recording a microphone or receiving a shared screen: PipeWire links from a device or
     // portal source into an app's stream. Sink monitors (the visualizer) start at a sink and don't count.
     readonly property var captureLinks: Pipewire.linkGroups.values.filter(g => !!g.source && !!g.target && g.target.isStream && !g.source.isStream && !g.source.isSink)
