@@ -108,6 +108,7 @@ FocusScope {
         })
     readonly property var categories: [
         {name: "Appearance", icon: "palette", description: "Shape the way your desktop feels."},
+        {name: "Displays", icon: "monitor", description: "Resolution, refresh rate and scale for each screen."},
         {name: "Bar", icon: "window", description: "Keep the essentials where you need them."},
         {name: "Control center", icon: "settings", description: "The switches and buttons you reach for most."},
         {name: "Shortcuts", icon: "grid", description: "Keyboard shortcuts and the commands behind them."},
@@ -394,6 +395,10 @@ FocusScope {
                 }
                 BarSettings {
                     visible: root.category === "Bar"
+                    Layout.fillWidth: true
+                }
+                DisplaySettings {
+                    visible: root.category === "Displays"
                     Layout.fillWidth: true
                 }
                 C.ChoiceRow {

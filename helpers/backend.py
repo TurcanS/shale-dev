@@ -30,6 +30,7 @@ from runtime import runtime_base
 import bluetooth_keep
 import clipboard_watch
 import equalizer
+import displays
 import weather
 import units
 import shortcuts
@@ -696,6 +697,9 @@ class Backend:
         self.update_lock = asyncio.Lock()
         self.lock_hint_lock = asyncio.Lock()
         self.shortcut_lock = asyncio.Lock()
+        self.display_lock = asyncio.Lock()
+        # Outputs changed in Settings → Displays and not yet kept: {name: {"previous": rule, "task": revert task}}.
+        self.display_pending = {}
         # Clipboard entries deleted, and wipes so far: a preview still being decoded for one must not be saved after.
         self.clipboard_deleted = set()
         self.clipboard_wipes = 0
@@ -955,6 +959,102 @@ class Backend:
             return
         if current == shortcuts.RECORD_SUBMAP:
             await self.hypr_eval('hl.dispatch(hl.dsp.submap("reset"))')
+
+    DISPLAY_REVERT = 15
+    DISPLAYS_SAVED = CONFIG.parent / "displays.json"
+
+    def saved_displays(self):
+        try:
+            value = json.loads(self.DISPLAYS_SAVED.read_text())
+            return {name: entry for name, entry in value.items() if isinstance(entry, dict)} if isinstance(value, dict) else {}
+        except (FileNotFoundError, ValueError):
+            return {}
+
+    def write_displays(self, entries):
+        """Keeps the confirmed rules as JSON (to merge later) and as the Lua file shale.lua applies at start."""
+        CONFIG.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        atomic_json(self.DISPLAYS_SAVED, entries)
+        target = CONFIG.parent / "displays.lua"
+        fd, name = tempfile.mkstemp(prefix=".shale-", dir=target.parent)
+        try:
+            with os.fdopen(fd, "w") as stream:
+                stream.write(displays.saved_lua(entries))
+            os.replace(name, target)
+        finally:
+            if os.path.exists(name):
+                os.unlink(name)
+
+    async def apply_display(self, entry):
+        if not await self.hypr_eval(displays.rule_lua(entry)):
+            raise BackendError("failed", "Hyprland didn't accept that display setting.")
+
+    async def revert_display_later(self, name):
+        try:
+            await asyncio.sleep(self.DISPLAY_REVERT)
+        except asyncio.CancelledError:
+            return
+        async with self.display_lock:
+            pending = self.display_pending.pop(name, None)
+            if pending:
+                try:
+                    await self.apply_display(pending["previous"])
+                except BackendError:
+                    pass
+                emit("display.reverted", {"output": name})
+
+    async def displays(self, action, p):
+        """Settings → Displays. `set` applies a resolution, refresh rate and scale at once and puts the old ones back
+        after DISPLAY_REVERT seconds unless `keep` confirms them; `reset` forgets a kept choice."""
+        monitors = [m for m in json.loads(await run("hyprctl", "monitors", "-j")) if not m.get("disabled")]
+        if action == "list":
+            saved = self.saved_displays()
+            now = time.monotonic()
+            return {"displays": [{**displays.describe(m), "saved": m["name"] in saved,
+                                  "pending": max(1, math.ceil(self.display_pending[m["name"]]["until"] - now)) if m["name"] in self.display_pending else 0}
+                                 for m in monitors],
+                    "revertSeconds": self.DISPLAY_REVERT,
+                    # False until an install or update brings the shale.lua that applies kept displays at start.
+                    "startup": "displays.lua" in await asyncio.to_thread(lambda: (HYPR / "shale.lua").read_text() if (HYPR / "shale.lua").exists() else "")}
+        name = p.get("output")
+        monitor = next((m for m in monitors if m["name"] == name), None)
+        if monitor is None:
+            raise BackendError("invalid", "That display is no longer connected.")
+        if action == "set":
+            width, height, rate, scale = p.get("width"), p.get("height"), p.get("rate"), p.get("scale")
+            try:
+                displays.check(monitor, width, height, rate, scale)
+            except ValueError as error:
+                raise BackendError("invalid", str(error)) from None
+            current = displays.describe(monitor)
+            # A second change before keeping still reverts to what was there before the first.
+            pending = self.display_pending.pop(name, None)
+            previous = pending["previous"] if pending else displays.rule(monitor, current["width"], current["height"], current["rate"], current["scale"])
+            if pending:
+                pending["task"].cancel()
+            await self.apply_display(displays.rule(monitor, width, height, float(rate), float(scale)))
+            self.display_pending[name] = {"previous": previous, "until": time.monotonic() + self.DISPLAY_REVERT,
+                                          "task": asyncio.create_task(self.revert_display_later(name))}
+            return {"pending": True, "seconds": self.DISPLAY_REVERT}
+        pending = self.display_pending.pop(name, None)
+        if pending:
+            pending["task"].cancel()
+        if action == "revert":
+            if pending:
+                await self.apply_display(pending["previous"])
+            return {"done": True}
+        saved = self.saved_displays()
+        if action == "keep":
+            current = displays.describe(monitor)
+            saved[name] = displays.rule(monitor, current["width"], current["height"], current["rate"], current["scale"])
+            await asyncio.to_thread(self.write_displays, saved)
+            return {"done": True}
+        # reset: Hyprland goes back to its own config for this output.
+        saved.pop(name, None)
+        await asyncio.to_thread(self.write_displays, saved)
+        if pending:
+            await self.apply_display(pending["previous"])
+        await run("hyprctl", "reload")
+        return {"done": True}
 
     async def compositor_saver(self, saver, refresh):
         """Turn off blur and shadows and drop built-in panels to their lowest refresh rate in power
@@ -1693,6 +1793,9 @@ class Backend:
                 actual = json.loads(await run("hyprctl", "getoption", "decoration:screen_shader", "-j"))["str"]
                 enabled = actual == shader
             return {"enabled": enabled}
+        if method.startswith("display.") and method[8:] in ("list", "set", "keep", "revert", "reset"):
+            async with self.display_lock:
+                return await self.displays(method[8:], p)
         if method in ("keyboard.get", "keyboard.next"):
             if method == "keyboard.next":
                 # Every keyboard, so an external one and the laptop's never disagree.
