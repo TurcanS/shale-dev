@@ -187,6 +187,17 @@ Prompt:
 > Focus mockups. Widgets are opt-in (default off). Add settings defaults and validation in helpers/backend.py.
 > Push and summarise.
 
+Carry-over from the second Settings pass: ordered lists in Settings use `components/OrderRow.qml` (grip handle,
+optional glyph, name, description, earlier/later keys, show `Switch`; dragging the handle lifts the row) with
+`components/DropLine.qml` (the accent line where it lands, across one or more groups; it sits last in the page with a
+negative top margin of the layout's spacing). Reuse both for the Desktop page's widget order. Bar settings lost the
+Left / Center / Right / Hide picker: items are dragged between the Left, Center and Right groups, the arrows step past
+the end of a side into the next one, and the switch hides an item (shown again, it goes to the end of its default
+side). Control's tiles and buttons use the same rows. The mini bar preview draws pages, clock and status key as the
+bar does and follows the pages style and clock settings; items that only show while something happens stay out of
+it. `KeyHint` takes `textSize` (Shortcuts uses 12). Dragging doesn't scroll the Settings page, so a long drag needs the
+arrows. `core/icons.js` gained `grip` (rebuilt with `scripts/build-icons.py`).
+
 ## Stage 12: polish
 A pass over everything the owner flagged while testing: spacing, contrast, keyboard focus rings, reduced motion,
 fractional scaling. Then `scripts/dev promote` on the owner's machine moves the result to the public repo.
