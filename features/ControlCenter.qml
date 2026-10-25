@@ -81,8 +81,8 @@ FocusScope {
     // The Player is laid out wider, at its own 460 px, and Focus at 440.
     readonly property int panelWidth: ShellState.detail === "media" ? 460 : ShellState.detail === "focus" ? 440 : 420
     readonly property var headerChip: ShellState.detail === "focus" ? focusView.chip : null
-    // Fits the page, header and padding included, within a 620 px ceiling.
-    readonly property int panelHeight: preferredContentHeight > 0 ? Math.max(200, Math.min(620, preferredContentHeight + 70)) : 620
+    // Fits the page, header and padding included, within an 820 px ceiling (the host keeps it on the screen).
+    readonly property int panelHeight: preferredContentHeight > 0 ? Math.max(200, Math.min(820, preferredContentHeight + 70)) : 620
     readonly property Component headerTools: ShellState.detail === "" ? settingsTool : ["wifi", "power", "update"].indexOf(ShellState.detail) >= 0 ? refreshTool : null
     // Settings → Control center is one of Settings' pages; this is the way there.
     Component {
