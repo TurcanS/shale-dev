@@ -37,7 +37,8 @@ C.Button {
     hoverEnabled: true
     focusPolicy: Qt.StrongFocus
     enabled: armed && !triggered
-    Accessible.name: "Hold to " + text.toLowerCase()
+    // Labels that already say "Hold to …" are read as they are.
+    Accessible.name: /^hold to /i.test(text) ? text : "Hold to " + text.toLowerCase()
     Accessible.description: "Hold for " + delay / 1000 + (delay === 1000 ? " second" : " seconds") + ". Release early to cancel."
     onVisibleChanged: {
         if (!visible) {
