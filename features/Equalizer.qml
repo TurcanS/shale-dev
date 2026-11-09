@@ -29,7 +29,9 @@ Rectangle {
     property var draft: null
     readonly property var levels: draft || ShellState.setting("eqBands", presets.flat)
     readonly property real headroom: Math.max(0, ...levels)
-    property bool busy: false
+    // Band drags send several applies at once; busy holds until the last one answers.
+    property int applying: 0
+    readonly property bool busy: applying > 0
     // Only the on/off switch reports progress; live band updates stay silent.
     property bool switching: false
     // Presets and resets glide from the previous curve instead of jumping.
@@ -44,10 +46,11 @@ Rectangle {
         return Object.keys(presets).find(key => presets[key].every((value, i) => value === values[i])) || "custom";
     }
     function apply() {
-        busy = true;
+        applying++;
         Backend.request("eq.apply", {enabled: eqOn, bands: levels}, (r, e) => {
-            busy = false;
-            switching = false;
+            applying = Math.max(0, applying - 1);
+            if (applying === 0)
+                switching = false;
             if (!e)
                 return;
             ShellState.message(e.message || "The equalizer is unavailable", "error");

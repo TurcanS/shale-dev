@@ -28,6 +28,9 @@ FocusScope {
     property string hoverDate: ""
     property bool busy: false
     property string error: ""
+    // The load the error came from: only that load working again clears it, so the other loads sent with it can't
+    // hide it. "" (Pause, Clear history) is cleared by any load that works.
+    property string errorFrom: ""
     property bool alive: true
     property string caption: ""
     property double nowMs: Date.now()
@@ -219,8 +222,8 @@ FocusScope {
         if (!Backend.ready) return;
         Backend.request(method, params, (result, failure) => {
             if (!alive) return;
-            if (failure) error = failure.message;
-            else { error = ""; done(result); }
+            if (failure) { error = failure.message; errorFrom = method; }
+            else { if (errorFrom === "" || errorFrom === method) error = ""; done(result); }
         });
     }
     function loadOverview() { request("activity.overview", {weekStart: weekStart}, result => overview = result); }
@@ -259,7 +262,7 @@ FocusScope {
         Backend.request("activity.pause", {paused: !overview.paused}, (result, failure) => {
             if (!alive) return;
             busy = false;
-            if (failure) error = failure.message;
+            if (failure) { error = failure.message; errorFrom = ""; }
             else {
                 overview = Object.assign({}, overview, result);
                 if (!result.paused) ShellState.activitySnapshotRequested();
@@ -274,7 +277,7 @@ FocusScope {
             if (!alive) return;
             busy = false;
             clearHistoryButton.triggered = false;
-            if (failure) error = failure.message;
+            if (failure) { error = failure.message; errorFrom = ""; }
             else { ShellState.activitySnapshotRequested(); refresh(); }
         });
     }

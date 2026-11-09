@@ -17,6 +17,8 @@ ColumnLayout {
     property string held: ""
     // True while Hyprland's empty recording submap is active, so bound keys reach the recorder.
     property bool submap: false
+    // Counts start() calls: only the latest one's answer may set `submap`, whatever order the answers come in.
+    property int recordTicket: 0
     property bool busy: false
     property string error: ""
     property string errorAction: ""
@@ -36,11 +38,13 @@ ColumnLayout {
         recording = action;
         held = "";
         recorder.forceActiveFocus();
+        const ticket = ++recordTicket;
         Backend.request("shortcuts.record", {active: true}, (r, e) => {
-            // Stopped meanwhile: leave the submap again.
-            if (!e && r.active && root.recording !== action)
+            if (ticket === root.recordTicket && root.recording !== "")
+                root.submap = !e && r.active;
+            // Stopped meanwhile: leave the submap again, unless another shortcut is being recorded and needs it.
+            else if (!e && r.active && root.recording === "")
                 Backend.request("shortcuts.record", {active: false});
-            root.submap = !e && r.active && root.recording === action;
         });
     }
     function stop() {

@@ -119,7 +119,8 @@ FocusScope {
     }
     readonly property int preferredContentHeight: Math.ceil(controlContent.implicitHeight + (errorLabel.visible ? errorLabel.implicitHeight + 10 : 0) + (actionFooter.visible ? actionFooter.implicitHeight + 10 : 0))
     property string error: ""
-    property bool busy: false
+    // A request is running exactly while pendingMethod names it.
+    readonly property bool busy: pendingMethod !== ""
     // Busy with something the user asked for; background list refreshes don't dim the page.
     readonly property bool acting: busy && ["wifi.list", "power.profiles"].indexOf(pendingMethod) < 0
     // The VPN profile being connected or disconnected, while that request runs.
@@ -276,13 +277,11 @@ FocusScope {
     function perform(method, params, callback) {
         const generation = ++requestGeneration;
         const page = ShellState.detail;
-        busy = true;
         pendingMethod = method;
         error = "";
         Backend.request(method, params, (r, e) => {
             if (!root.alive || generation !== root.requestGeneration || page !== ShellState.detail)
                 return;
-            busy = false;
             pendingMethod = "";
             if (e) {
                 if (method !== "power.profiles")
@@ -348,7 +347,6 @@ FocusScope {
         function onDetailChanged() {
             pageEntrance.restart();
             root.requestGeneration++;
-            root.busy = false;
             root.pendingMethod = "";
             root.error = "";
             root.selectedNetwork = null;
