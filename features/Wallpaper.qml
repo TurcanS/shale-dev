@@ -243,7 +243,7 @@ FocusScope {
     // True for a moment after opening: slices made now are dealt out from the centre; later ones just appear.
     property bool dealing: true
     Timer {
-        interval: 700
+        interval: 400
         running: true
         onTriggered: root.dealing = false
     }
@@ -388,8 +388,10 @@ FocusScope {
                 readonly property bool chosen: distance === 0
                 readonly property bool near: reach <= 8
                 readonly property bool inUse: !!modelData.path && modelData.path === root.activePath
-                // 0 → 1 while the slice is dealt out from the centre on opening.
+                // 0.88 → 1 while the slice opens out from the centre on opening, like a panel's 8 px rise: a short
+                // spread with a fade, not a long throw.
                 property real dealt: 1
+                readonly property real dealFade: (dealt - 0.88) / 0.12
                 visible: near
                 width: chosen ? root.cardWidth : root.sliver(Math.max(1, reach))
                 height: root.cardHeight * (chosen ? 1 : 1 - 0.05 * Math.min(reach, 5))
@@ -397,16 +399,16 @@ FocusScope {
                 y: (gallery.height - height) / 2
                 z: 100 - reach
                 // Solid up close (they darken instead), fading out only at the crate's far ends.
-                opacity: (reach <= 6 ? 1 : Math.max(0, 1 - (reach - 6) * 0.45)) * dealt
+                opacity: (reach <= 6 ? 1 : Math.max(0, 1 - (reach - 6) * 0.45)) * dealFade
                 Behavior on x {
                     enabled: tile.dealt >= 1
-                    NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic }
+                    NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
                 }
                 Behavior on width {
-                    NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic }
+                    NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
                 }
                 Behavior on height {
-                    NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic }
+                    NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
                 }
                 Behavior on opacity {
                     enabled: tile.dealt >= 1
@@ -416,18 +418,19 @@ FocusScope {
                     id: deal
                     target: tile
                     property: "dealt"
-                    from: 0
+                    from: 0.88
                     to: 1
-                    duration: Theme.panelEnter + 160
-                    easing.type: Easing.OutCubic
+                    duration: Theme.panelEnter
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Theme.easeOut
                 }
                 Timer {
                     id: dealDelay
-                    interval: tile.reach * (Theme.lowPower ? 18 : 32)
+                    interval: tile.reach * (Theme.lowPower ? 6 : 12)
                     onTriggered: deal.start()
                 }
                 Component.onCompleted: if (root.dealing && tile.near && !Theme.reduced) {
-                    tile.dealt = 0;
+                    tile.dealt = 0.88;
                     dealDelay.start();
                 }
                 // Leaning like "/": the top slides right, the bottom left, around the middle.
@@ -442,7 +445,7 @@ FocusScope {
                     blur: 56
                     offset.y: 16
                     color: Theme.tint(root.previewAccent, 0.4)
-                    Behavior on color { ColorAnimation { duration: Theme.enter } }
+                    Behavior on color { ColorAnimation { duration: Theme.fast } }
                 }
                 Rectangle {
                     anchors.fill: face
@@ -452,7 +455,7 @@ FocusScope {
                     color: "transparent"
                     border.width: 2
                     border.color: root.previewAccent
-                    Behavior on border.color { ColorAnimation { duration: Theme.enter } }
+                    Behavior on border.color { ColorAnimation { duration: Theme.fast } }
                 }
                 ClippingRectangle {
                     id: face
@@ -477,7 +480,7 @@ FocusScope {
                         cache: true
                         fillMode: Image.PreserveAspectCrop
                         opacity: status === Image.Ready ? 1 : 0
-                        Behavior on opacity { NumberAnimation { duration: Theme.enter } }
+                        Behavior on opacity { NumberAnimation { duration: Theme.fast } }
                         function saveCopy() {
                             const path = tile.modelData.thumbPath;
                             if (copySaved || !path || status !== Image.Ready || source.toString() !== original || width <= 0)
@@ -503,7 +506,7 @@ FocusScope {
                         anchors.fill: parent
                         color: "black"
                         opacity: tile.chosen ? 0 : Math.min(0.6, 0.18 + 0.06 * tile.reach)
-                        Behavior on opacity { NumberAnimation { duration: Theme.enter } }
+                        Behavior on opacity { NumberAnimation { duration: Theme.fast } }
                     }
                     // Applying: the card dims under a note until the new wallpaper is up.
                     Rectangle {
@@ -683,8 +686,8 @@ FocusScope {
             width: root.filtered.length > 1 ? parent.width * root.selected / (root.filtered.length - 1) : parent.width
             color: root.previewAccent
             opacity: root.current ? 0.9 : 0
-            Behavior on width { NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic } }
-            Behavior on color { ColorAnimation { duration: Theme.enter } }
+            Behavior on width { NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut } }
+            Behavior on color { ColorAnimation { duration: Theme.fast } }
         }
     }
     Timer {
