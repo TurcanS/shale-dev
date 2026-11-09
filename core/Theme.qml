@@ -118,10 +118,11 @@ QtObject {
     readonly property string mono: monoFile.status === FontLoader.Ready ? monoFile.name
                                    : installedFonts.indexOf("Adwaita Mono") >= 0 ? "Adwaita Mono" : "monospace"
     readonly property int body: ShellState.setting("fontSize", 14)
-    // Secondary sizes follow the chosen text size so large text scales everywhere.
+    // Secondary sizes follow the chosen text size so large text scales everywhere. Descriptions and subtitles never
+    // go under 12 px, captions under 11, so small text sizes stay readable.
     readonly property int label: Math.max(12, body - 1)
-    readonly property int small: Math.max(11, body - 2)
-    readonly property int caption: Math.max(10, body - 3)
+    readonly property int small: Math.max(12, body - 2)
+    readonly property int caption: Math.max(11, body - 3)
     // In-page titles and headline numbers.
     readonly property int heading: Math.max(20, body + 6)
     readonly property bool reduced: ShellState.setting("reducedMotion", false)

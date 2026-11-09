@@ -81,6 +81,23 @@ PanelWindow {
             y: (1 - host.progress) * Theme.panelRise
         }
     }
+    // With effects trimmed the shadow is gone; a dark ring just outside the hairline keeps the case apart from
+    // bright wallpapers at no cost.
+    Rectangle {
+        x: content.x - 1
+        y: content.y - 1
+        width: content.width * host.zoom + 2
+        height: content.height * host.zoom + 2
+        visible: !content.chromeless && Theme.lowPower && host.visible
+        radius: content.radius * host.zoom + 1
+        color: "transparent"
+        border.width: 1
+        border.color: Qt.rgba(0, 0, 0, 0.55)
+        opacity: host.progress
+        transform: Translate {
+            y: (1 - host.progress) * Theme.panelRise
+        }
+    }
     PanelContent {
         id: content
         panel: host.retainedPanel
