@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import QtQuick.Layouts
-import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
@@ -9,15 +9,17 @@ import "../core"
 import "../core/palette.js" as Palette
 import "../components" as C
 
-// Wallpapers: a large preview with a small mock of the shell and the colours the wallpaper gives it on the left,
-// the thumbnail grid on the right. Draws its own header row (title, source, search, close).
+// Wallpapers, as a crate: no case, just the wallpapers as leaning slices over the desktop, the chosen one large and
+// ringed in the accent it would give the shell, its neighbours narrowing away to each side. A small case above holds
+// the source and search; the transport below steps, shows the name and colours, and applies. Left and Right step,
+// Up and Down jump five, Home and End go to the ends, Enter uses the chosen one, the wheel flips through.
 FocusScope {
     id: root
     readonly property string title: "Wallpapers"
     readonly property bool showHeader: false
-    readonly property int panelWidth: 840
-    readonly property int panelHeight: 500
-    readonly property int columns: 2
+    readonly property bool chromeless: true
+    readonly property int panelWidth: 1440
+    readonly property int panelHeight: 600
     property var entries: []
     readonly property var activeWallpapers: ShellState.activeWallpapers
     property bool localLoading: false
@@ -179,9 +181,6 @@ FocusScope {
             rescaleSize: 64
         }
     }
-    // The grid ends with one action tile: add images to the folder, or load more results.
-    readonly property bool showAction: online ? hasMore : directory !== ""
-    readonly property var gridModel: filtered.concat(showAction ? [{action: true}] : [])
     function move(delta) {
         if (filtered.length && !applying)
             selected = Math.max(0, Math.min(filtered.length - 1, selected + delta));
@@ -217,52 +216,63 @@ FocusScope {
     onSelectedChanged: {
         if (!applying)
             ShellState.wallpaperError = "";
-        grid.positionViewAtIndex(selected, GridView.Contain);
+        // Online results load the next page as the crate nears its end.
+        if (online && hasMore && !onlineLoading && selected >= filtered.length - 4)
+            searchOnline(true);
     }
-    ColumnLayout {
-        anchors.fill: parent
-        spacing: 10
-        // Title, source, search and close.
+    // The crate's shape: the chosen card (16:10) and the slivers beside it, each a little narrower than the last.
+    readonly property real lean: 0.12
+    readonly property int sliceGap: 10
+    readonly property real cardHeight: Math.max(120, Math.min(400, gallery.height - 48))
+    readonly property real cardWidth: Math.round(cardHeight * 1.6)
+    function sliver(n) {
+        return Math.max(30, cardWidth * 0.2 * Math.pow(0.82, n - 1));
+    }
+    // A slice's centre, from the gallery's centre, at a signed distance from the chosen card.
+    function sliceOffset(distance) {
+        const n = Math.abs(distance);
+        if (n === 0)
+            return 0;
+        let x = cardWidth / 2 + sliceGap;
+        for (let i = 1; i < n; i++)
+            x += sliver(i) + sliceGap;
+        x += sliver(n) / 2;
+        return distance < 0 ? -x : x;
+    }
+    // True for a moment after opening: slices made now are dealt out from the centre; later ones just appear.
+    property bool dealing: true
+    Timer {
+        interval: 700
+        running: true
+        onTriggered: root.dealing = false
+    }
+    // Source and search, in a small case above the crate.
+    Rectangle {
+        id: topBar
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        width: topRow.implicitWidth + 16
+        height: 48
+        radius: 18
+        color: Theme.caseColor
+        border.width: 1
+        border.color: Theme.hairline
         RowLayout {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 32
-            spacing: Theme.gapM
-            C.Label {
-                text: root.title
-                font.pixelSize: 17
-                font.weight: 650
-                elide: Text.ElideNone
-                Layout.leftMargin: 2
-            }
+            id: topRow
+            anchors.centerIn: parent
+            spacing: Theme.gapS
             C.Segmented {
                 fill: false
                 segmentHeight: 32
+                trackColor: Theme.module
                 enabled: !root.applying
                 model: [{key: "local", text: "Local", hint: "Your wallpaper folder"}, {key: "wallhaven", text: "Wallhaven"}, {key: "wallpaperscom", text: "Wallpapers.com"}]
                 current: root.sourceMode
                 onActivated: key => root.chooseSource(key)
             }
-            C.Label {
-                visible: root.loading && root.filtered.length > 0
-                text: "Updating…"
-                color: Theme.textDim
-                font.pixelSize: 12
-            }
-            Item {
-                Layout.fillWidth: true
-            }
-            C.Button {
-                glyph: root.online ? "search" : "refresh"
-                flat: true
-                implicitWidth: 32
-                implicitHeight: 32
-                hint: root.online ? "Search " + root.sourceName : "Refresh wallpapers"
-                enabled: !root.applying && !root.loading
-                onClicked: root.online ? root.searchOnline(false) : root.refresh()
-            }
             C.Field {
                 id: search
-                Layout.preferredWidth: 200
+                Layout.preferredWidth: 220
                 implicitHeight: 32
                 leftPadding: 32
                 font.pixelSize: 13
@@ -288,468 +298,357 @@ FocusScope {
                         onlineDebounce.restart();
                     }
                 }
-                Keys.onDownPressed: root.move(root.columns)
-                Keys.onUpPressed: root.move(-root.columns)
+                Keys.onDownPressed: root.move(5)
+                Keys.onUpPressed: root.move(-5)
                 onAccepted: root.online ? root.searchOnline(false) : root.apply()
             }
             C.Button {
-                id: closeKey
+                glyph: root.online ? "search" : "refresh"
+                flat: true
+                implicitWidth: 32
+                implicitHeight: 32
+                hint: root.online ? "Search " + root.sourceName : "Refresh wallpapers"
+                enabled: !root.applying && !root.loading
+                onClicked: root.online ? root.searchOnline(false) : root.refresh()
+            }
+            C.Button {
                 glyph: "close"
+                flat: true
                 implicitWidth: 32
                 implicitHeight: 32
                 hint: "Close · Escape"
                 onClicked: ShellState.close()
-                background: Rectangle {
-                    radius: Theme.radiusKey
-                    color: closeKey.hovered || closeKey.down || closeKey.visualFocus ? Theme.mix(Theme.module, Theme.text, 0.06) : Theme.module
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: Theme.fast
-                        }
-                    }
+            }
+        }
+    }
+    // The crate: one slice per wallpaper, leaning like records in a box. Only the nearest few are drawn.
+    Item {
+        id: gallery
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: topBar.bottom
+        anchors.bottom: transport.top
+        anchors.topMargin: 8
+        anchors.bottomMargin: 8
+        property real wheel: 0
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            onWheel: wheel => {
+                gallery.wheel += wheel.angleDelta.y !== 0 ? wheel.angleDelta.y : -wheel.angleDelta.x;
+                if (Math.abs(gallery.wheel) >= 120) {
+                    root.move(gallery.wheel > 0 ? -1 : 1);
+                    gallery.wheel = 0;
                 }
             }
         }
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            spacing: Theme.gapM
-            // The chosen wallpaper, its details and what to do with it.
-            // A fixed 480 px: a long status line or an empty grid must not let it take the grid's room.
-            ColumnLayout {
-                Layout.preferredWidth: 480
-                Layout.fillWidth: false
-                Layout.fillHeight: true
-                spacing: 10
+        Repeater {
+            model: root.filtered
+            Item {
+                id: tile
+                required property var modelData
+                required property int index
+                readonly property int distance: index - root.selected
+                readonly property int reach: Math.abs(distance)
+                readonly property bool chosen: distance === 0
+                readonly property bool near: reach <= 8
+                readonly property bool inUse: !!modelData.path && modelData.path === root.activePath
+                // 0 → 1 while the slice is dealt out from the centre on opening.
+                property real dealt: 1
+                visible: near
+                width: chosen ? root.cardWidth : root.sliver(Math.max(1, reach))
+                height: root.cardHeight * (chosen ? 1 : 1 - 0.05 * Math.min(reach, 5))
+                x: gallery.width / 2 + root.sliceOffset(distance) * dealt - width / 2
+                y: (gallery.height - height) / 2
+                z: 100 - reach
+                opacity: chosen ? 1 : Math.max(0.3, 1 - 0.09 * reach) * dealt
+                Behavior on x {
+                    enabled: tile.dealt >= 1
+                    NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic }
+                }
+                Behavior on width {
+                    NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic }
+                }
+                Behavior on height {
+                    NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic }
+                }
+                Behavior on opacity {
+                    enabled: tile.dealt >= 1
+                    NumberAnimation { duration: Theme.fast }
+                }
+                NumberAnimation {
+                    id: deal
+                    target: tile
+                    property: "dealt"
+                    from: 0
+                    to: 1
+                    duration: Theme.panelEnter + 160
+                    easing.type: Easing.OutCubic
+                }
+                Timer {
+                    id: dealDelay
+                    interval: tile.reach * (Theme.lowPower ? 18 : 32)
+                    onTriggered: deal.start()
+                }
+                Component.onCompleted: if (root.dealing && tile.near && !Theme.reduced) {
+                    tile.dealt = 0;
+                    dealDelay.start();
+                }
+                // Leaning like "/": the top slides right, the bottom left, around the middle.
+                transform: Matrix4x4 {
+                    matrix: Qt.matrix4x4(1, -root.lean, 0, tile.height * root.lean / 2, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+                }
+                // The chosen card glows in the accent this wallpaper would give the shell.
+                RectangularShadow {
+                    anchors.fill: face
+                    visible: tile.chosen && !Theme.lowPower
+                    radius: face.radius
+                    blur: 56
+                    offset.y: 16
+                    color: Theme.tint(root.previewAccent, 0.4)
+                    Behavior on color { ColorAnimation { duration: Theme.enter } }
+                }
+                Rectangle {
+                    anchors.fill: face
+                    anchors.margins: -4
+                    visible: tile.chosen
+                    radius: face.radius + 4
+                    color: "transparent"
+                    border.width: 2
+                    border.color: root.previewAccent
+                    Behavior on border.color { ColorAnimation { duration: Theme.enter } }
+                }
                 ClippingRectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 270
-                    radius: Theme.radiusModule
+                    id: face
+                    anchors.fill: parent
+                    radius: tile.chosen ? 16 : 10
                     color: Theme.module
                     Image {
-                        id: preview
-                        anchors.fill: parent
-                        source: root.current ? root.current.thumb || root.current.url || "" : ""
+                        id: thumbnail
+                        // A local wallpaper's small copy once it exists (see wallpaper.catalog). The first time,
+                        // the original is decoded and the result saved as that copy, so later opens skip the decode.
+                        property bool copyBroken: false
+                        property bool copySaved: false
+                        readonly property string original: tile.modelData.url
+                        // Slivers show a strip from the middle of the picture, at the chosen card's size.
+                        anchors.centerIn: parent
+                        width: root.cardWidth
+                        height: parent.height
+                        source: !tile.near ? "" : tile.modelData.thumb && !copyBroken ? tile.modelData.thumb : original
                         asynchronous: true
-                        sourceSize.width: 960
+                        sourceSize.width: 760
+                        sourceSize.height: 480
+                        cache: true
                         fillMode: Image.PreserveAspectCrop
                         opacity: status === Image.Ready ? 1 : 0
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: Theme.fast
-                            }
+                        Behavior on opacity { NumberAnimation { duration: Theme.enter } }
+                        function saveCopy() {
+                            const path = tile.modelData.thumbPath;
+                            if (copySaved || !path || status !== Image.Ready || source.toString() !== original || width <= 0)
+                                return;
+                            copySaved = grabToImage(result => result.saveToFile(path), Qt.size(760, Math.round(760 * height / width)));
                         }
-                    }
-                    // A small mock of the shell over the picture: the bar and a panel lit with the accent it gives.
-                    Item {
-                        anchors.fill: parent
-                        visible: preview.status === Image.Ready
-                        Rectangle {
-                            x: 10
-                            y: 8
-                            width: parent.width - 20
-                            height: 12
-                            radius: 5
-                            color: Theme.tint(Theme.caseColor, 0.85)
-                        }
-                        Rectangle {
-                            anchors.right: parent.right
-                            anchors.rightMargin: 12
-                            y: 28
-                            width: 92
-                            height: 120
-                            radius: 8
-                            color: Theme.tint(Theme.caseColor, 0.9)
-                            Rectangle {
-                                x: 8
-                                y: 8
-                                width: parent.width - 16
-                                height: 18
-                                radius: 4
-                                color: Theme.tint(root.previewAccent, 0.25)
-                            }
-                            Rectangle {
-                                x: 8
-                                y: 34
-                                width: parent.width - 38
-                                height: 4
-                                radius: 2
-                                color: root.previewAccent
-                            }
-                        }
-                        C.Label {
-                            x: 12
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: 10
-                            width: parent.width - 130
-                            text: root.current ? root.current.name : ""
-                            color: Theme.tint(Theme.text, 0.8)
-                            font.pixelSize: 12
+                        onStatusChanged: {
+                            if (status === Image.Error && tile.modelData.thumb && !copyBroken)
+                                copyBroken = true;
+                            else
+                                saveCopy();
                         }
                     }
                     C.Icon {
                         anchors.centerIn: parent
-                        visible: !!root.current && preview.status !== Image.Ready
+                        visible: thumbnail.status !== Image.Ready
                         name: "palette"
-                        size: 32
+                        size: tile.chosen ? 32 : 16
                         color: Theme.textFaint
                     }
-                    C.EmptyState {
-                        visible: !root.current
-                        anchors.centerIn: parent
-                        width: parent.width - 60
-                        glyph: "palette"
-                        title: root.loading ? "Finding wallpapers…" : root.error && root.online ? "Could not load wallpapers" : search.text ? "No matches" : "Your collection starts here"
-                        description: root.loading ? (root.online ? root.sourceName : "Local collection") : root.error && root.online ? "" : search.text ? "No wallpapers match “" + search.text + "”" : root.online ? root.sourceName : (root.directory || "~/Pictures/Wallpapers")
+                    // Slivers sink back the further they are from the chosen card.
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "black"
+                        opacity: tile.chosen ? 0 : Math.min(0.6, 0.18 + 0.06 * tile.reach)
+                        Behavior on opacity { NumberAnimation { duration: Theme.enter } }
                     }
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Layout.minimumWidth: 0
-                        spacing: 0
+                    // Applying: the card dims under a note until the new wallpaper is up.
+                    Rectangle {
+                        anchors.fill: parent
+                        visible: tile.chosen && root.applying
+                        color: Qt.rgba(0, 0, 0, 0.45)
                         C.Label {
-                            text: root.current ? root.current.name : "No wallpaper selected"
-                            font.pixelSize: 16
-                            font.weight: 650
-                            Layout.fillWidth: true
+                            anchors.centerIn: parent
+                            text: ShellState.wallpaperDownloading ? "Saving…" : "Applying…"
+                            font.pixelSize: 15
+                            font.weight: Font.DemiBold
                         }
+                    }
+                    Rectangle {
+                        visible: tile.inUse && tile.chosen
+                        x: 16
+                        y: 14
+                        implicitWidth: inUseLabel.implicitWidth + 16
+                        implicitHeight: 22
+                        radius: 11
+                        color: Theme.tint(Theme.caseColor, 0.85)
                         C.Label {
-                            text: {
-                                if (!root.current)
-                                    return root.online ? root.sourceName : "Local collection";
-                                const parts = root.online ? [root.current.resolution, root.current.path ? "Saved locally" : root.sourceName] : [root.current.file];
-                                return parts.concat([(root.selected + 1) + " of " + root.filtered.length]).filter(part => !!part).join(" · ");
-                            }
-                            color: Theme.textDim
+                            id: inUseLabel
+                            anchors.centerIn: parent
+                            text: "In use"
                             font.pixelSize: 12
-                            font.features: ({"tnum": 1})
-                            Layout.fillWidth: true
-                        }
-                    }
-                    Repeater {
-                        model: root.currentSwatches
-                        Rectangle {
-                            required property var modelData
-                            implicitWidth: 26
-                            implicitHeight: 26
-                            radius: 8
-                            color: modelData.color
-                            border.width: 1
-                            border.color: Qt.rgba(1, 1, 1, 0.1)
-                            Accessible.role: Accessible.StaticText
-                            Accessible.name: modelData.role + " " + Palette.hex(modelData.color)
+                            font.weight: Font.DemiBold
                         }
                     }
                 }
-                RowLayout {
+                // The wallpaper in use, among the slivers: a lit dot at the foot of its slice.
+                Rectangle {
+                    visible: tile.inUse && !tile.chosen
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 10
+                    width: 8
+                    height: 8
+                    radius: 4
+                    color: Theme.accent
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: !root.applying
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: { root.selected = tile.index; root.forceActiveFocus(); }
+                    onDoubleClicked: { root.selected = tile.index; root.apply(); }
+                }
+                Accessible.role: Accessible.Button
+                Accessible.name: tile.modelData.name + (tile.inUse ? ", in use" : "")
+            }
+        }
+        C.EmptyState {
+            visible: !root.current
+            anchors.centerIn: parent
+            width: Math.min(420, parent.width - 60)
+            glyph: "palette"
+            title: root.loading ? "Finding wallpapers…" : root.error && root.online ? "Could not load wallpapers" : search.text ? "No matches" : "Your collection starts here"
+            description: root.loading ? (root.online ? root.sourceName : "Local collection") : root.error && root.online ? "" : search.text ? "No wallpapers match “" + search.text + "”" : root.online ? root.sourceName : (root.directory || "~/Pictures/Wallpapers")
+        }
+    }
+    // The transport: step, the chosen wallpaper and its colours, use it. A line along the foot shows where you are
+    // in the crate, lit in the colour the wallpaper gives.
+    Rectangle {
+        id: transport
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        width: Math.min(parent.width, 820)
+        height: 64
+        radius: 22
+        color: Theme.caseColor
+        border.width: 1
+        border.color: Theme.hairline
+        clip: true
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: 10
+            anchors.rightMargin: 10
+            spacing: 10
+            C.Button {
+                glyph: "back"
+                implicitWidth: 44
+                implicitHeight: 44
+                hint: "Previous · Left"
+                enabled: root.selected > 0 && !root.applying
+                onClicked: root.move(-1)
+            }
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
+                spacing: 0
+                C.Label {
+                    text: root.current ? root.current.name : root.online ? root.sourceName : "Wallpapers"
+                    font.pixelSize: 15
+                    font.weight: 650
                     Layout.fillWidth: true
-                    spacing: Theme.gapS
-                    C.Button {
-                        visible: !root.online
-                        text: "Open folder"
-                        glyph: "folder"
-                        implicitHeight: 34
-                        enabled: root.directory !== ""
-                        hint: root.directory
-                        onClicked: ShellState.openPath(root.directory)
-                    }
-                    C.Button {
-                        visible: root.sourceMode === "wallpaperscom"
-                        text: "Wallpapers.com ↗"
-                        flat: true
-                        implicitHeight: 34
-                        onClicked: ShellState.openUrl(root.current && root.current.creditUrl ? root.current.creditUrl : "https://wallpapers.com/")
-                    }
-                    C.Button {
-                        visible: root.online && root.error !== ""
-                        text: "Local"
-                        flat: true
-                        implicitHeight: 34
-                        hint: "Your wallpaper folder"
-                        enabled: !root.applying
-                        onClicked: root.chooseSource("local")
-                    }
-                    C.Button {
-                        visible: root.online && root.error !== ""
-                        text: "Retry"
-                        flat: true
-                        implicitHeight: 34
-                        enabled: !root.onlineLoading && !root.applying
-                        onClicked: root.searchOnline(false)
-                    }
-                    Item {
-                        Layout.fillWidth: true
-                    }
-                    C.Button {
-                        text: ShellState.wallpaperDownloading ? "Saving…" : ShellState.wallpaperBusy ? "Applying…" : root.isCurrent ? "In use" : root.current && root.current.remote && !root.current.path ? "Save and use" : "Use wallpaper"
-                        accent: !!root.current && !root.isCurrent
-                        implicitHeight: 34
-                        labelSize: 13
-                        enabled: !!root.current && !root.isCurrent && !root.applying
-                        hint: "Enter"
-                        onClicked: root.apply()
-                    }
                 }
                 C.Label {
-                    visible: text !== ""
-                    text: ShellState.wallpaperError || root.error || (!root.online && root.listedCount > 0 ? "Showing the first " + root.listedCount + " wallpapers" : "")
+                    readonly property string problem: ShellState.wallpaperError || root.error
+                    text: {
+                        if (problem)
+                            return problem;
+                        if (!root.current)
+                            return root.online ? root.sourceName : "Local collection";
+                        const parts = root.online ? [root.current.resolution, root.current.path ? "Saved locally" : root.sourceName] : [root.current.file];
+                        const where = (root.selected + 1) + " of " + root.filtered.length + (root.loading ? " · updating…" : "");
+                        const note = !root.online && root.listedCount > 0 ? "the first " + root.listedCount + " shown" : "";
+                        return parts.concat([where, note]).filter(part => !!part).join(" · ");
+                    }
                     color: ShellState.wallpaperError ? Theme.dangerText : root.error ? Theme.warning : Theme.textDim
                     font.pixelSize: 12
-                    wrapMode: Text.WordWrap
+                    font.features: ({"tnum": 1})
                     Layout.fillWidth: true
                 }
-                Item {
-                    Layout.fillHeight: true
+            }
+            Repeater {
+                model: root.currentSwatches
+                Rectangle {
+                    required property var modelData
+                    implicitWidth: 14
+                    implicitHeight: 14
+                    radius: 7
+                    color: modelData.color
+                    border.width: 1
+                    border.color: Qt.rgba(1, 1, 1, 0.12)
+                    Accessible.role: Accessible.StaticText
+                    Accessible.name: modelData.role + " " + Palette.hex(modelData.color)
                 }
             }
-            // Tiles keep 4 px to each side, so neighbours sit 8 px apart and the selection ring has room.
-            Item {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.topMargin: -4
-                Layout.leftMargin: -4
-                Layout.rightMargin: -4
-    GridView {
-                    id: grid
-                    anchors.fill: parent
-                    clip: true
-                    cellWidth: width / root.columns
-                    cellHeight: 104
-                    boundsBehavior: Flickable.StopAtBounds
-                    model: root.gridModel
-                    ScrollBar.vertical: C.ScrollBar {}
-                    // Only local wallpapers have their colours read, so only they get dots.
-                    footer: C.Label {
-                        visible: !root.online
-                        width: grid.width
-                        height: visible ? implicitHeight : 0
-                        topPadding: 6
-                        leftPadding: 6
-                        rightPadding: 6
-                        bottomPadding: 6
-                        text: ShellState.setting("accentFromWallpaper", false)
-                              ? "Each wallpaper gives the shell its accent colour and a second colour for charts. The dots are what you get."
-                              : "The dots are the accent each wallpaper would give the shell. Pick From wallpaper in Settings → Appearance to use it."
-                        color: Theme.textDim
-                        font.pixelSize: 12
-                        lineHeight: 1.25
-                        wrapMode: Text.WordWrap
-                    }
-                    delegate: Item {
-                        id: tile
-                        required property var modelData
-                        required property int index
-                        readonly property bool action: !!modelData.action
-                        readonly property bool chosen: !action && index === root.selected
-                        readonly property bool inUse: !action && !!modelData.path && modelData.path === root.activePath
-                        // Set once this tile saved its small copy, so its colours can be read without the original.
-                        property string savedCopy: ""
-                        width: grid.cellWidth
-                        height: grid.cellHeight
-                        // The ring sits just outside the tile.
-                        Rectangle {
-                            anchors.fill: face
-                            anchors.margins: -2
-                            visible: tile.chosen
-                            radius: Theme.radiusCard + 2
-                            color: "transparent"
-                            border.width: 2
-                            border.color: Theme.accent
-                        }
-                        ClippingRectangle {
-                            id: face
-                            visible: !tile.action
-                            anchors.fill: parent
-                            anchors.margins: 4
-                            radius: Theme.radiusCard
-                            color: Theme.module
-                            Image {
-                                id: thumbnail
-                                // A local wallpaper's small copy once it exists (see wallpaper.catalog). The first time,
-                                // the original is decoded and the result saved as that copy, so later opens skip the decode.
-                                property bool copyBroken: false
-                                property bool copySaved: false
-                                readonly property string original: tile.action ? "" : tile.modelData.url
-                                anchors.fill: parent
-                                source: tile.action ? "" : tile.modelData.thumb && !copyBroken ? tile.modelData.thumb : original
-                                asynchronous: true
-                                sourceSize.width: 760
-                                sourceSize.height: 480
-                                cache: true
-                                fillMode: Image.PreserveAspectCrop
-                                opacity: status === Image.Ready ? 1 : 0
-                                Behavior on opacity { NumberAnimation { duration: Theme.enter } }
-                                function saveCopy() {
-                                    const path = tile.modelData.thumbPath;
-                                    if (copySaved || !path || status !== Image.Ready || source.toString() !== original || width <= 0)
-                                        return;
-                                    copySaved = grabToImage(result => {
-                                        if (result.saveToFile(path))
-                                            tile.savedCopy = "file://" + path.split("/").map(encodeURIComponent).join("/");
-                                    }, Qt.size(760, Math.round(760 * height / width)));
-                                }
-                                onStatusChanged: {
-                                    if (status === Image.Error && tile.modelData.thumb && !copyBroken)
-                                        copyBroken = true;
-                                    else
-                                        saveCopy();
-                                }
-                            }
-                            C.Icon {
-                                anchors.centerIn: parent
-                                name: "palette"
-                                size: 22
-                                color: Theme.textFaint
-                                visible: thumbnail.status !== Image.Ready
-                            }
-                            // Keeps the name readable over bright pictures.
-                            Rectangle {
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.bottom: parent.bottom
-                                height: 34
-                                gradient: Gradient {
-                                    GradientStop { position: 0; color: "transparent" }
-                                    GradientStop { position: 1; color: Qt.rgba(0, 0, 0, 0.45) }
-                                }
-                            }
-                            Row {
-                                x: 8
-                                anchors.bottom: parent.bottom
-                                anchors.bottomMargin: 6
-                                width: parent.width - 16
-                                spacing: 6
-                                Rectangle {
-                                    id: dot
-                                    readonly property string accent: tileColors.item ? Palette.accentFrom(tileColors.item.colors) : ""
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    visible: accent !== ""
-                                    width: 8
-                                    height: 8
-                                    radius: 4
-                                    color: accent !== "" ? accent : Theme.accent
-                                }
-                                C.Label {
-                                    width: parent.width - (dot.visible ? 14 : 0)
-                                    text: tile.action ? "" : tile.modelData.name
-                                    font.pixelSize: 12
-                                    font.weight: Font.DemiBold
-                                    style: Text.Raised
-                                    styleColor: Qt.rgba(0, 0, 0, 0.35)
-                                }
-                            }
-                            Rectangle {
-                                visible: tile.inUse
-                                anchors.right: parent.right
-                                anchors.top: parent.top
-                                anchors.margins: 6
-                                implicitWidth: inUseLabel.implicitWidth + 14
-                                implicitHeight: 18
-                                radius: 6
-                                color: Theme.tint(Theme.caseColor, 0.85)
-                                C.Label {
-                                    id: inUseLabel
-                                    anchors.centerIn: parent
-                                    text: "In use"
-                                    font.pixelSize: 11
-                                    font.weight: Font.DemiBold
-                                }
-                            }
-                            // Colours are read once the tile has stayed a moment: the grid makes and drops tiles while it
-                            // scrolls to the wallpaper in use, and a loader dropped half-way warns of an invalid context.
-                            Timer {
-                                interval: 80
-                                running: true
-                                onTriggered: tileColors.settled = true
-                            }
-                            LazyLoader {
-                                id: tileColors
-                                property bool settled: false
-                                readonly property string image: tile.action ? "" : tile.modelData.thumb || tile.savedCopy
-                                active: settled && image !== ""
-                                ColorQuantizer {
-                                    source: tileColors.image
-                                    depth: 3
-                                    rescaleSize: 32
-                                }
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                enabled: !root.applying
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: { root.selected = tile.index; root.forceActiveFocus(); }
-                                onDoubleClicked: { root.selected = tile.index; root.apply(); }
-                            }
-                            Accessible.role: Accessible.Button
-                            Accessible.name: tile.action ? "" : tile.modelData.name + (tile.inUse ? ", in use" : "")
-                        }
-                        // The last tile: add images to the folder, or fetch the next page of results.
-                        C.Button {
-                            id: actionTile
-                            visible: tile.action
-                            anchors.fill: parent
-                            anchors.margins: 4
-                            flat: true
-                            cornerRadius: Theme.radiusCard
-                            enabled: root.online ? !root.onlineLoading && !root.applying : root.directory !== ""
-                            text: root.online ? (root.onlineLoading ? "Loading…" : "Load more") : "Add wallpapers"
-                            hint: root.online ? "" : "Open " + root.directory + " and add images to it"
-                            onClicked: root.online ? root.searchOnline(true) : ShellState.openPath(root.directory)
-                            contentItem: ColumnLayout {
-                                spacing: 6
-                                C.Icon {
-                                    name: root.online ? "chevron" : "plus"
-                                    size: 18
-                                    color: actionTile.hovered || actionTile.visualFocus ? Theme.text : Theme.textMuted
-                                    Layout.alignment: Qt.AlignHCenter
-                                }
-                                C.Label {
-                                    text: actionTile.text
-                                    color: actionTile.hovered || actionTile.visualFocus ? Theme.text : Theme.textMuted
-                                    font.pixelSize: 12
-                                    font.weight: Font.DemiBold
-                                    Layout.alignment: Qt.AlignHCenter
-                                }
-                            }
-                            // A dashed edge, drawn as a path: rectangles only draw solid borders.
-                            Shape {
-                                anchors.fill: parent
-                                z: -1
-                                preferredRendererType: Shape.CurveRenderer
-                                ShapePath {
-                                    id: dash
-                                    readonly property real r: Theme.radiusCard
-                                    readonly property real w: actionTile.width - 1.5
-                                    readonly property real h: actionTile.height - 1.5
-                                    strokeColor: Theme.mix(Theme.caseColor, Theme.text, 0.18)
-                                    strokeWidth: 1.5
-                                    strokeStyle: ShapePath.DashLine
-                                    dashPattern: [3, 2]
-                                    fillColor: "transparent"
-                                    PathSvg {
-                                        path: {
-                                            const p = dash, o = 0.75;
-                                            return "M " + (o + p.r) + " " + o + " H " + (o + p.w - p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + (o + p.w) + " " + (o + p.r)
-                                                 + " V " + (o + p.h - p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + (o + p.w - p.r) + " " + (o + p.h)
-                                                 + " H " + (o + p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + o + " " + (o + p.h - p.r)
-                                                 + " V " + (o + p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + (o + p.r) + " " + o + " Z";
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                C.EdgeFade {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.bottom: parent.bottom
-                    flickable: grid
-                }
+            C.Button {
+                visible: !root.online
+                glyph: "folder"
+                flat: true
+                implicitWidth: 36
+                implicitHeight: 36
+                enabled: root.directory !== ""
+                hint: "Add wallpapers: open " + root.directory
+                onClicked: ShellState.openPath(root.directory)
             }
+            C.Button {
+                visible: root.sourceMode === "wallpaperscom"
+                text: "Wallpapers.com ↗"
+                flat: true
+                implicitHeight: 36
+                onClicked: ShellState.openUrl(root.current && root.current.creditUrl ? root.current.creditUrl : "https://wallpapers.com/")
+            }
+            C.Button {
+                visible: root.online && root.error !== ""
+                text: "Retry"
+                flat: true
+                implicitHeight: 36
+                enabled: !root.onlineLoading && !root.applying
+                onClicked: root.searchOnline(false)
+            }
+            C.Button {
+                text: ShellState.wallpaperDownloading ? "Saving…" : ShellState.wallpaperBusy ? "Applying…" : root.isCurrent ? "In use" : root.current && root.current.remote && !root.current.path ? "Save and use" : "Use"
+                accent: !!root.current && !root.isCurrent
+                implicitHeight: 40
+                labelSize: 13
+                enabled: !!root.current && !root.isCurrent && !root.applying
+                hint: "Enter"
+                onClicked: root.apply()
+            }
+            C.Button {
+                glyph: "chevron"
+                implicitWidth: 44
+                implicitHeight: 44
+                hint: "Next · Right"
+                enabled: root.selected < root.filtered.length - 1 && !root.applying
+                onClicked: root.move(1)
+            }
+        }
+        Rectangle {
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            height: 2
+            width: root.filtered.length > 1 ? parent.width * root.selected / (root.filtered.length - 1) : parent.width
+            color: root.previewAccent
+            opacity: root.current ? 0.9 : 0
+            Behavior on width { NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic } }
+            Behavior on color { ColorAnimation { duration: Theme.enter } }
         }
     }
     Timer {
@@ -759,7 +658,16 @@ FocusScope {
     }
     Keys.onLeftPressed: move(-1)
     Keys.onRightPressed: move(1)
-    Keys.onUpPressed: move(-columns)
-    Keys.onDownPressed: move(columns)
+    Keys.onUpPressed: move(-5)
+    Keys.onDownPressed: move(5)
+    Keys.onPressed: event => {
+        if (event.key === Qt.Key_Home)
+            selected = 0;
+        else if (event.key === Qt.Key_End)
+            selected = Math.max(0, filtered.length - 1);
+        else
+            return;
+        event.accepted = true;
+    }
     Keys.onReturnPressed: apply()
 }
