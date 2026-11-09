@@ -8,6 +8,7 @@ import "../services"
 import "../components" as C
 import "../core/paths.js" as Paths
 import "../core/search.js" as Search
+import "../core/parts.js" as Parts
 
 // Find: one field for apps, open windows, actions, sums and conversions, timers, lines for the desktop note, and the
 // prefixed searches (: emoji, / files, ? web, > commands). Results come in groups; chips narrow everything to one kind.
@@ -126,7 +127,7 @@ FocusScope {
             items.forEach((item, index) => rows.push(Object.assign(item, {header: index === 0 ? title : ""})));
         return rows;
     }
-    // "timer 10m tea", "focus 40" and "note buy filters" become one row each, above everything else.
+    // "timer 10m tea", "focus 40", "layout evening" and "note buy filters" become one row each, above everything else.
     readonly property var commandResults: {
         if (mode !== "apps")
             return [];
@@ -138,6 +139,17 @@ FocusScope {
         if (minutes)
             return [{kind: "focus", key: "focus", name: "Focus for " + minutes + " min", subtitle: "Holds notifications, then sums them up",
                      fallback: "focus", minutes: minutes}];
+        const layoutName = Search.layoutQuery(query);
+        if (layoutName !== null) {
+            const key = Parts.layoutNamed(layoutName);
+            const saved = Parts.clean(ShellState.setting("widgetSaved", []));
+            const layout = Parts.layouts.find(item => item.id === key);
+            const cards = key === "mine" ? saved : layout ? layout.cards : [];
+            if (cards.length)
+                return [{kind: "layout", key: "layout", name: "Use the " + (layout ? layout.title : "Mine") + " layout",
+                         subtitle: cards.map(id => Parts.find(id).title).join(", ") + (ShellState.setting("widgets", false) ? "" : " · turns widgets on"),
+                         fallback: "widgets", cards: cards}];
+        }
         const line = Search.noteQuery(query);
         if (line)
             return [{kind: "note", key: "note", name: line, fallback: "note", text: line,
@@ -352,6 +364,10 @@ FocusScope {
             Focus.addTimer(item.seconds, item.label);
         } else if (item.kind === "focus") {
             Focus.start(item.minutes);
+        } else if (item.kind === "layout") {
+            ShellState.setSetting("widgetCards", item.cards);
+            if (!ShellState.setting("widgets", false))
+                ShellState.setSetting("widgets", true);
         } else if (item.kind === "note") {
             Note.add(item.text, () => ShellState.message("Added to the note", "success"));
         } else if (item.kind === "run") {

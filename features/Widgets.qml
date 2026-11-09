@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Wayland
 import "../core"
 import "../services"
+import "../core/parts.js" as Parts
 
 // Desktop widgets on one output: cards on the bottom layer, under every window, in the corner Settings → Desktop
 // picks and in its order. The surface never takes the keyboard, and only the cards take the pointer. It is unmapped
@@ -11,8 +12,8 @@ import "../services"
 PanelWindow {
     id: root
     required property string outputName
-    readonly property var widths: ({clock: 250, sky: 290, note: 260, system: 200})
-    readonly property var cards: ShellState.setting("widgetCards", ["clock", "sky", "note", "system"]).filter(card => root.widths[card] !== undefined)
+    // The shown parts, in order (core/parts.js lists them, with their card files and widths).
+    readonly property var cards: Parts.clean(ShellState.setting("widgetCards", Parts.defaults))
     readonly property string corner: ShellState.setting("widgetCorner", "bottom-left")
     readonly property bool atTop: corner.startsWith("top")
     readonly property bool atLeft: corner.endsWith("left")
@@ -24,18 +25,12 @@ PanelWindow {
     readonly property int edge: 24
     readonly property int gap: 12
     readonly property int room: 64
-    readonly property int rowWidth: cards.reduce((sum, card) => sum + widths[card], 0) + Math.max(0, cards.length - 1) * gap
-    function offset(card) {
+    readonly property int rowWidth: cards.reduce((sum, card) => sum + Parts.find(card).width, 0) + Math.max(0, cards.length - 1) * gap
+    function offset(index) {
         let x = 0;
-        for (const other of cards) {
-            if (other === card)
-                return x;
-            x += widths[other] + gap;
-        }
-        return 0;
-    }
-    function shown(card) {
-        return cards.indexOf(card) >= 0;
+        for (let i = 0; i < index; i++)
+            x += Parts.find(cards[i]).width + gap;
+        return x;
     }
     visible: showing
     anchors {
@@ -53,12 +48,14 @@ PanelWindow {
     WlrLayershell.namespace: "shale-widgets"
     WlrLayershell.layer: WlrLayer.Bottom
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-    // Clicks between and around the cards reach the desktop.
+    // Clicks between and around the cards reach the desktop: one region per card, up to the six a desktop holds.
     mask: Region {
-        Region { item: clockCard.visible ? clockCard : null }
-        Region { item: skyCard.visible ? skyCard : null }
-        Region { item: noteCard.visible ? noteCard : null }
-        Region { item: systemCard.visible ? systemCard : null }
+        Region { item: cardRow.count > 0 ? cardRow.itemAt(0) : null }
+        Region { item: cardRow.count > 1 ? cardRow.itemAt(1) : null }
+        Region { item: cardRow.count > 2 ? cardRow.itemAt(2) : null }
+        Region { item: cardRow.count > 3 ? cardRow.itemAt(3) : null }
+        Region { item: cardRow.count > 4 ? cardRow.itemAt(4) : null }
+        Region { item: cardRow.count > 5 ? cardRow.itemAt(5) : null }
     }
     // Minutes are enough for every card; the clock stops with the surface.
     SystemClock {
@@ -70,40 +67,30 @@ PanelWindow {
     // corner changes.
     readonly property int rowX: atLeft ? edge : room
     readonly property int rowY: atTop ? edge : room
-    WidgetsClock {
-        id: clockCard
-        visible: root.shown("clock")
-        x: root.rowX + root.offset("clock")
-        y: root.rowY
-        width: root.widths.clock
-        outputName: root.outputName
-        now: clock.date
-    }
-    WidgetsSky {
-        id: skyCard
-        visible: root.shown("sky")
-        x: root.rowX + root.offset("sky")
-        y: root.rowY
-        width: root.widths.sky
-        outputName: root.outputName
-        now: clock.date
-        live: root.showing && visible
-    }
-    WidgetsNote {
-        id: noteCard
-        visible: root.shown("note")
-        x: root.rowX + root.offset("note")
-        y: root.rowY
-        width: root.widths.note
-        outputName: root.outputName
-    }
-    WidgetsSystem {
-        id: systemCard
-        visible: root.shown("system")
-        x: root.rowX + root.offset("system")
-        y: root.rowY
-        width: root.widths.system
-        outputName: root.outputName
-        live: root.showing && visible
+    // Each part's card, loaded from its file. Cards take what they use of outputName, now (the minute clock) and
+    // live (on screen, so samplers and tickers run).
+    Repeater {
+        id: cardRow
+        model: root.cards
+        Loader {
+            id: part
+            required property string modelData
+            required property int index
+            readonly property var spec: Parts.find(modelData)
+            x: root.rowX + root.offset(index)
+            y: root.rowY
+            width: spec.width
+            height: 214
+            source: spec.source
+            onLoaded: {
+                const card = item as WidgetsCard;
+                card.width = Qt.binding(() => part.width);
+                card.outputName = Qt.binding(() => root.outputName);
+                if ("now" in item)
+                    item.now = Qt.binding(() => clock.date);
+                if ("live" in item)
+                    item.live = Qt.binding(() => root.showing);
+            }
+        }
     }
 }

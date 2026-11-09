@@ -2,20 +2,19 @@ import QtQuick
 import QtQuick.Layouts
 import "../core"
 import "../components" as C
+import "../core/parts.js" as Parts
 
 // Settings → Desktop: the widget cards under your windows, which of them show (up to six), their order and the corner
 // they sit in. Off until turned on here.
 ColumnLayout {
     id: root
     spacing: 8
-    readonly property var cards: [
-        {id: "clock", title: "Clock", icon: "clock", description: "The date, the time and how much of the day has gone"},
-        {id: "sky", title: "Sky", icon: "cloud-sun", description: "The weather and the sun's path for the city in Clock and sky"},
-        {id: "note", title: "Note", icon: "note", description: "One running note; type note and a line in Find to add to it"},
-        {id: "system", title: "System", icon: "gauge", description: "Processor, memory and temperature, every few seconds"}
-    ]
-    readonly property int maxCards: 6
-    readonly property var shownCards: ShellState.setting("widgetCards", ["clock", "sky", "note", "system"]).filter(id => root.cards.some(card => card.id === id))
+    readonly property var cards: Parts.parts
+    readonly property int maxCards: Parts.maximum
+    readonly property var shownCards: Parts.clean(ShellState.setting("widgetCards", Parts.defaults))
+    // The set saved as Mine, and the layout the shown cards make ("" when they match none).
+    readonly property var savedCards: Parts.clean(ShellState.setting("widgetSaved", []))
+    readonly property string layout: Parts.layoutOf(shownCards, savedCards)
     // The shown cards in their order, then the hidden ones in their usual order.
     readonly property var entries: shownCards.map(id => ({id: id, shown: true}))
         .concat(cards.filter(card => shownCards.indexOf(card.id) < 0).map(card => ({id: card.id, shown: false})))
@@ -33,9 +32,16 @@ ColumnLayout {
         list.splice(to, 0, id);
         save(list);
     }
-    // Shown again, a card goes to the end of the row.
+    // Shown again, a card goes to the end of the row; a full row takes no more.
     function toggle(id) {
-        save(shownCards.indexOf(id) >= 0 ? shownCards.filter(other => other !== id) : shownCards.concat([id]));
+        if (shownCards.indexOf(id) >= 0)
+            save(shownCards.filter(other => other !== id));
+        else if (shownCards.length < maxCards)
+            save(shownCards.concat([id]));
+    }
+    function useLayout(key) {
+        const layout = Parts.layouts.find(item => item.id === key);
+        save(key === "mine" ? savedCards : layout ? layout.cards : shownCards);
     }
     C.Group {
         C.Toggle {
@@ -54,6 +60,33 @@ ColumnLayout {
                     {key: "bottom-left", text: "Bottom left"}, {key: "bottom-right", text: "Bottom right"}]
             current: ShellState.setting("widgetCorner", "bottom-left")
             onActivated: key => ShellState.setSetting("widgetCorner", key)
+        }
+    }
+    C.SectionHeader {
+        text: "Layouts"
+        Layout.topMargin: 2
+    }
+    // Ready-made sets of cards, and your own. Find switches them too: layout evening.
+    C.Group {
+        C.ChoiceRow {
+            label: "Layout"
+            description: root.layout === "" ? "Your cards match no layout; save them as Mine to keep them"
+                : root.layout === "mine" ? "Your saved set" : Parts.layouts.find(item => item.id === root.layout).description
+            stacked: true
+            model: Parts.layouts.map(item => ({key: item.id, text: item.title}))
+                .concat(root.savedCards.length ? [{key: "mine", text: "Mine"}] : [])
+            current: root.layout
+            onActivated: key => root.useLayout(key)
+        }
+        C.SettingRow {
+            label: "Mine"
+            description: root.savedCards.length ? root.savedCards.map(id => Parts.find(id).title).join(", ") : "Nothing saved yet"
+            C.Button {
+                text: root.layout === "mine" ? "Saved" : "Save these cards"
+                enabled: root.shownCards.length > 0 && root.layout !== "mine"
+                implicitHeight: 32
+                onClicked: ShellState.setSetting("widgetSaved", root.shownCards)
+            }
         }
     }
     C.SectionHeader {

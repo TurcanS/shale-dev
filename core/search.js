@@ -189,6 +189,13 @@ function noteQuery(text) {
     return match ? match[1].replace(/\s+/g, " ").slice(0, 200) : null;
 }
 
+// "layout evening" → "evening", a desktop layout to switch to (core/parts.js resolves the name); null for anything
+// else.
+function layoutQuery(text) {
+    const match = /^\s*layout\s+(\S.*?)\s*$/i.exec(String(text || ""));
+    return match ? match[1] : null;
+}
+
 // Things the launcher can do besides opening apps. Session actions that end the session open the session
 // menu, whose hold-to-confirm buttons stay the only way to log out, restart or shut down.
 var ACTIONS = [

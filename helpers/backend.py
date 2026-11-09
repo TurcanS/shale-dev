@@ -63,7 +63,7 @@ DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
             "weatherLocation": {}, "weatherUnits": "metric", "updateCheck": True, "emojiUsage": {}, "searchEngine": "duckduckgo", "lockScreen": "builtin", "lockStyle": "particles", "bluetoothAutoConnect": [],
             "recordAudio": "none", "activityTracking": "ask", "systemWindow": 60,
             "focusMinutes": 25, "focusSession": {}, "timers": [], "runHistory": [],
-            "widgets": False, "widgetCards": ["clock", "sky", "note", "system"], "widgetCorner": "bottom-left",
+            "widgets": False, "widgetCards": ["clock", "sky", "note", "system"], "widgetSaved": [], "widgetCorner": "bottom-left",
             "barLayout": {}, "controlLayout": {}, "clockFormat": "date-time", "clockSeconds": False, "workspaceStyle": "dots",
             "workspaceSlots": 0, "trayIcons": -1, "batteryPercent": "auto", "barStyle": "floating", "weekStart": "locale", "terminal": "auto", "shortcuts": {},
             "screenshotDirectory": user_dir("PICTURES", "~/Pictures") + "/Screenshots",
@@ -96,8 +96,8 @@ BAR_REQUIRED = ("recording", "privacy", "control")
 CONTROL_TILES = ("wifi", "bluetooth", "dnd", "awake", "grayscale", "lid")
 CONTROL_SECTIONS = ("focus", "levels", "media")
 CONTROL_FOOTER = ("capture", "settings", "lock", "session")
-# Desktop widget cards, as features/Widgets.qml names them, and the corners they can sit in.
-WIDGET_CARDS = ("clock", "sky", "note", "system")
+# Desktop widget cards, as core/parts.js names them, and the corners they can sit in.
+WIDGET_CARDS = ("clock", "sky", "note", "system", "player", "timers")
 WIDGET_CORNERS = ("top-left", "top-right", "bottom-left", "bottom-right")
 MAX_WIDGET_CARDS = 6
 # Personal history and state, and this computer's folders; a settings export leaves them out and an import
@@ -289,7 +289,7 @@ def check_setting(key, value):
             raise BackendError("invalid", "Incorrect control center sections.")
         if "settings" in value.get("hiddenFooter", []):
             raise BackendError("invalid", "The Settings button can't be hidden.")
-    if key == "widgetCards" and (len(value) > MAX_WIDGET_CARDS or not all(isinstance(card, str) and card in WIDGET_CARDS for card in value)
+    if key in ("widgetCards", "widgetSaved") and (len(value) > MAX_WIDGET_CARDS or not all(isinstance(card, str) and card in WIDGET_CARDS for card in value)
                                  or len(set(value)) != len(value)):
         raise BackendError("invalid", f"Choose up to {MAX_WIDGET_CARDS} widget cards, each once.")
     if key == "widgetCorner" and value not in WIDGET_CORNERS:
