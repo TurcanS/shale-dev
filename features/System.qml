@@ -254,7 +254,7 @@ FocusScope {
                     {label: "Speed", value: s.cpu.frequency ? (s.cpu.frequency / 1000).toFixed(2) + " GHz" : "–", note: baseClock(s.cpu.model)},
                     {label: "Temperature", value: temperature(s.cpu.temperature), note: known(s.cpu.temperature) ? "package" : ""},
                     {label: "Load", value: s.cpu.load[0].toFixed(2), note: s.cpu.load[1].toFixed(2) + " · " + s.cpu.load[2].toFixed(2)}]
-                .concat(s.fans.map(fan => ({label: fan.label, value: fan.rpm + " rpm"})));
+                .concat(s.fans.map(fan => ({label: fan.label, value: fan.rpm > 0 ? fan.rpm + " rpm" : "Stopped", note: fan.rpm > 0 ? "" : "quiet at this load"})));
         if (c.kind === "memory")
             return [{label: "In use", value: bytes(s.memory.used), note: percent(100 * s.memory.used / s.memory.total)},
                     {label: "Available", value: bytes(s.memory.free)},
@@ -588,14 +588,14 @@ FocusScope {
                                 readonly property real load: root.sample && root.sample.cpu.cores[index] !== undefined ? root.sample.cpu.cores[index] : 0
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
-                                radius: 3
-                                color: Theme.well
+                                // Bare bars on the graph's floor: empty wells read as a row of broken boxes at idle.
+                                color: "transparent"
                                 Rectangle {
                                     anchors.bottom: parent.bottom
                                     width: parent.width
                                     height: Math.max(2, parent.height * core.load / 100)
-                                    radius: 3
-                                    color: Theme.accent
+                                    radius: 2
+                                    color: core.load >= 1 ? Theme.accent : Theme.key
                                     Behavior on height { NumberAnimation { duration: Theme.fast; easing.type: Easing.OutCubic } }
                                 }
                             }

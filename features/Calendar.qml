@@ -11,7 +11,7 @@ FocusScope {
     readonly property int titleSize: 22
     readonly property int panelWidth: 440
     // Grows past the design height only while the weather search lists cities.
-    readonly property int panelHeight: Math.max(620, Math.ceil(body.implicitHeight) + Theme.casePadding * 2 + 42)
+    readonly property int panelHeight: Math.ceil(body.implicitHeight) + Theme.casePadding * 2 + 42
     property date today: new Date()
     property date month: new Date(today.getFullYear(), today.getMonth(), 1)
     // The day the agenda shows; clicking a day picks it.

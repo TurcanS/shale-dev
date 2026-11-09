@@ -16,7 +16,8 @@ FocusScope {
     readonly property string title: "Capture"
     readonly property bool showHeader: false
     readonly property int panelWidth: 600
-    readonly property int panelHeight: 480
+    // As tall as its contents, so Recent and the action sit right under the options instead of at a fixed foot.
+    readonly property int panelHeight: Math.ceil(body.implicitHeight) + Theme.casePadding * 2
     property string mode: "region"
     property string kind: ShellState.recording.active ? "recording" : "screenshot"
     property bool copy: true
@@ -88,6 +89,7 @@ FocusScope {
     Keys.onReturnPressed: capture()
     Keys.onEnterPressed: capture()
     ColumnLayout {
+        id: body
         anchors.fill: parent
         spacing: 12
         // Title, the kind, the shortcuts, close.
