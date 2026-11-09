@@ -505,240 +505,249 @@ FocusScope {
                     Layout.fillHeight: true
                 }
             }
-            GridView {
-                id: grid
+            // Tiles keep 4 px to each side, so neighbours sit 8 px apart and the selection ring has room.
+            Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                // Tiles keep 4 px to each side, so neighbours sit 8 px apart and the selection ring has room.
                 Layout.topMargin: -4
                 Layout.leftMargin: -4
                 Layout.rightMargin: -4
-                clip: true
-                cellWidth: width / root.columns
-                cellHeight: 104
-                boundsBehavior: Flickable.StopAtBounds
-                model: root.gridModel
-                ScrollBar.vertical: C.ScrollBar {}
-                // Only local wallpapers have their colours read, so only they get dots.
-                footer: C.Label {
-                    visible: !root.online
-                    width: grid.width
-                    height: visible ? implicitHeight : 0
-                    topPadding: 6
-                    leftPadding: 6
-                    rightPadding: 6
-                    bottomPadding: 6
-                    text: ShellState.setting("accentFromWallpaper", false)
-                          ? "Each wallpaper gives the shell its accent colour and a second colour for charts. The dots are what you get."
-                          : "The dots are the accent each wallpaper would give the shell. Pick From wallpaper in Settings → Appearance to use it."
-                    color: Theme.textDim
-                    font.pixelSize: 12
-                    lineHeight: 1.25
-                    wrapMode: Text.WordWrap
-                }
-                delegate: Item {
-                    id: tile
-                    required property var modelData
-                    required property int index
-                    readonly property bool action: !!modelData.action
-                    readonly property bool chosen: !action && index === root.selected
-                    readonly property bool inUse: !action && !!modelData.path && modelData.path === root.activePath
-                    // Set once this tile saved its small copy, so its colours can be read without the original.
-                    property string savedCopy: ""
-                    width: grid.cellWidth
-                    height: grid.cellHeight
-                    // The ring sits just outside the tile.
-                    Rectangle {
-                        anchors.fill: face
-                        anchors.margins: -2
-                        visible: tile.chosen
-                        radius: Theme.radiusCard + 2
-                        color: "transparent"
-                        border.width: 2
-                        border.color: Theme.accent
+    GridView {
+                    id: grid
+                    anchors.fill: parent
+                    clip: true
+                    cellWidth: width / root.columns
+                    cellHeight: 104
+                    boundsBehavior: Flickable.StopAtBounds
+                    model: root.gridModel
+                    ScrollBar.vertical: C.ScrollBar {}
+                    // Only local wallpapers have their colours read, so only they get dots.
+                    footer: C.Label {
+                        visible: !root.online
+                        width: grid.width
+                        height: visible ? implicitHeight : 0
+                        topPadding: 6
+                        leftPadding: 6
+                        rightPadding: 6
+                        bottomPadding: 6
+                        text: ShellState.setting("accentFromWallpaper", false)
+                              ? "Each wallpaper gives the shell its accent colour and a second colour for charts. The dots are what you get."
+                              : "The dots are the accent each wallpaper would give the shell. Pick From wallpaper in Settings → Appearance to use it."
+                        color: Theme.textDim
+                        font.pixelSize: 12
+                        lineHeight: 1.25
+                        wrapMode: Text.WordWrap
                     }
-                    ClippingRectangle {
-                        id: face
-                        visible: !tile.action
-                        anchors.fill: parent
-                        anchors.margins: 4
-                        radius: Theme.radiusCard
-                        color: Theme.module
-                        Image {
-                            id: thumbnail
-                            // A local wallpaper's small copy once it exists (see wallpaper.catalog). The first time,
-                            // the original is decoded and the result saved as that copy, so later opens skip the decode.
-                            property bool copyBroken: false
-                            property bool copySaved: false
-                            readonly property string original: tile.action ? "" : tile.modelData.url
-                            anchors.fill: parent
-                            source: tile.action ? "" : tile.modelData.thumb && !copyBroken ? tile.modelData.thumb : original
-                            asynchronous: true
-                            sourceSize.width: 760
-                            sourceSize.height: 480
-                            cache: true
-                            fillMode: Image.PreserveAspectCrop
-                            opacity: status === Image.Ready ? 1 : 0
-                            Behavior on opacity { NumberAnimation { duration: Theme.enter } }
-                            function saveCopy() {
-                                const path = tile.modelData.thumbPath;
-                                if (copySaved || !path || status !== Image.Ready || source.toString() !== original || width <= 0)
-                                    return;
-                                copySaved = grabToImage(result => {
-                                    if (result.saveToFile(path))
-                                        tile.savedCopy = "file://" + path.split("/").map(encodeURIComponent).join("/");
-                                }, Qt.size(760, Math.round(760 * height / width)));
-                            }
-                            onStatusChanged: {
-                                if (status === Image.Error && tile.modelData.thumb && !copyBroken)
-                                    copyBroken = true;
-                                else
-                                    saveCopy();
-                            }
-                        }
-                        C.Icon {
-                            anchors.centerIn: parent
-                            name: "palette"
-                            size: 22
-                            color: Theme.textFaint
-                            visible: thumbnail.status !== Image.Ready
-                        }
-                        // Keeps the name readable over bright pictures.
+                    delegate: Item {
+                        id: tile
+                        required property var modelData
+                        required property int index
+                        readonly property bool action: !!modelData.action
+                        readonly property bool chosen: !action && index === root.selected
+                        readonly property bool inUse: !action && !!modelData.path && modelData.path === root.activePath
+                        // Set once this tile saved its small copy, so its colours can be read without the original.
+                        property string savedCopy: ""
+                        width: grid.cellWidth
+                        height: grid.cellHeight
+                        // The ring sits just outside the tile.
                         Rectangle {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.bottom: parent.bottom
-                            height: 34
-                            gradient: Gradient {
-                                GradientStop { position: 0; color: "transparent" }
-                                GradientStop { position: 1; color: Qt.rgba(0, 0, 0, 0.45) }
-                            }
+                            anchors.fill: face
+                            anchors.margins: -2
+                            visible: tile.chosen
+                            radius: Theme.radiusCard + 2
+                            color: "transparent"
+                            border.width: 2
+                            border.color: Theme.accent
                         }
-                        Row {
-                            x: 8
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: 6
-                            width: parent.width - 16
-                            spacing: 6
-                            Rectangle {
-                                id: dot
-                                readonly property string accent: tileColors.item ? Palette.accentFrom(tileColors.item.colors) : ""
-                                anchors.verticalCenter: parent.verticalCenter
-                                visible: accent !== ""
-                                width: 8
-                                height: 8
-                                radius: 4
-                                color: accent !== "" ? accent : Theme.accent
-                            }
-                            C.Label {
-                                width: parent.width - (dot.visible ? 14 : 0)
-                                text: tile.action ? "" : tile.modelData.name
-                                font.pixelSize: 12
-                                font.weight: Font.DemiBold
-                                style: Text.Raised
-                                styleColor: Qt.rgba(0, 0, 0, 0.35)
-                            }
-                        }
-                        Rectangle {
-                            visible: tile.inUse
-                            anchors.right: parent.right
-                            anchors.top: parent.top
-                            anchors.margins: 6
-                            implicitWidth: inUseLabel.implicitWidth + 14
-                            implicitHeight: 18
-                            radius: 6
-                            color: Theme.tint(Theme.caseColor, 0.85)
-                            C.Label {
-                                id: inUseLabel
-                                anchors.centerIn: parent
-                                text: "In use"
-                                font.pixelSize: 11
-                                font.weight: Font.DemiBold
-                            }
-                        }
-                        // Colours are read once the tile has stayed a moment: the grid makes and drops tiles while it
-                        // scrolls to the wallpaper in use, and a loader dropped half-way warns of an invalid context.
-                        Timer {
-                            interval: 80
-                            running: true
-                            onTriggered: tileColors.settled = true
-                        }
-                        LazyLoader {
-                            id: tileColors
-                            property bool settled: false
-                            readonly property string image: tile.action ? "" : tile.modelData.thumb || tile.savedCopy
-                            active: settled && image !== ""
-                            ColorQuantizer {
-                                source: tileColors.image
-                                depth: 3
-                                rescaleSize: 32
-                            }
-                        }
-                        MouseArea {
+                        ClippingRectangle {
+                            id: face
+                            visible: !tile.action
                             anchors.fill: parent
-                            enabled: !root.applying
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: { root.selected = tile.index; root.forceActiveFocus(); }
-                            onDoubleClicked: { root.selected = tile.index; root.apply(); }
-                        }
-                        Accessible.role: Accessible.Button
-                        Accessible.name: tile.action ? "" : tile.modelData.name + (tile.inUse ? ", in use" : "")
-                    }
-                    // The last tile: add images to the folder, or fetch the next page of results.
-                    C.Button {
-                        id: actionTile
-                        visible: tile.action
-                        anchors.fill: parent
-                        anchors.margins: 4
-                        flat: true
-                        cornerRadius: Theme.radiusCard
-                        enabled: root.online ? !root.onlineLoading && !root.applying : root.directory !== ""
-                        text: root.online ? (root.onlineLoading ? "Loading…" : "Load more") : "Add wallpapers"
-                        hint: root.online ? "" : "Open " + root.directory + " and add images to it"
-                        onClicked: root.online ? root.searchOnline(true) : ShellState.openPath(root.directory)
-                        contentItem: ColumnLayout {
-                            spacing: 6
+                            anchors.margins: 4
+                            radius: Theme.radiusCard
+                            color: Theme.module
+                            Image {
+                                id: thumbnail
+                                // A local wallpaper's small copy once it exists (see wallpaper.catalog). The first time,
+                                // the original is decoded and the result saved as that copy, so later opens skip the decode.
+                                property bool copyBroken: false
+                                property bool copySaved: false
+                                readonly property string original: tile.action ? "" : tile.modelData.url
+                                anchors.fill: parent
+                                source: tile.action ? "" : tile.modelData.thumb && !copyBroken ? tile.modelData.thumb : original
+                                asynchronous: true
+                                sourceSize.width: 760
+                                sourceSize.height: 480
+                                cache: true
+                                fillMode: Image.PreserveAspectCrop
+                                opacity: status === Image.Ready ? 1 : 0
+                                Behavior on opacity { NumberAnimation { duration: Theme.enter } }
+                                function saveCopy() {
+                                    const path = tile.modelData.thumbPath;
+                                    if (copySaved || !path || status !== Image.Ready || source.toString() !== original || width <= 0)
+                                        return;
+                                    copySaved = grabToImage(result => {
+                                        if (result.saveToFile(path))
+                                            tile.savedCopy = "file://" + path.split("/").map(encodeURIComponent).join("/");
+                                    }, Qt.size(760, Math.round(760 * height / width)));
+                                }
+                                onStatusChanged: {
+                                    if (status === Image.Error && tile.modelData.thumb && !copyBroken)
+                                        copyBroken = true;
+                                    else
+                                        saveCopy();
+                                }
+                            }
                             C.Icon {
-                                name: root.online ? "chevron" : "plus"
-                                size: 18
-                                color: actionTile.hovered || actionTile.visualFocus ? Theme.text : Theme.textMuted
-                                Layout.alignment: Qt.AlignHCenter
+                                anchors.centerIn: parent
+                                name: "palette"
+                                size: 22
+                                color: Theme.textFaint
+                                visible: thumbnail.status !== Image.Ready
                             }
-                            C.Label {
-                                text: actionTile.text
-                                color: actionTile.hovered || actionTile.visualFocus ? Theme.text : Theme.textMuted
-                                font.pixelSize: 12
-                                font.weight: Font.DemiBold
-                                Layout.alignment: Qt.AlignHCenter
+                            // Keeps the name readable over bright pictures.
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                height: 34
+                                gradient: Gradient {
+                                    GradientStop { position: 0; color: "transparent" }
+                                    GradientStop { position: 1; color: Qt.rgba(0, 0, 0, 0.45) }
+                                }
                             }
+                            Row {
+                                x: 8
+                                anchors.bottom: parent.bottom
+                                anchors.bottomMargin: 6
+                                width: parent.width - 16
+                                spacing: 6
+                                Rectangle {
+                                    id: dot
+                                    readonly property string accent: tileColors.item ? Palette.accentFrom(tileColors.item.colors) : ""
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    visible: accent !== ""
+                                    width: 8
+                                    height: 8
+                                    radius: 4
+                                    color: accent !== "" ? accent : Theme.accent
+                                }
+                                C.Label {
+                                    width: parent.width - (dot.visible ? 14 : 0)
+                                    text: tile.action ? "" : tile.modelData.name
+                                    font.pixelSize: 12
+                                    font.weight: Font.DemiBold
+                                    style: Text.Raised
+                                    styleColor: Qt.rgba(0, 0, 0, 0.35)
+                                }
+                            }
+                            Rectangle {
+                                visible: tile.inUse
+                                anchors.right: parent.right
+                                anchors.top: parent.top
+                                anchors.margins: 6
+                                implicitWidth: inUseLabel.implicitWidth + 14
+                                implicitHeight: 18
+                                radius: 6
+                                color: Theme.tint(Theme.caseColor, 0.85)
+                                C.Label {
+                                    id: inUseLabel
+                                    anchors.centerIn: parent
+                                    text: "In use"
+                                    font.pixelSize: 11
+                                    font.weight: Font.DemiBold
+                                }
+                            }
+                            // Colours are read once the tile has stayed a moment: the grid makes and drops tiles while it
+                            // scrolls to the wallpaper in use, and a loader dropped half-way warns of an invalid context.
+                            Timer {
+                                interval: 80
+                                running: true
+                                onTriggered: tileColors.settled = true
+                            }
+                            LazyLoader {
+                                id: tileColors
+                                property bool settled: false
+                                readonly property string image: tile.action ? "" : tile.modelData.thumb || tile.savedCopy
+                                active: settled && image !== ""
+                                ColorQuantizer {
+                                    source: tileColors.image
+                                    depth: 3
+                                    rescaleSize: 32
+                                }
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: !root.applying
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: { root.selected = tile.index; root.forceActiveFocus(); }
+                                onDoubleClicked: { root.selected = tile.index; root.apply(); }
+                            }
+                            Accessible.role: Accessible.Button
+                            Accessible.name: tile.action ? "" : tile.modelData.name + (tile.inUse ? ", in use" : "")
                         }
-                        // A dashed edge, drawn as a path: rectangles only draw solid borders.
-                        Shape {
+                        // The last tile: add images to the folder, or fetch the next page of results.
+                        C.Button {
+                            id: actionTile
+                            visible: tile.action
                             anchors.fill: parent
-                            z: -1
-                            preferredRendererType: Shape.CurveRenderer
-                            ShapePath {
-                                id: dash
-                                readonly property real r: Theme.radiusCard
-                                readonly property real w: actionTile.width - 1.5
-                                readonly property real h: actionTile.height - 1.5
-                                strokeColor: Theme.mix(Theme.caseColor, Theme.text, 0.18)
-                                strokeWidth: 1.5
-                                strokeStyle: ShapePath.DashLine
-                                dashPattern: [3, 2]
-                                fillColor: "transparent"
-                                PathSvg {
-                                    path: {
-                                        const p = dash, o = 0.75;
-                                        return "M " + (o + p.r) + " " + o + " H " + (o + p.w - p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + (o + p.w) + " " + (o + p.r)
-                                             + " V " + (o + p.h - p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + (o + p.w - p.r) + " " + (o + p.h)
-                                             + " H " + (o + p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + o + " " + (o + p.h - p.r)
-                                             + " V " + (o + p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + (o + p.r) + " " + o + " Z";
+                            anchors.margins: 4
+                            flat: true
+                            cornerRadius: Theme.radiusCard
+                            enabled: root.online ? !root.onlineLoading && !root.applying : root.directory !== ""
+                            text: root.online ? (root.onlineLoading ? "Loading…" : "Load more") : "Add wallpapers"
+                            hint: root.online ? "" : "Open " + root.directory + " and add images to it"
+                            onClicked: root.online ? root.searchOnline(true) : ShellState.openPath(root.directory)
+                            contentItem: ColumnLayout {
+                                spacing: 6
+                                C.Icon {
+                                    name: root.online ? "chevron" : "plus"
+                                    size: 18
+                                    color: actionTile.hovered || actionTile.visualFocus ? Theme.text : Theme.textMuted
+                                    Layout.alignment: Qt.AlignHCenter
+                                }
+                                C.Label {
+                                    text: actionTile.text
+                                    color: actionTile.hovered || actionTile.visualFocus ? Theme.text : Theme.textMuted
+                                    font.pixelSize: 12
+                                    font.weight: Font.DemiBold
+                                    Layout.alignment: Qt.AlignHCenter
+                                }
+                            }
+                            // A dashed edge, drawn as a path: rectangles only draw solid borders.
+                            Shape {
+                                anchors.fill: parent
+                                z: -1
+                                preferredRendererType: Shape.CurveRenderer
+                                ShapePath {
+                                    id: dash
+                                    readonly property real r: Theme.radiusCard
+                                    readonly property real w: actionTile.width - 1.5
+                                    readonly property real h: actionTile.height - 1.5
+                                    strokeColor: Theme.mix(Theme.caseColor, Theme.text, 0.18)
+                                    strokeWidth: 1.5
+                                    strokeStyle: ShapePath.DashLine
+                                    dashPattern: [3, 2]
+                                    fillColor: "transparent"
+                                    PathSvg {
+                                        path: {
+                                            const p = dash, o = 0.75;
+                                            return "M " + (o + p.r) + " " + o + " H " + (o + p.w - p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + (o + p.w) + " " + (o + p.r)
+                                                 + " V " + (o + p.h - p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + (o + p.w - p.r) + " " + (o + p.h)
+                                                 + " H " + (o + p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + o + " " + (o + p.h - p.r)
+                                                 + " V " + (o + p.r) + " A " + p.r + " " + p.r + " 0 0 1 " + (o + p.r) + " " + o + " Z";
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                }
+                C.EdgeFade {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    flickable: grid
                 }
             }
         }

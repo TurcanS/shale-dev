@@ -320,8 +320,9 @@ FocusScope {
                                 anchors.fill: parent
                                 visible: wall.status === Image.Ready
                                 gradient: Gradient {
-                                    GradientStop { position: 0; color: Qt.rgba(0, 0, 0, desk.containsMouse ? 0.22 : 0.32) }
-                                    GradientStop { position: 1; color: Qt.rgba(0, 0, 0, desk.containsMouse ? 0.4 : 0.5) }
+                                    // Empty pages sit further back, so the pages with windows lead.
+                                    GradientStop { position: 0; color: Qt.rgba(0, 0, 0, (desk.containsMouse ? 0.22 : 0.32) + (cell.windows.length === 0 ? 0.3 : 0)) }
+                                    GradientStop { position: 1; color: Qt.rgba(0, 0, 0, (desk.containsMouse ? 0.4 : 0.5) + (cell.windows.length === 0 ? 0.25 : 0)) }
                                 }
                             }
                             Rectangle {
@@ -332,12 +333,23 @@ FocusScope {
                                 radius: 3
                                 color: Theme.tint(Theme.caseColor, 0.8)
                             }
-                            C.Label {
+                            Rectangle {
                                 visible: cell.windows.length === 0
                                 anchors.centerIn: parent
-                                text: cell.canMove ? "Move here" : "Empty"
-                                color: Theme.tint(Theme.text, 0.45)
-                                font.pixelSize: 12
+                                implicitWidth: emptyLabel.implicitWidth + 20
+                                implicitHeight: 26
+                                radius: 13
+                                color: cell.canMove ? Theme.accentSoft : Theme.tint(Theme.caseColor, 0.75)
+                                border.width: 1
+                                border.color: cell.canMove ? Theme.accentLine : Theme.edge
+                                C.Label {
+                                    id: emptyLabel
+                                    anchors.centerIn: parent
+                                    text: cell.canMove ? "Move here" : "Empty"
+                                    color: cell.canMove ? Theme.accentText : Theme.textSecondary
+                                    font.pixelSize: 12
+                                    font.weight: Font.DemiBold
+                                }
                             }
                             Repeater {
                                 model: cell.windows

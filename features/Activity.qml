@@ -727,7 +727,9 @@ FocusScope {
                                                     width: 9
                                                     height: 9
                                                     radius: 2
-                                                    color: empty ? "transparent" : root.heatColor(modelData.active)
+                                                    // Days before tracking began stay as faint squares, so a short history still draws the
+                                                    // whole year instead of a small block in an empty module.
+                                                    color: modelData.future ? "transparent" : modelData.before ? Theme.tint(Theme.text, 0.035) : root.heatColor(modelData.active)
                                                     border.width: modelData.date === root.selectedDate && !empty ? 1 : 0
                                                     border.color: Theme.text
                                                     Behavior on color { ColorAnimation { duration: Theme.fast } }

@@ -972,6 +972,13 @@ FocusScope {
                     }
                 }
             }
+            C.EdgeFade {
+                anchors.left: settingsScroll.left
+                anchors.right: settingsScroll.right
+                anchors.bottom: settingsScroll.bottom
+                flickable: settingsScroll.contentItem
+                tone: Theme.moduleAlt
+            }
         }
     }
 }

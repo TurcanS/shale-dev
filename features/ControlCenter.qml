@@ -731,7 +731,7 @@ FocusScope {
                 font.weight: Font.DemiBold
                 horizontalAlignment: Text.AlignHCenter
                 Layout.alignment: Qt.AlignHCenter
-                Layout.maximumWidth: 64
+                Layout.maximumWidth: strip.width - 8
             }
             // Pan: drag sideways or scroll; a double-click centres it.
             Item {
@@ -1051,10 +1051,12 @@ FocusScope {
                             spacing: 10
                             ModuleHeader {
                                 title: "Output"
-                                note: "playing apps follow"
+                                // With one device there is nothing to choose: its name sits in the note instead.
+                                note: Services.audioOutputs.length === 1 ? root.outputName(Services.audioOutputs[0]) + " · playing apps follow" : "playing apps follow"
                                 Layout.minimumHeight: 0
                             }
                             GridLayout {
+                                visible: Services.audioOutputs.length > 1
                                 Layout.fillWidth: true
                                 columns: Math.max(1, Math.min(3, Services.audioOutputs.length))
                                 rowSpacing: 6
@@ -1243,6 +1245,7 @@ FocusScope {
                                     }
                                 }
                                 Flickable {
+                                    id: stripView
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 236
                                     contentWidth: strips.implicitWidth
@@ -1254,8 +1257,12 @@ FocusScope {
                                         id: strips
                                         height: parent.height
                                         spacing: 6
+                                        // Few channels share the module's width (up to 140 px each); many scroll at 72.
+                                        readonly property int lanes: 1 + Services.audioStreams.length + (Services.input ? 1 : 0)
+                                        readonly property real lane: Math.max(72, Math.min(140, (stripView.width - spacing * (lanes - 1)) / lanes))
                                         Strip {
                                             height: strips.height
+                                            width: strips.lane
                                             title: "Master"
                                             tag: Theme.accent
                                             fillColor: Theme.accent
@@ -1275,6 +1282,7 @@ FocusScope {
                                                 required property var modelData
                                                 readonly property bool shut: !!modelData.audio && modelData.audio.muted
                                                 height: strips.height
+                                                width: strips.lane
                                                 title: root.streamName(modelData)
                                                 tag: Theme.mix(Theme.moduleAlt, Theme.text, 0.25)
                                                 value: root.level(modelData)
@@ -1295,6 +1303,7 @@ FocusScope {
                                         Strip {
                                             visible: !!Services.input
                                             height: strips.height
+                                            width: strips.lane
                                             title: "Mic"
                                             tag: Theme.textSecondary
                                             fillColor: Theme.textSecondary

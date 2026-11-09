@@ -12,7 +12,9 @@ FocusScope {
     readonly property string title: "Notifications"
     readonly property int headerCount: timeline.count
     readonly property int panelWidth: 420
-    readonly property int panelHeight: 580
+    // Tall enough for the cards (and the empty state), up to 580; the host keeps it on screen.
+    readonly property int panelHeight: Math.min(580, Math.ceil(Theme.casePadding * 2 + 32 + 10 + 48 + 10
+                                                               + Math.max(list.count === 0 ? 220 : 0, list.contentHeight)))
     readonly property Component headerTools: timeline.count > 0 ? clearTool : null
     readonly property bool dnd: ShellState.setting("dnd", false)
     // Ids hidden here and waiting for the undo bar to go.
