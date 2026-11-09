@@ -221,3 +221,12 @@ card's next event (no calendar events). Not built: the blur behind the cards, wh
 `shale-widgets` in `integration/shale.lua` (left out because the Lua field names couldn't be checked here). For
 stage 12: check clicks between and around the cards reach the desktop, the top corners sit under the bar, and the
 Focus ring's halo (two wider translucent rings, hidden with effects trimmed).
+
+Carry-over from stage 12 (passes A and B): `.claude/tools/shots.py OUT_DIR [panel ...]` opens each panel and Control
+page in the running shell, screenshots it and prints the shell's warnings; use it to compare with `previews/` before
+calling a panel done. `Theme.small` never goes under 12 px and `Theme.caption` under 11. With effects trimmed, the case
+gets a dark 1 px ring instead of its shadow. Still to do in this stage (pass C): content-sized panels (Notifications,
+Wallpapers ending on whole rows), a one-sink Output row in Control, Mixer strips across the module, Activity's year grid
+from the first tracked week, idle processes as "—" in System, clearer empty pages in Overview, and a fade under the
+Settings page. Then the parts system (one `core/parts.js` registry for desktop and bar, layouts) and the split of
+ControlCenter, Activity, BarContent and Launcher with a `docs/ARCHITECTURE.md`.
