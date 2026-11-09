@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
+import QtQuick.Shapes
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
@@ -246,6 +247,40 @@ FocusScope {
         running: true
         onTriggered: root.dealing = false
     }
+    // A soft dark pool behind the crate, fading to nothing before the edges, so the slices read over busy windows
+    // without a case around them.
+    Item {
+        anchors.centerIn: parent
+        width: parent.width
+        height: parent.width
+        transform: Scale {
+            origin.x: root.width / 2
+            origin.y: root.width / 2
+            yScale: root.height / Math.max(1, root.width)
+        }
+        Shape {
+            anchors.fill: parent
+            preferredRendererType: Shape.CurveRenderer
+            ShapePath {
+                strokeWidth: 0
+                strokeColor: "transparent"
+                fillGradient: RadialGradient {
+                    centerX: root.width / 2
+                    centerY: root.width / 2
+                    centerRadius: root.width / 2
+                    focalX: centerX
+                    focalY: centerY
+                    GradientStop { position: 0; color: Qt.rgba(0, 0, 0, 0.62) }
+                    GradientStop { position: 0.55; color: Qt.rgba(0, 0, 0, 0.42) }
+                    GradientStop { position: 1; color: Qt.rgba(0, 0, 0, 0) }
+                }
+                PathRectangle {
+                    width: root.width
+                    height: root.width
+                }
+            }
+        }
+    }
     // Source and search, in a small case above the crate.
     Rectangle {
         id: topBar
@@ -361,7 +396,8 @@ FocusScope {
                 x: gallery.width / 2 + root.sliceOffset(distance) * dealt - width / 2
                 y: (gallery.height - height) / 2
                 z: 100 - reach
-                opacity: chosen ? 1 : Math.max(0.3, 1 - 0.09 * reach) * dealt
+                // Solid up close (they darken instead), fading out only at the crate's far ends.
+                opacity: (reach <= 6 ? 1 : Math.max(0, 1 - (reach - 6) * 0.45)) * dealt
                 Behavior on x {
                     enabled: tile.dealt >= 1
                     NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic }
