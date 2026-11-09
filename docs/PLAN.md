@@ -230,3 +230,14 @@ Wallpapers ending on whole rows), a one-sink Output row in Control, Mixer strips
 from the first tracked week, idle processes as "—" in System, clearer empty pages in Overview, and a fade under the
 Settings page. Then the parts system (one `core/parts.js` registry for desktop and bar, layouts) and the split of
 ControlCenter, Activity, BarContent and Launcher with a `docs/ARCHITECTURE.md`.
+
+Carry-over from stage 12 (passes C to E): Notifications sizes to its cards; `components/EdgeFade.qml` fades the bottom
+of a scrolling view while more lies below (Wallpapers grid, Settings page); Control's Output shows one device as its
+note; mixer strips share the module (72–120 px, centred); Activity draws the days before tracking as faint squares;
+Overview's empty pages sit darker with a chip. Desktop cards come from `core/parts.js` (file, width, matching bar item,
+layouts Work / Play / Evening, Mine saved in `widgetSaved`); new cards `WidgetsPlayer` and `WidgetsTimers`; Find's
+`layout <name>` switches them. Control's Bluetooth, Power and Sound views and its small parts are their own
+`Control*.qml` files (views get the page as `control`). `docs/ARCHITECTURE.md` maps the code. Not done: Control's
+Wi-Fi and home views and the splits of Activity, BarContent and Launcher (same method: move a block, rename `root.`
+to the page property, check ids used outside), the Builder board's bar row and room meters, and Settings' sidebar
+footer.
