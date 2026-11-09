@@ -213,8 +213,30 @@ FocusScope {
                 root.entries = root.entries.concat([Object.assign({}, entry, {remote: false})]);
         }
     }
-    onFilteredChanged: selected = Math.max(0, Math.min(selected, filtered.length - 1))
+    onFilteredChanged: {
+        selected = Math.max(0, Math.min(selected, filtered.length - 1));
+        place(false);
+    }
+    // Where the crate is, in wallpapers: it follows `selected` smoothly, and every slice's place, size and shade is
+    // worked out from it. One moving value keeps the slices packed however fast the wheel turns; giving each slice
+    // its own animation left them chasing their places and the middle empty.
+    property real position: 0
+    property bool sliding: true
+    Behavior on position {
+        enabled: root.sliding && !Theme.reduced
+        SmoothedAnimation {
+            duration: Theme.slide
+            velocity: -1
+        }
+    }
+    // Moves the crate to `selected`, sliding or at once (a new list, or the first placing on opening).
+    function place(animated) {
+        sliding = animated;
+        position = selected;
+        sliding = true;
+    }
     onSelectedChanged: {
+        place(!dealing);
         if (!applying)
             ShellState.wallpaperError = "";
         // Online results load the next page as the crate nears its end.
@@ -228,6 +250,18 @@ FocusScope {
     readonly property real cardWidth: Math.round(cardHeight * 1.6)
     function sliver(n) {
         return Math.max(30, cardWidth * 0.2 * Math.pow(0.82, n - 1));
+    }
+    // A slice's width at a distance (in wallpapers, fractions included) from the crate's position.
+    function sliceWidth(reach) {
+        if (reach < 1)
+            return cardWidth + (sliver(1) - cardWidth) * reach;
+        const n = Math.floor(reach);
+        return sliver(n) + (sliver(n + 1) - sliver(n)) * (reach - n);
+    }
+    // The same for a slice's centre: between the whole-step places.
+    function slicePlace(distance) {
+        const n = Math.floor(distance);
+        return sliceOffset(n) + (sliceOffset(n + 1) - sliceOffset(n)) * (distance - n);
     }
     // A slice's centre, from the gallery's centre, at a signed distance from the chosen card.
     function sliceOffset(distance) {
@@ -383,37 +417,26 @@ FocusScope {
                 id: tile
                 required property var modelData
                 required property int index
-                readonly property int distance: index - root.selected
-                readonly property int reach: Math.abs(distance)
-                readonly property bool chosen: distance === 0
-                readonly property bool near: reach <= 8
+                // Signed distance from the crate's position, fractions included while it moves.
+                readonly property real distance: index - root.position
+                readonly property real reach: Math.abs(distance)
+                // 1 for the card in the middle, falling to 0 a step away: the ring, glow and large details follow it.
+                readonly property real lead: Math.max(0, 1 - reach * 1.5)
+                readonly property bool chosen: index === root.selected
+                readonly property bool near: reach <= 8.5
                 readonly property bool inUse: !!modelData.path && modelData.path === root.activePath
                 // 0.88 → 1 while the slice opens out from the centre on opening, like a panel's 8 px rise: a short
                 // spread with a fade, not a long throw.
                 property real dealt: 1
                 readonly property real dealFade: (dealt - 0.88) / 0.12
                 visible: near
-                width: chosen ? root.cardWidth : root.sliver(Math.max(1, reach))
-                height: root.cardHeight * (chosen ? 1 : 1 - 0.05 * Math.min(reach, 5))
-                x: gallery.width / 2 + root.sliceOffset(distance) * dealt - width / 2
+                width: root.sliceWidth(reach)
+                height: root.cardHeight * (1 - 0.05 * Math.min(reach, 5))
+                x: gallery.width / 2 + root.slicePlace(distance) * dealt - width / 2
                 y: (gallery.height - height) / 2
                 z: 100 - reach
                 // Solid up close (they darken instead), fading out only at the crate's far ends.
                 opacity: (reach <= 6 ? 1 : Math.max(0, 1 - (reach - 6) * 0.45)) * dealFade
-                Behavior on x {
-                    enabled: tile.dealt >= 1
-                    NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
-                }
-                Behavior on width {
-                    NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
-                }
-                Behavior on height {
-                    NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
-                }
-                Behavior on opacity {
-                    enabled: tile.dealt >= 1
-                    NumberAnimation { duration: Theme.fast }
-                }
                 NumberAnimation {
                     id: deal
                     target: tile
@@ -440,7 +463,8 @@ FocusScope {
                 // The chosen card glows in the accent this wallpaper would give the shell.
                 RectangularShadow {
                     anchors.fill: face
-                    visible: tile.chosen && !Theme.lowPower
+                    visible: tile.lead > 0 && !Theme.lowPower
+                    opacity: tile.lead
                     radius: face.radius
                     blur: 56
                     offset.y: 16
@@ -450,7 +474,8 @@ FocusScope {
                 Rectangle {
                     anchors.fill: face
                     anchors.margins: -4
-                    visible: tile.chosen
+                    visible: tile.lead > 0
+                    opacity: tile.lead
                     radius: face.radius + 4
                     color: "transparent"
                     border.width: 2
@@ -460,7 +485,7 @@ FocusScope {
                 ClippingRectangle {
                     id: face
                     anchors.fill: parent
-                    radius: tile.chosen ? 16 : 10
+                    radius: 10 + 6 * tile.lead
                     color: Theme.module
                     Image {
                         id: thumbnail
@@ -498,15 +523,14 @@ FocusScope {
                         anchors.centerIn: parent
                         visible: thumbnail.status !== Image.Ready
                         name: "palette"
-                        size: tile.chosen ? 32 : 16
+                        size: tile.lead > 0.5 ? 32 : 16
                         color: Theme.textFaint
                     }
                     // Slivers sink back the further they are from the chosen card.
                     Rectangle {
                         anchors.fill: parent
                         color: "black"
-                        opacity: tile.chosen ? 0 : Math.min(0.6, 0.18 + 0.06 * tile.reach)
-                        Behavior on opacity { NumberAnimation { duration: Theme.fast } }
+                        opacity: tile.reach < 1 ? 0.24 * tile.reach : Math.min(0.6, 0.18 + 0.06 * tile.reach)
                     }
                     // Applying: the card dims under a note until the new wallpaper is up.
                     Rectangle {
@@ -521,7 +545,7 @@ FocusScope {
                         }
                     }
                     Rectangle {
-                        visible: tile.inUse && tile.chosen
+                        visible: tile.inUse && tile.lead > 0.5
                         x: 16
                         y: 14
                         implicitWidth: inUseLabel.implicitWidth + 16
@@ -539,7 +563,7 @@ FocusScope {
                 }
                 // The wallpaper in use, among the slivers: a lit dot at the foot of its slice.
                 Rectangle {
-                    visible: tile.inUse && !tile.chosen
+                    visible: tile.inUse && tile.lead <= 0.5
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 10
@@ -683,10 +707,9 @@ FocusScope {
             anchors.left: parent.left
             anchors.bottom: parent.bottom
             height: 2
-            width: root.filtered.length > 1 ? parent.width * root.selected / (root.filtered.length - 1) : parent.width
+            width: root.filtered.length > 1 ? parent.width * Math.max(0, Math.min(1, root.position / (root.filtered.length - 1))) : parent.width
             color: root.previewAccent
             opacity: root.current ? 0.9 : 0
-            Behavior on width { NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut } }
             Behavior on color { ColorAnimation { duration: Theme.fast } }
         }
     }
