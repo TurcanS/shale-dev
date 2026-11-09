@@ -119,6 +119,8 @@ FocusScope {
     }
     readonly property int preferredContentHeight: Math.ceil(controlContent.implicitHeight + (errorLabel.visible ? errorLabel.implicitHeight + 10 : 0) + (actionFooter.visible ? actionFooter.implicitHeight + 10 : 0))
     property string error: ""
+    // The output's live level, which the Sound view's strips read.
+    readonly property alias outputMeter: outputLevel
     // A request is running exactly while pendingMethod names it.
     readonly property bool busy: pendingMethod !== ""
     // Busy with something the user asked for; background list refreshes don't dim the page.
@@ -362,7 +364,7 @@ FocusScope {
             if (root.pairing && ShellState.detail !== "bluetooth") {
                 Backend.request("bluetooth.reply", { accept: false });
                 root.pairing = null;
-                pin.clear();
+                bluetoothView.clearPin();
             }
             root.refresh();
             if (ShellState.detail !== "bluetooth")
@@ -414,114 +416,6 @@ FocusScope {
         readonly property real level: Services.muted ? 0 : Math.min(1, (outputLevel.levels[0] || 0) / 1000)
     }
 
-    // A module's title row: title and a quiet note, then whatever controls it holds.
-    component ModuleHeader: RowLayout {
-        id: moduleHeader
-        property string title: ""
-        property string note: ""
-        property bool large: false
-        property bool noteRight: false
-        Layout.fillWidth: true
-        Layout.minimumHeight: 28
-        spacing: Theme.gapS
-        C.Label {
-            text: moduleHeader.title
-            font.pixelSize: moduleHeader.large ? 15 : 14
-            font.weight: moduleHeader.large ? 650 : Font.DemiBold
-            elide: Text.ElideNone
-        }
-        C.Label {
-            text: moduleHeader.note
-            color: Theme.textDim
-            font.pixelSize: 12
-            horizontalAlignment: moduleHeader.noteRight ? Text.AlignRight : Text.AlignLeft
-            Layout.fillWidth: true
-            Layout.minimumWidth: 0
-            Layout.leftMargin: 2
-        }
-    }
-    // A 28 px key inside modules (Scan, Forget, +5 min).
-    component SmallKey: C.Button {
-        id: smallKey
-        property color rest: Theme.key
-        implicitHeight: 28
-        leftPadding: 10
-        rightPadding: 10
-        topPadding: 0
-        bottomPadding: 0
-        labelSize: 12
-        cornerRadius: 8
-        background: Rectangle {
-            radius: smallKey.cornerRadius
-            color: !smallKey.enabled ? Theme.key : smallKey.accent ? (smallKey.hovered || smallKey.down ? Theme.accentHover : Theme.accent) : smallKey.rest
-            Behavior on color {
-                ColorAnimation {
-                    duration: Theme.fast
-                }
-            }
-            Rectangle {
-                anchors.fill: parent
-                radius: parent.radius
-                visible: !smallKey.accent
-                color: smallKey.wash
-                opacity: smallKey.enabled && (smallKey.hovered || smallKey.down || smallKey.visualFocus) ? 1 : 0
-                Behavior on opacity {
-                    NumberAnimation {
-                        duration: Theme.fast
-                    }
-                }
-            }
-        }
-    }
-    // A 44 px key in the power row.
-    component PowerKey: C.Button {
-        id: powerKey
-        implicitHeight: 44
-        labelSize: 13
-        cornerRadius: Theme.radiusCard
-        background: Rectangle {
-            radius: powerKey.cornerRadius
-            color: powerKey.selected ? Theme.accentSoft : powerKey.hovered || powerKey.down || powerKey.visualFocus ? Theme.mix(Theme.module, Theme.text, 0.05) : Theme.module
-            border.width: powerKey.selected ? 1 : 0
-            border.color: Theme.accentLine
-            Behavior on color {
-                ColorAnimation {
-                    duration: Theme.fast
-                }
-            }
-        }
-    }
-    // Three small bars beside the chosen output; they move while something plays, and rest under reduced motion
-    // or power saving.
-    component LevelBars: Row {
-        id: levelBars
-        property bool live: false
-        spacing: 2
-        height: 14
-        Repeater {
-            model: [0.55, 0.9, 0.7]
-            Rectangle {
-                id: levelBar
-                required property real modelData
-                required property int index
-                property real level: modelData
-                anchors.bottom: parent.bottom
-                width: 3
-                height: Math.max(3, 14 * level)
-                radius: 1
-                color: Theme.accent
-                SequentialAnimation on level {
-                    running: levelBars.live && levelBars.visible && !Theme.reduced && !Theme.lowPower
-                    loops: Animation.Infinite
-                    onRunningChanged: if (!running) levelBar.level = levelBar.modelData
-                    NumberAnimation { to: 0.25; duration: 240 + levelBar.index * 60; easing.type: Easing.InOutSine }
-                    NumberAnimation { to: 0.9; duration: 300 + levelBar.index * 40; easing.type: Easing.InOutSine }
-                    NumberAnimation { to: 0.45; duration: 220 + levelBar.index * 50; easing.type: Easing.InOutSine }
-                    NumberAnimation { to: 1; duration: 280; easing.type: Easing.InOutSine }
-                }
-            }
-        }
-    }
     // One output device: icon, name, and the live bars when it is the one playing.
     component OutputKey: C.Button {
         id: outputKey
@@ -567,7 +461,7 @@ FocusScope {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 0
             }
-            LevelBars {
+            ControlLevelBars {
                 visible: outputKey.selected
                 live: NowPlaying.playing && !Services.muted
             }
@@ -633,263 +527,6 @@ FocusScope {
             font.features: {"tnum": 1}
             horizontalAlignment: Text.AlignRight
             Layout.preferredWidth: 34
-        }
-    }
-    // One arc of the Wi-Fi strength glyph, in the icon set's 24-unit box.
-    component SignalArc: ShapePath {
-        id: arc
-        property string d: ""
-        property bool lit: true
-        property color color: Theme.text
-        scale: Qt.size(18 / 24, 18 / 24)
-        strokeWidth: 1.5
-        strokeColor: lit ? color : Theme.mix(Theme.module, Theme.text, 0.18)
-        fillColor: "transparent"
-        capStyle: ShapePath.RoundCap
-        PathSvg { path: arc.d }
-    }
-    component SignalIcon: Shape {
-        id: signalIcon
-        property int bars: 4
-        property color color: Theme.text
-        implicitWidth: 18
-        implicitHeight: 18
-        preferredRendererType: Shape.CurveRenderer
-        SignalArc { d: "M4 9.5a12 12 0 0 1 16 0"; lit: signalIcon.bars >= 4; color: signalIcon.color }
-        SignalArc { d: "M7 13a7.5 7.5 0 0 1 10 0"; lit: signalIcon.bars >= 3; color: signalIcon.color }
-        SignalArc { d: "M10 16.5a3 3 0 0 1 4 0"; lit: signalIcon.bars >= 2; color: signalIcon.color }
-        SignalArc { d: "M12 19.5h.01"; color: signalIcon.color }
-    }
-    // M and S on a channel strip.
-    component StripKey: C.Button {
-        id: stripKey
-        property color onColor: Theme.accentSoft
-        property color onText: Theme.accentText
-        implicitWidth: 26
-        implicitHeight: 22
-        padding: 0
-        labelSize: 11
-        cornerRadius: 6
-        foreground: selected ? onText : Theme.textMuted
-        Accessible.role: Accessible.CheckBox
-        Accessible.checkable: true
-        Accessible.checked: selected
-        background: Rectangle {
-            radius: stripKey.cornerRadius
-            color: stripKey.selected ? stripKey.onColor : stripKey.hovered || stripKey.down || stripKey.visualFocus ? Theme.keyHover : Theme.keyTile
-            Behavior on color {
-                ColorAnimation {
-                    duration: Theme.fast
-                }
-            }
-        }
-    }
-    // One mixer channel: colour tag, name, pan ring, stereo meters beside the fader, level, then M and S.
-    component Strip: Rectangle {
-        id: strip
-        property string title: ""
-        property color tag: Theme.key
-        property color fillColor: Theme.textDim
-        property color meterColor: Theme.accent
-        property real value: 0
-        property real maximum: 1
-        property bool muted: false
-        property bool soloable: false
-        property bool soloed: false
-        // Muted, or silenced by another channel's solo.
-        property bool silent: muted
-        property real meter: 0
-        property real pan: 0
-        property bool pannable: false
-        signal moved(real value)
-        signal muteClicked()
-        signal soloClicked()
-        signal panMoved(real pan)
-        implicitWidth: 72
-        radius: Theme.radiusCard
-        color: Theme.moduleAlt
-        // The tag follows the strip's rounded top: the top 3 px of a rounded shape the strip's size.
-        Item {
-            width: parent.width
-            height: 3
-            clip: true
-            Rectangle {
-                width: strip.width
-                height: strip.height
-                radius: strip.radius
-                color: strip.tag
-            }
-        }
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.topMargin: 11
-            anchors.bottomMargin: 8
-            spacing: Theme.gapS
-            C.Label {
-                text: strip.title
-                font.pixelSize: 12
-                font.weight: Font.DemiBold
-                horizontalAlignment: Text.AlignHCenter
-                Layout.alignment: Qt.AlignHCenter
-                Layout.maximumWidth: strip.width - 8
-            }
-            // Pan: drag sideways or scroll; a double-click centres it.
-            Item {
-                Layout.alignment: Qt.AlignHCenter
-                implicitWidth: 30
-                implicitHeight: 30
-                opacity: strip.pannable ? 1 : 0.5
-                Accessible.name: strip.title + " pan"
-                C.Ring {
-                    anchors.fill: parent
-                    size: 30
-                    thickness: 3
-                    span: 130
-                    value: strip.pan
-                    color: Theme.textSecondary
-                }
-                Rectangle {
-                    anchors.centerIn: parent
-                    width: 4
-                    height: 4
-                    radius: 2
-                    color: Theme.textDim
-                }
-                MouseArea {
-                    property real startX: 0
-                    property real startPan: 0
-                    anchors.fill: parent
-                    enabled: strip.pannable
-                    cursorShape: Qt.SizeHorCursor
-                    onPressed: mouse => {
-                        startX = mouse.x;
-                        startPan = strip.pan;
-                    }
-                    onPositionChanged: mouse => {
-                        if (pressed)
-                            strip.panMoved(startPan + (mouse.x - startX) / 40);
-                    }
-                    onDoubleClicked: strip.panMoved(0)
-                    onWheel: wheel => strip.panMoved(strip.pan + (wheel.angleDelta.y > 0 ? 0.1 : -0.1))
-                }
-            }
-            Item {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillHeight: true
-                Layout.minimumHeight: 80
-                implicitWidth: 56
-                Repeater {
-                    // Left and right; the right one trails a little so the pair reads as stereo.
-                    model: [6, 12]
-                    Rectangle {
-                        required property real modelData
-                        required property int index
-                        x: modelData
-                        width: 4
-                        height: parent.height
-                        radius: 2
-                        color: Theme.mix(Theme.backdrop, Qt.rgba(0, 0, 0, 1), 0.2)
-                        clip: true
-                        Rectangle {
-                            anchors.bottom: parent.bottom
-                            width: parent.width
-                            height: parent.height * (strip.silent ? 0 : strip.meter * (index ? 0.94 : 1))
-                            gradient: Gradient {
-                                GradientStop { position: 0; color: strip.meterColor }
-                                GradientStop { position: 1; color: Theme.accentSoft }
-                            }
-                            Behavior on height {
-                                NumberAnimation {
-                                    duration: Theme.reduced ? 0 : 120
-                                    easing.type: Easing.OutQuad
-                                }
-                            }
-                        }
-                    }
-                }
-                Slider {
-                    id: fader
-                    x: 22
-                    width: 24
-                    height: parent.height
-                    orientation: Qt.Vertical
-                    padding: 0
-                    topPadding: 7
-                    bottomPadding: 7
-                    from: 0
-                    to: strip.maximum
-                    stepSize: 0.01
-                    value: strip.value
-                    wheelEnabled: true
-                    Accessible.name: strip.title + " volume"
-                    onMoved: strip.moved(value)
-                    background: Item {
-                        Rectangle {
-                            x: (fader.width - width) / 2
-                            y: fader.topPadding
-                            width: 2
-                            height: fader.availableHeight
-                            radius: 1
-                            color: Theme.key
-                        }
-                        Rectangle {
-                            x: (fader.width - width) / 2
-                            y: fader.topPadding + fader.visualPosition * fader.availableHeight
-                            width: 2
-                            height: (1 - fader.visualPosition) * fader.availableHeight
-                            radius: 1
-                            color: strip.silent ? Theme.textFaint : strip.fillColor
-                        }
-                    }
-                    handle: Rectangle {
-                        x: (fader.width - width) / 2
-                        y: fader.topPadding + fader.visualPosition * fader.availableHeight - height / 2
-                        width: 24
-                        height: 14
-                        radius: 4
-                        color: Theme.knob
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 14
-                            height: 2
-                            radius: 1
-                            color: Theme.accentInk
-                        }
-                        C.FocusRing {
-                            visible: fader.visualFocus
-                            inset: 3
-                            radius: 7
-                        }
-                    }
-                }
-            }
-            C.Label {
-                text: strip.muted ? "Off" : String(Math.round((fader.pressed ? fader.value : strip.value) * 100))
-                color: strip.silent ? Theme.textFaint : Theme.textSecondary
-                font.family: Theme.mono
-                font.pixelSize: 11
-                font.features: {"tnum": 1}
-                Layout.alignment: Qt.AlignHCenter
-            }
-            Row {
-                Layout.alignment: Qt.AlignHCenter
-                spacing: 4
-                StripKey {
-                    text: "M"
-                    hint: (strip.muted ? "Unmute " : "Mute ") + strip.title
-                    selected: strip.muted
-                    onColor: Theme.tint(Theme.danger, 0.2)
-                    onText: Theme.dangerText
-                    onClicked: strip.muteClicked()
-                }
-                StripKey {
-                    visible: strip.soloable
-                    text: "S"
-                    hint: strip.soloed ? "Stop playing " + strip.title + " alone" : "Play only " + strip.title
-                    selected: strip.soloed
-                    onClicked: strip.soloClicked()
-                }
-            }
         }
     }
     ColumnLayout {
@@ -1049,7 +686,7 @@ FocusScope {
                             anchors.topMargin: 10
                             anchors.bottomMargin: 10
                             spacing: 10
-                            ModuleHeader {
+                            ControlModuleHeader {
                                 title: "Output"
                                 // With one device there is nothing to choose: its name sits in the note instead.
                                 note: Services.audioOutputs.length === 1 ? root.outputName(Services.audioOutputs[0]) + " · playing apps follow" : "playing apps follow"
@@ -1125,7 +762,7 @@ FocusScope {
                                     }
                                 }
                             }
-                            SmallKey {
+                            ControlSmallKey {
                                 visible: Focus.active
                                 text: "+5"
                                 hint: "Five more minutes"
@@ -1163,175 +800,9 @@ FocusScope {
                 }
                 // The mixer: channel strips for the output, each app and the microphone (scrolling sideways when
                 // there are many), then the equalizer.
-                ColumnLayout {
-                    visible: ShellState.detail === "audio"
-                    Layout.fillWidth: true
-                    spacing: Theme.gapS
-                    C.StatusCard {
-                        visible: !Services.audioAvailable
-                        Layout.fillWidth: true
-                        glyph: "volume"
-                        title: "Audio unavailable"
-                        subtitle: "No output device or audio service"
-                    }
-                    ColumnLayout {
-                        visible: Services.audioAvailable
-                        Layout.fillWidth: true
-                        spacing: Theme.gapS
-                        C.Card {
-                            Layout.fillWidth: true
-                            implicitHeight: mixer.implicitHeight + 24
-                            ColumnLayout {
-                                id: mixer
-                                anchors.fill: parent
-                                anchors.margins: 12
-                                spacing: 10
-                                // The devices in use; each chip opens the list to pick another.
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: Theme.gapS
-                                    C.Label {
-                                        text: "Mixer"
-                                        font.pixelSize: 15
-                                        font.weight: 650
-                                        elide: Text.ElideNone
-                                    }
-                                    C.Chip {
-                                        text: "Out · " + (Services.output ? root.outputName(Services.output) : "none")
-                                        hint: "Choose the output"
-                                        rest: Theme.well
-                                        implicitHeight: 24
-                                        selected: root.deviceChooser === "out"
-                                        Layout.maximumWidth: 180
-                                        onClicked: root.deviceChooser = root.deviceChooser === "out" ? "" : "out"
-                                    }
-                                    C.Chip {
-                                        visible: Services.audioInputs.length > 0
-                                        text: "In · " + (Services.input ? root.outputName(Services.input) : "none")
-                                        hint: "Choose the microphone"
-                                        rest: Theme.well
-                                        implicitHeight: 24
-                                        selected: root.deviceChooser === "in"
-                                        Layout.maximumWidth: 160
-                                        onClicked: root.deviceChooser = root.deviceChooser === "in" ? "" : "in"
-                                    }
-                                    Item {
-                                        Layout.fillWidth: true
-                                    }
-                                }
-                                Flow {
-                                    visible: root.deviceChooser !== ""
-                                    Layout.fillWidth: true
-                                    spacing: 6
-                                    Repeater {
-                                        model: root.deviceChooser === "out" ? Services.audioOutputs : root.deviceChooser === "in" ? Services.audioInputs : []
-                                        C.Chip {
-                                            required property var modelData
-                                            text: modelData.description || modelData.name
-                                            glyph: root.deviceChooser === "in" ? "mic" : root.outputGlyph(text)
-                                            rest: Theme.key
-                                            selected: modelData === (root.deviceChooser === "in" ? Services.input : Services.output)
-                                            Accessible.role: Accessible.RadioButton
-                                            Accessible.checkable: true
-                                            Accessible.checked: selected
-                                            onClicked: {
-                                                if (root.deviceChooser === "in")
-                                                    Services.setInput(modelData);
-                                                else
-                                                    Services.setOutput(modelData);
-                                                root.deviceChooser = "";
-                                            }
-                                        }
-                                    }
-                                }
-                                Flickable {
-                                    id: stripView
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 236
-                                    contentWidth: strips.implicitWidth
-                                    contentHeight: height
-                                    flickableDirection: Flickable.HorizontalFlick
-                                    boundsBehavior: Flickable.StopAtBounds
-                                    clip: true
-                                    Row {
-                                        id: strips
-                                        height: parent.height
-                                        spacing: 6
-                                        // Few channels share the module's width (up to 120 px each, centred); many scroll at 72.
-                                        readonly property int lanes: 1 + Services.audioStreams.length + (Services.input ? 1 : 0)
-                                        readonly property real lane: Math.max(72, Math.min(120, (stripView.width - spacing * (lanes - 1)) / lanes))
-                                        x: Math.max(0, (stripView.width - width) / 2)
-                                        Strip {
-                                            height: strips.height
-                                            width: strips.lane
-                                            title: "Master"
-                                            tag: Theme.accent
-                                            fillColor: Theme.accent
-                                            value: root.level(Services.output)
-                                            maximum: ShellState.setting("amplification", false) ? 1.5 : 1
-                                            muted: Services.muted
-                                            meter: outputLevel.level
-                                            pan: root.balance(Services.output)
-                                            pannable: !!Services.output && !!Services.output.audio && (Services.output.audio.volumes || []).length === 2
-                                            onMoved: value => root.setLevel(Services.output, value, v => Services.setVolume(v))
-                                            onMuteClicked: Services.toggleMute()
-                                            onPanMoved: pan => root.setBalance(Services.output, pan)
-                                        }
-                                        Repeater {
-                                            model: Services.audioStreams
-                                            Strip {
-                                                required property var modelData
-                                                readonly property bool shut: !!modelData.audio && modelData.audio.muted
-                                                height: strips.height
-                                                width: strips.lane
-                                                title: root.streamName(modelData)
-                                                tag: Theme.mix(Theme.moduleAlt, Theme.text, 0.25)
-                                                value: root.level(modelData)
-                                                muted: shut
-                                                silent: shut || (!!root.soloTarget && root.soloTarget !== modelData)
-                                                soloable: true
-                                                soloed: root.soloTarget === modelData
-                                                meter: outputLevel.level * Math.min(1, root.level(modelData))
-                                                pan: root.balance(modelData)
-                                                pannable: !!modelData.audio && (modelData.audio.volumes || []).length === 2
-                                                enabled: !!modelData.audio
-                                                onMoved: value => root.setLevel(modelData, value, v => Services.setStreamVolume(modelData, v))
-                                                onMuteClicked: if (modelData.audio) modelData.audio.muted = !modelData.audio.muted
-                                                onSoloClicked: root.toggleSolo(modelData)
-                                                onPanMoved: pan => root.setBalance(modelData, pan)
-                                            }
-                                        }
-                                        Strip {
-                                            visible: !!Services.input
-                                            height: strips.height
-                                            width: strips.lane
-                                            title: "Mic"
-                                            tag: Theme.textSecondary
-                                            fillColor: Theme.textSecondary
-                                            meterColor: Theme.textSecondary
-                                            value: root.level(Services.input)
-                                            muted: Services.micMuted
-                                            pan: root.balance(Services.input)
-                                            pannable: !!Services.input && !!Services.input.audio && (Services.input.audio.volumes || []).length === 2
-                                            onMoved: value => root.setLevel(Services.input, value, v => Services.setMicVolume(v))
-                                            onMuteClicked: Services.toggleMicMute()
-                                            onPanMoved: pan => root.setBalance(Services.input, pan)
-                                        }
-                                    }
-                                }
-                                C.Caption {
-                                    visible: Services.audioStreams.length === 0
-                                    text: "Apps get a strip of their own while they play"
-                                    Layout.fillWidth: true
-                                }
-                            }
-                        }
-                        Equalizer {
-                            Layout.fillWidth: true
-                            graphHeight: 130
-                            active: ShellState.detail === "audio"
-                        }
-                    }
+                ControlSound {
+                    id: soundView
+                    control: root
                 }
                 // Network · Wi-Fi: the switch, the current network as an "on" card, then the others by strength.
                 C.EmptyState {
@@ -1354,7 +825,7 @@ FocusScope {
                         anchors.fill: parent
                         anchors.margins: 12
                         spacing: 6
-                        ModuleHeader {
+                        ControlModuleHeader {
                             title: "Wi-Fi"
                             large: true
                             note: !ShellState.wifi.powered ? "off" : root.pendingMethod === "wifi.power" ? "updating…"
@@ -1362,7 +833,7 @@ FocusScope {
                                   : root.busy ? "looking for networks…" : "no networks found"
                             Layout.leftMargin: 2
                             Layout.bottomMargin: 4
-                            SmallKey {
+                            ControlSmallKey {
                                 visible: ShellState.wifi.powered
                                 text: root.pendingMethod === "wifi.scan" || scanWait.running ? "Scanning…" : "Scan"
                                 hint: "Look for networks again"
@@ -1413,13 +884,13 @@ FocusScope {
                                             Layout.fillWidth: true
                                         }
                                     }
-                                    SmallKey {
+                                    ControlSmallKey {
                                         text: "Disconnect"
                                         rest: Qt.rgba(0, 0, 0, 0.25)
                                         enabled: !root.acting
                                         onClicked: root.perform("wifi.disconnect", {}, () => root.refresh())
                                     }
-                                    SmallKey {
+                                    ControlSmallKey {
                                         text: "Forget"
                                         hint: "Forget this network"
                                         rest: Qt.rgba(0, 0, 0, 0.25)
@@ -1436,7 +907,7 @@ FocusScope {
                                         font.pixelSize: Theme.small
                                         Layout.fillWidth: true
                                     }
-                                    SmallKey {
+                                    ControlSmallKey {
                                         text: "Cancel"
                                         rest: Qt.rgba(0, 0, 0, 0.25)
                                         onClicked: root.forgetPath = ""
@@ -1502,7 +973,7 @@ FocusScope {
                                         }
                                         contentItem: RowLayout {
                                             spacing: Theme.gapM
-                                            SignalIcon {
+                                            ControlSignalIcon {
                                                 bars: root.signalBars(networkRow.modelData.signal)
                                             }
                                             C.Label {
@@ -1562,7 +1033,7 @@ FocusScope {
                                             font.pixelSize: Theme.small
                                             Layout.fillWidth: true
                                         }
-                                        SmallKey {
+                                        ControlSmallKey {
                                             text: "Cancel"
                                             onClicked: root.forgetPath = ""
                                         }
@@ -1627,274 +1098,13 @@ FocusScope {
                     }
                 }
                 // Network · Bluetooth: the switch and Scan, a pairing prompt, then paired devices and nearby ones.
-                C.Card {
-                    visible: ShellState.detail === "bluetooth"
-                    Layout.fillWidth: true
-                    implicitHeight: bluetoothColumn.implicitHeight + 24
-                    ColumnLayout {
-                        id: bluetoothColumn
-                        anchors.fill: parent
-                        anchors.margins: 12
-                        spacing: 6
-                        ModuleHeader {
-                            title: "Bluetooth"
-                            large: true
-                            note: {
-                                const count = Services.bluetoothDevices.filter(d => d.connected).length;
-                                return !Services.bluetoothAvailable ? "no adapter detected" : !Services.bluetoothEnabled ? "off"
-                                     : count ? count + " connected" : Services.bluetoothScanning ? "searching nearby" : "on";
-                            }
-                            Layout.leftMargin: 2
-                            Layout.bottomMargin: 4
-                            // Scan turns while it looks; pressing it again stops.
-                            C.Button {
-                                id: bluetoothScan
-                                visible: Services.bluetoothEnabled
-                                text: Services.bluetoothScanning ? "Scanning" : "Scan"
-                                hint: Services.bluetoothScanning ? "Stop looking for devices" : "Look for devices to pair"
-                                implicitHeight: 28
-                                leftPadding: 10
-                                rightPadding: 10
-                                topPadding: 0
-                                bottomPadding: 0
-                                labelSize: 12
-                                cornerRadius: 8
-                                foreground: Services.bluetoothScanning ? Theme.accentText : Theme.text
-                                Accessible.role: Accessible.CheckBox
-                                Accessible.checkable: true
-                                Accessible.checked: Services.bluetoothScanning
-                                onClicked: Services.bluetoothScan(!Services.bluetoothScanning)
-                                background: Rectangle {
-                                    radius: bluetoothScan.cornerRadius
-                                    color: bluetoothScan.hovered || bluetoothScan.down || bluetoothScan.visualFocus ? Theme.keyHover : Theme.key
-                                    Behavior on color {
-                                        ColorAnimation {
-                                            duration: Theme.fast
-                                        }
-                                    }
-                                }
-                                contentItem: RowLayout {
-                                    spacing: 6
-                                    C.Icon {
-                                        id: scanSpinner
-                                        name: "spinner"
-                                        size: 13
-                                        color: bluetoothScan.foreground
-                                        RotationAnimator on rotation {
-                                            running: Services.bluetoothScanning && !Theme.reduced
-                                            from: 0
-                                            to: 360
-                                            duration: 900
-                                            loops: Animation.Infinite
-                                            onRunningChanged: if (!running) scanSpinner.rotation = 0
-                                        }
-                                    }
-                                    C.Label {
-                                        text: bluetoothScan.text
-                                        color: bluetoothScan.foreground
-                                        font.pixelSize: 12
-                                        font.weight: Font.DemiBold
-                                    }
-                                }
-                            }
-                            C.Switch {
-                                hint: Services.bluetoothEnabled ? "Turn Bluetooth off" : "Turn Bluetooth on"
-                                selected: Services.bluetoothEnabled
-                                enabled: Services.bluetoothAvailable
-                                onClicked: Services.bluetoothPower(!Services.bluetoothEnabled)
-                            }
-                        }
-                        Rectangle {
-                            visible: !!root.pairing
-                            Layout.fillWidth: true
-                            implicitHeight: pairingContent.implicitHeight + 24
-                            radius: Theme.radiusCard
-                            color: Theme.accentSoft
-                            border.width: 1
-                            border.color: Theme.accentLine
-                            ColumnLayout {
-                                id: pairingContent
-                                anchors.fill: parent
-                                anchors.margins: 12
-                                spacing: Theme.gapS
-                                C.Label {
-                                    text: root.pairing ? root.pairing.message : ""
-                                    Layout.fillWidth: true
-                                    wrapMode: Text.WordWrap
-                                }
-                                C.Field {
-                                    id: pin
-                                    Layout.fillWidth: true
-                                    implicitHeight: 36
-                                    placeholderText: "PIN or passkey"
-                                    visible: root.pairing && root.pairing.input
-                                }
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: Theme.gapS
-                                    C.Button {
-                                        text: "Reject"
-                                        implicitHeight: 32
-                                        onClicked: {
-                                            ShellState.run("bluetooth.reply", {
-                                                accept: false
-                                            });
-                                            root.pairing = null;
-                                        }
-                                    }
-                                    C.Button {
-                                        text: "Accept"
-                                        accent: true
-                                        implicitHeight: 32
-                                        Layout.fillWidth: true
-                                        enabled: !!root.pairing && (!root.pairing.input || pin.text.trim().length > 0)
-                                        onClicked: {
-                                            ShellState.run("bluetooth.reply", {
-                                                accept: true,
-                                                value: pin.text
-                                            });
-                                            pin.clear();
-                                            root.pairing = null;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // Paired devices, connected first.
-                        Repeater {
-                            model: Services.bluetoothEnabled ? root.pairedDevices : []
-                            BluetoothDeviceRow {
-                                required property var modelData
-                                Layout.fillWidth: true
-                                device: modelData
-                                working: root.bluetoothWork[modelData.dbusPath] || ""
-                                autoConnect: root.autoConnectList.indexOf(String(modelData.address).toUpperCase()) >= 0
-                                expanded: root.expandedDevice === modelData.dbusPath
-                                locked: root.acting
-                                onActivated: root.bluetoothActivate(modelData)
-                                onOptionsRequested: root.expandedDevice = expanded ? "" : modelData.dbusPath
-                                onAutoConnectToggled: root.toggleAutoConnect(modelData)
-                                onForgetRequested: {
-                                    root.expandedDevice = "";
-                                    modelData.forget();
-                                }
-                            }
-                        }
-                        C.EmptyState {
-                            visible: Services.bluetoothEnabled && root.nearbyDevices.length === 0 && root.pairedDevices.length === 0
-                            Layout.fillWidth: true
-                            Layout.topMargin: Theme.gapM
-                            Layout.bottomMargin: Theme.gapM
-                            glyph: "bluetooth"
-                            title: Services.bluetoothScanning ? "Looking for devices…" : "No devices yet"
-                            description: Services.bluetoothScanning ? "Put your device in pairing mode" : "Scan to find nearby devices"
-                        }
-                        // Devices found nearby, to pair.
-                        C.Caption {
-                            visible: Services.bluetoothEnabled && (root.nearbyDevices.length > 0 || root.pairedDevices.length > 0)
-                            text: root.nearbyDevices.length > 0 ? "Nearby" : Services.bluetoothScanning ? "Looking for devices in pairing mode…" : "Scan to add a new device"
-                            font.pixelSize: 12
-                            Layout.fillWidth: true
-                            Layout.leftMargin: 4
-                            Layout.topMargin: 4
-                        }
-                        Repeater {
-                            model: Services.bluetoothEnabled ? root.nearbyDevices : []
-                            BluetoothDeviceRow {
-                                required property var modelData
-                                Layout.fillWidth: true
-                                device: modelData
-                                locked: root.acting
-                                onActivated: root.bluetoothActivate(modelData)
-                            }
-                        }
-                        SmallKey {
-                            visible: Services.bluetoothEnabled && root.hiddenDevices > 0 && !root.showAllDevices
-                            text: "Show " + root.hiddenDevices + (root.hiddenDevices === 1 ? " unnamed device" : " unnamed devices")
-                            rest: "transparent"
-                            Layout.alignment: Qt.AlignHCenter
-                            onClicked: root.showAllDevices = true
-                        }
-                    }
+                ControlBluetooth {
+                    id: bluetoothView
+                    control: root
                 }
-                ColumnLayout {
-                    visible: ShellState.detail === "power"
-                    Layout.fillWidth: true
-                    spacing: Theme.gapS
-                    C.StatusCard {
-                        Layout.fillWidth: true
-                        glyph: Services.batteryCharging ? "bolt" : Services.batteryAvailable ? "battery" : "gauge"
-                        title: Services.batteryAvailable ? Math.round(Services.batteryPercent) + "%" : "AC power"
-                        subtitle: {
-                            const state = Services.batteryCharging ? "Charging" : Services.onBattery ? "On battery" : "Plugged in";
-                            const seconds = Services.batterySeconds;
-                            return state + (seconds > 0 ? " · " + (seconds >= 3600 ? Math.floor(seconds / 3600) + "h " : "") + Math.floor(seconds % 3600 / 60) + "m " + (Services.batteryCharging ? "until full" : "remaining") : "");
-                        }
-                        level: Services.batteryAvailable ? Services.batteryPercent / 100 : -1
-                        positive: Services.batteryCharging
-                    }
-                    C.SectionHeader {
-                        text: "Power mode"
-                        Layout.topMargin: Theme.gapXs
-                    }
-                    C.Label {
-                        visible: !(ShellState.profiles.profiles || []).length
-                        text: root.busy ? "Loading power modes…" : "Power modes are unavailable on this device."
-                        color: Theme.textMuted
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
-                    }
-                    Repeater {
-                        model: ShellState.profiles.profiles || []
-                        C.ListRow {
-                            required property string modelData
-                            Layout.fillWidth: true
-                            text: ({"power-saver": "Power saver", "balanced": "Balanced", "performance": "Performance"})[modelData] || modelData
-                            subtitle: ({"power-saver": "Longest battery life, quiet fans", "balanced": "Fast when needed, efficient at idle", "performance": "Full CPU and GPU power"})[modelData] || "System power profile"
-                            glyph: modelData === "power-saver" ? "leaf" : modelData === "performance" ? "bolt" : "gauge"
-                            selected: ShellState.profiles.active === modelData
-                            enabled: !root.acting
-                            Accessible.role: Accessible.RadioButton
-                            Accessible.checkable: true
-                            Accessible.checked: selected
-                            onClicked: root.perform("power.set", {
-                                profile: modelData
-                            }, r => ShellState.profiles = r)
-                        }
-                    }
-                    C.Label {
-                        id: tunedHint
-                        // The installer lives in the Shale repository; a shell run from there knows its path.
-                        readonly property string script: Paths.localPath(Qt.resolvedUrl("../scripts/install-power.py"))
-                        property bool scriptFound: false
-                        visible: (ShellState.profiles.profiles || []).length > 0 && ShellState.profiles.tuned === false
-                        function probe() {
-                            if (visible && !scriptFound && !scriptProbe.running)
-                                scriptProbe.running = true;
-                        }
-                        onVisibleChanged: probe()
-                        Component.onCompleted: probe()
-                        text: "Using the stock tuned profiles. For the full effect, run " + (scriptFound
-                            ? "sudo python3 " + (/^[\w\/.+-]+$/.test(script) ? script : "'" + script.replace(/'/g, "'\\''") + "'") + " --apply"
-                            : "this from the Shale repository: sudo python3 \"$PWD/scripts/install-power.py\" --apply")
-                        color: Theme.textMuted
-                        font.pixelSize: Theme.small
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
-                        Process {
-                            id: scriptProbe
-                            command: ["test", "-f", tunedHint.script]
-                            onExited: code => tunedHint.scriptFound = code === 0
-                        }
-                    }
-                    C.Toggle {
-                        visible: Backend.capabilities.builtinPanel !== false
-                        Layout.fillWidth: true
-                        Layout.topMargin: Theme.gapXs
-                        text: "Lower refresh rate in power saver"
-                        selected: ShellState.setting("saverRefresh", true)
-                        onClicked: ShellState.setSetting("saverRefresh", !ShellState.setting("saverRefresh", true))
-                    }
+                ControlPower {
+                    id: powerView
+                    control: root
                 }
                 UpdatePage {
                     visible: ShellState.detail === "update"
@@ -1985,7 +1195,7 @@ FocusScope {
     }
     Component {
         id: captureKey
-        PowerKey {
+        ControlPowerKey {
             glyph: "camera"
             hint: "Capture"
             implicitWidth: 44
@@ -1994,7 +1204,7 @@ FocusScope {
     }
     Component {
         id: lockKey
-        PowerKey {
+        ControlPowerKey {
             glyph: "lock"
             hint: "Lock"
             implicitWidth: 44
@@ -2004,7 +1214,7 @@ FocusScope {
     }
     Component {
         id: sleepKey
-        PowerKey {
+        ControlPowerKey {
             glyph: "moon"
             hint: "Sleep · locks first"
             implicitWidth: 44
@@ -2015,7 +1225,7 @@ FocusScope {
     Component {
         id: restartKey
         // Armed, it spells out the question until the second press or the timeout.
-        PowerKey {
+        ControlPowerKey {
             text: root.restartArmed ? "Restart?" : ""
             glyph: "refresh"
             implicitWidth: root.restartArmed ? implicitContentWidth + leftPadding + rightPadding : 44
