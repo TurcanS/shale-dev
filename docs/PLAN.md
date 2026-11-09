@@ -241,3 +241,11 @@ layouts Work / Play / Evening, Mine saved in `widgetSaved`); new cards `WidgetsP
 Wi-Fi and home views and the splits of Activity, BarContent and Launcher (same method: move a block, rename `root.`
 to the page property, check ids used outside), the Builder board's bar row and room meters, and Settings' sidebar
 footer.
+
+Carry-over from the wallpaper crate: Wallpapers has no case any more (`chromeless`, 1440×600). The wallpapers are
+leaning slices (`lean` 0.12) around the chosen 16:10 card, narrowing by 0.82 per step and dealt out from the centre on
+opening; the chosen card is ringed and lit in the accent that wallpaper would give (`previewAccent`), which also lights
+the transport's position line. Left/Right step, Up/Down jump five, Home/End, wheel, Enter or double-click applies;
+online sources load the next page within four of the end. The thumbnail caching, sources, search and the
+`wallpaper-picker` IPC are unchanged. Not drawn any more: the per-tile accent dots and the "Add wallpapers" tile (the
+folder key in the transport opens the folder).
