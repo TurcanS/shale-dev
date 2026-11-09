@@ -1257,9 +1257,10 @@ FocusScope {
                                         id: strips
                                         height: parent.height
                                         spacing: 6
-                                        // Few channels share the module's width (up to 140 px each); many scroll at 72.
+                                        // Few channels share the module's width (up to 120 px each, centred); many scroll at 72.
                                         readonly property int lanes: 1 + Services.audioStreams.length + (Services.input ? 1 : 0)
-                                        readonly property real lane: Math.max(72, Math.min(140, (stripView.width - spacing * (lanes - 1)) / lanes))
+                                        readonly property real lane: Math.max(72, Math.min(120, (stripView.width - spacing * (lanes - 1)) / lanes))
+                                        x: Math.max(0, (stripView.width - width) / 2)
                                         Strip {
                                             height: strips.height
                                             width: strips.lane
