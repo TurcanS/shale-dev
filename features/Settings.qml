@@ -140,7 +140,8 @@ FocusScope {
             General: ["clock24h", "weekStart", "weatherUnits", "searchEngine", "terminal", "updateCheck"],
             Notifications: ["persistNotifications", "focusMinutes"],
             Sound: ["amplification", "mediaRemaining"],
-            Capture: ["screenshotDirectory", "recordingDirectory", "recordAudio", "captureDelay"]
+            Capture: ["screenshotDirectory", "recordingDirectory", "recordAudio", "captureDelay"],
+            Diagnostics: ["systemWindow"]
         })
     readonly property var currentCategory: categories.find(item => item.name === category) || categories[0]
     // Opens a page by its name or as typed after `shale settings` ("control-center").
@@ -709,6 +710,20 @@ FocusScope {
                                     fallback: true
                                 }
                             }
+                            C.SectionHeader { text: "History" }
+                            C.Group {
+                                OpenRow {
+                                    id: findHistory
+                                    // What Find remembers: how often apps and emoji were picked, and commands run with >.
+                                    readonly property int count: Object.keys(ShellState.setting("appUsage", {})).length + Object.keys(ShellState.setting("emojiUsage", {})).length + ShellState.setting("runHistory", []).length
+                                    label: "Find history"
+                                    description: count ? "The apps, emoji and commands Find puts first. Pinned apps stay." : "Nothing remembered yet"
+                                    action: "Clear"
+                                    glyph: "trash"
+                                    enabled: count > 0
+                                    onOpened: ShellState.resetSettings(["appUsage", "emojiUsage", "runHistory"], () => ShellState.message("Find history cleared", "success", {label: "Undo", run: () => ShellState.restoreSettings()}))
+                                }
+                            }
                         }
 
                         // Notifications: history and focus sessions.
@@ -951,7 +966,7 @@ FocusScope {
                             description: "Hold to put this page back to how Shale comes"
                             onConfirmed: {
                                 const page = root.category;
-                                ShellState.resetSettings(root.resetKeys[page], () => ShellState.message(page + " settings reset", "success"));
+                                ShellState.resetSettings(root.resetKeys[page], () => ShellState.message(page + " settings reset", "success", {label: "Undo", run: () => ShellState.restoreSettings()}));
                             }
                         }
                     }

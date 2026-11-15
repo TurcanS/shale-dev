@@ -202,12 +202,36 @@ QtObject {
     function setting(key, fallback) {
         return settings[key] === undefined ? fallback : settings[key];
     }
+    // The settings changed here that the helper hasn't confirmed saving. Only these are sent, so a value the helper
+    // wrote meanwhile is never overwritten, and they survive a helper that restarts before it saved them.
+    property var unsaved: ({})
     function setSetting(key, value) {
         const next = Object.assign({}, settings);
         next[key] = value;
         settings = next;
+        unsaved[key] = true;
         save.restart();
     }
+    // Reads the settings from the helper, keeping what was changed here and not saved yet.
+    function loadSettings() {
+        Backend.request("settings.get", {}, (r, e) => {
+            if (e)
+                return;
+            const loaded = Object.assign({}, r.settings || r);
+            const keys = Object.keys(unsaved);
+            for (const key of keys)
+                loaded[key] = settings[key];
+            settings = loaded;
+            if (keys.length)
+                save.restart();
+            // Said once: the same file is read again each time the helper restarts.
+            if (loaded.diagnostic && !settingsNoticed) {
+                settingsNoticed = true;
+                message(loaded.diagnostic, "error");
+            }
+        });
+    }
+    property bool settingsNoticed: false
     // Settings back to their defaults; a pending save goes first so it can't bring old values back.
     function resetSettings(keys, done) {
         if (save.running) {
@@ -219,8 +243,29 @@ QtObject {
                 message(e.message, "error");
                 return;
             }
+            for (const key of keys)
+                delete unsaved[key];
             settings = r;
             settingsSaved();
+            if (done)
+                done();
+        });
+    }
+    // Puts back the settings from before the last reset or import (the helper keeps them in config.previous.json).
+    function restoreSettings(done) {
+        if (save.running) {
+            save.stop();
+            save.triggered();
+        }
+        Backend.request("settings.restore", {}, (r, e) => {
+            if (e) {
+                message(e.message, "error");
+                return;
+            }
+            unsaved = {};
+            settings = r.settings;
+            settingsSaved();
+            message(r.problem ? "Settings put back. " + r.problem : "Settings put back", r.problem ? "error" : "success");
             if (done)
                 done();
         });
@@ -517,12 +562,39 @@ QtObject {
     }
     property Timer save: Timer {
         interval: 350
-        onTriggered: Backend.request("settings.set", {
-            settings: root.settings
-        }, (r, e) => {
-            if (!e)
+        onTriggered: {
+            const keys = Object.keys(root.unsaved);
+            if (!keys.length)
+                return;
+            const changes = {};
+            for (const key of keys)
+                changes[key] = root.settings[key];
+            Backend.request("settings.set", {
+                settings: changes
+            }, (r, e) => {
+                if (e) {
+                    // A helper that stopped says so itself, and gets these again once it is back.
+                    if (Backend.ready)
+                        root.message("Settings weren't saved: " + e.message, "error");
+                    return;
+                }
+                // A setting changed again since it was sent stays unsaved for the next round.
+                for (const key of keys)
+                    if (JSON.stringify(root.settings[key]) === JSON.stringify(changes[key]))
+                        delete root.unsaved[key];
+                const rejected = r.rejected || [];
+                if (rejected.length) {
+                    const next = Object.assign({}, root.settings);
+                    for (const item of rejected) {
+                        next[item.key] = r[item.key];
+                        delete root.unsaved[item.key];
+                    }
+                    root.settings = next;
+                    root.message(rejected[0].message + (rejected.length > 1 ? " " + (rejected.length - 1) + " more settings weren't saved either." : " That setting is back as it was."), "error");
+                }
                 root.settingsSaved();
-        })
+            });
+        }
     }
     property bool helperDown: false
     property Timer helperStable: Timer {
@@ -541,10 +613,7 @@ QtObject {
                 return;
             }
             helperStable.restart();
-            Backend.request("settings.get", {}, (r, e) => {
-                if (!e)
-                    root.settings = r.settings || r;
-            });
+            root.loadSettings();
             // Changes made while the helper was down never reached logind. At the shell's own start an
             // unlocked state is left alone: hyprlock may be covering for a shell that died locked.
             if (root.locked || root.helperDown)
@@ -572,10 +641,7 @@ QtObject {
         }
     }
     Component.onCompleted: if (Backend.ready) {
-        Backend.request("settings.get", {}, (r, e) => {
-            if (!e)
-                root.settings = r.settings || r;
-        });
+        root.loadSettings();
         root.refreshRecording();
         root.refreshWifi();
         root.refreshProfiles();

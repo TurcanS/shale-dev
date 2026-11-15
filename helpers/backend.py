@@ -100,10 +100,18 @@ CONTROL_FOOTER = ("capture", "settings", "lock", "session")
 WIDGET_CARDS = ("clock", "sky", "note", "system", "player", "timers")
 WIDGET_CORNERS = ("top-left", "top-right", "bottom-left", "bottom-right")
 MAX_WIDGET_CARDS = 6
-# Personal history and state, and this computer's folders; a settings export leaves them out and an import
-# ignores them, so a file from elsewhere can't redirect where screenshots, recordings or downloads are saved.
+# Personal history and state, and this computer's folders and screens; a settings export leaves them out and an
+# import ignores them, so a file from elsewhere can't redirect where screenshots, recordings or downloads are saved,
+# hide a bar here, or turn activity recording on without the question the Activity panel asks.
 PRIVATE_KEYS = ("appUsage", "emojiUsage", "runHistory", "pinnedApps", "focusSession", "timers", "weatherLocation",
-                "screenshotDirectory", "recordingDirectory", "wallpaperDirectory", "bluetoothAutoConnect")
+                "screenshotDirectory", "recordingDirectory", "wallpaperDirectory", "bluetoothAutoConnect",
+                "activityTracking", "hiddenOutputs")
+# What a restore of the settings from before leaves as it is now: shortcuts are bound in the compositor, and a
+# session or timer from then would be stale.
+RESTORE_KEEPS = ("shortcuts", "focusSession", "timers")
+# How each terminal takes a command to run; $TERMINAL is assumed to follow the common -e convention.
+TERMINALS = (("xdg-terminal-exec",), ("foot",), ("kitty",), ("alacritty", "-e"), ("wezterm", "start", "--"),
+             ("ghostty", "-e"), ("konsole", "-e"), ("gnome-terminal", "--"))
 ACTIVITY_TRACKING = ("ask", "on", "off")
 
 def keyboard_state(devices):
@@ -221,6 +229,16 @@ def check_ids(lists, known, what):
     if not all(isinstance(item, str) and item in known for item in ids) or len(ids) != len(set(ids)):
         raise BackendError("invalid", f"Incorrect {what}.")
 
+def check_names(value, count, length):
+    """A list of up to `count` different, non-empty strings of up to `length` characters."""
+    return (len(value) <= count and all(isinstance(item, str) and 0 < len(item) <= length for item in value)
+            and len(set(value)) == len(value))
+
+def check_counts(value, count, length):
+    """How often something was used: up to `count` names, each with a whole number up to 1000 (the shell's cap)."""
+    return len(value) <= count and all(isinstance(name, str) and 0 < len(name) <= length and type(uses) is int
+                                       and 0 <= uses <= 1000 for name, uses in value.items())
+
 def check_setting(key, value):
     """Raises an "invalid" error for a value of a known setting that the shell can't use."""
     if type(value) is not type(DEFAULTS[key]):
@@ -237,8 +255,20 @@ def check_setting(key, value):
         raise BackendError("invalid", "Choose a supported surface tone.")
     if key in ("accentColor", "accentManual") and ((luminance := accent_luminance(value)) is None or luminance < 0.28):
         raise BackendError("invalid", "Choose a brighter six-digit hex color.")
-    if key in ("screenshotDirectory", "recordingDirectory", "wallpaperDirectory") and not (value.startswith("~/") or Path(value).is_absolute()):
-        raise BackendError("invalid", "Capture folders must be absolute paths or start with ~/.")
+    if key in ("screenshotDirectory", "recordingDirectory", "wallpaperDirectory") and (
+            not (value.startswith("~/") or value.startswith("/")) or re.search(r"[\0\r\n]", value) or len(value) > 4096):
+        raise BackendError("invalid", "Folders must be absolute paths or start with ~/.")
+    if key == "systemWindow" and value not in (60, 300):
+        raise BackendError("invalid", "Choose one minute or five for the system monitor.")
+    if key == "hiddenOutputs" and not check_names(value, 16, 64):
+        raise BackendError("invalid", "Incorrect list of screens without a bar.")
+    if key == "pinnedApps" and not check_names(value, 200, 300):
+        raise BackendError("invalid", "Incorrect pinned apps.")
+    # The shell keeps the 200 most used apps and the 60 most used emoji.
+    if key == "appUsage" and not check_counts(value, 250, 300):
+        raise BackendError("invalid", "Incorrect app history.")
+    if key == "emojiUsage" and not check_counts(value, 100, 64):
+        raise BackendError("invalid", "Incorrect emoji history.")
     if key == "eqPreset" and value not in (*equalizer.PRESETS, "custom"):
         raise BackendError("invalid", "Choose a supported equalizer preset.")
     if key == "lockScreen" and value not in ("builtin", "hyprlock"):
@@ -308,7 +338,7 @@ def check_setting(key, value):
         raise BackendError("invalid", "Choose a floating or edge-to-edge bar.")
     if key == "weekStart" and value not in ("locale", "monday", "sunday", "saturday"):
         raise BackendError("invalid", "Choose the first day of the week.")
-    if key == "terminal" and value != "auto" and value not in (prefix[0] for prefix in Backend.TERMINALS):
+    if key == "terminal" and value != "auto" and value not in (prefix[0] for prefix in TERMINALS):
         raise BackendError("invalid", "Choose a supported terminal.")
     try:
         if key == "weatherLocation":
@@ -341,20 +371,34 @@ def settings():
         return {**DEFAULTS, **value, "diagnostic": "Some settings could not be loaded and use their defaults: " + ", ".join(rejected) + "."}
     return {**DEFAULTS, **value}
 
-def save_settings(changes):
-    """Saves the known keys of `changes` after validating them; returns every setting."""
+PREVIOUS = CONFIG.with_suffix(".previous.json")
+
+def save_settings(changes, rejected=None, keep_previous=False):
+    """Saves the known keys of `changes` after validating them; returns every setting.
+
+    A value that can't be used raises, or with a `rejected` list is left as it was and added to the list as
+    {key, message}, so one bad value doesn't hold back the rest. `keep_previous` first copies the settings as
+    they are to config.previous.json: a reset or an import can be taken back with restore_settings()."""
     current = settings()
     unreadable = current.pop("diagnostic", None) is not None
     # Only known keys are saved; this also keeps the load diagnostic out of the file.
     changes = {key: value for key, value in changes.items() if key in DEFAULTS}
-    for key, value in changes.items():
-        check_setting(key, value)
+    for key, value in list(changes.items()):
+        try:
+            check_setting(key, value)
+        except BackendError as error:
+            if rejected is None:
+                raise
+            rejected.append({"key": key, "message": error.message})
+            del changes[key]
     if CONFIG.exists():
         if unreadable:
             # Keep the file with its rejected values instead of replacing the last good backup.
             shutil.copy2(CONFIG, CONFIG.with_suffix(".invalid.json"))
-        else:
-            atomic_json(CONFIG.with_suffix(".previous.json"), changed_only(current))
+        elif keep_previous:
+            atomic_json(PREVIOUS, changed_only(current))
+    elif keep_previous:
+        atomic_json(PREVIOUS, {"version": 1})
     current.update(changes)
     atomic_json(CONFIG, changed_only(current))
     return current
@@ -363,7 +407,53 @@ def reset_settings(keys):
     """Puts `keys` back to their defaults; returns every setting."""
     if not isinstance(keys, list) or not all(isinstance(key, str) and key in DEFAULTS and key not in ("version", "shortcuts") for key in keys):
         raise BackendError("invalid", "Choose settings to reset.")
-    return save_settings({key: DEFAULTS[key] for key in keys})
+    return save_settings({key: DEFAULTS[key] for key in keys}, keep_previous=True)
+
+def restore_settings():
+    """Puts back the settings from before the last reset or import, and keeps today's in their place, so a
+    second restore undoes the first; returns every setting."""
+    try:
+        previous = json.loads(PREVIOUS.read_text())
+        if not isinstance(previous, dict) or previous.get("version") != 1:
+            raise ValueError("not settings")
+    except FileNotFoundError:
+        raise BackendError("unavailable", "There are no earlier settings to put back.") from None
+    except (OSError, ValueError):
+        raise BackendError("failed", "The earlier settings can't be read.") from None
+    current = settings()
+    current.pop("diagnostic", None)
+    restored = dict(DEFAULTS)
+    for key, value in previous.items():
+        if key not in DEFAULTS or key in RESTORE_KEEPS:
+            continue
+        try:
+            check_setting(key, value)
+            restored[key] = value
+        except BackendError:
+            pass  # written by another version; that setting takes its default
+    for key in RESTORE_KEEPS:
+        restored[key] = current[key]
+    atomic_json(PREVIOUS, changed_only(current))
+    atomic_json(CONFIG, changed_only(restored))
+    return restored
+
+def stamp(path):
+    """When a file was last written, as local ISO time, or "" without one."""
+    try:
+        return datetime.datetime.fromtimestamp(path.stat().st_mtime).astimezone().isoformat(timespec="seconds")
+    except OSError:
+        return ""
+
+def backup_state(value):
+    """What the Backup page shows: when the settings from before were kept, and when the file was exported."""
+    exported = ""
+    try:
+        data = json.loads(export_path(value).read_text())
+        if isinstance(data, dict) and data.get("version") == 1 and isinstance(data.get("exported"), str):
+            exported = data["exported"][:40]
+    except (BackendError, OSError, ValueError):
+        pass
+    return {"previous": stamp(PREVIOUS), "exported": exported}
 
 def export_path(value):
     """An absolute or ~/ path to a .json file whose folder exists."""
@@ -377,6 +467,16 @@ def export_path(value):
 def export_settings(value):
     """Writes what the user changed, without history or location, to a file another computer can import."""
     path = export_path(value)
+    # An export replaces an earlier export, never the settings in use or a file of something else.
+    if path.resolve().parent == CONFIG.resolve().parent:
+        raise BackendError("invalid", "Choose a file outside Shale's own settings folder.")
+    if path.exists():
+        try:
+            old = json.loads(path.read_text())
+        except (OSError, ValueError):
+            old = None
+        if not (isinstance(old, dict) and old.get("version") == 1 and "exported" in old):
+            raise BackendError("invalid", f"{path} already exists and isn't a Shale settings export. Choose another name.")
     current = settings()
     current.pop("diagnostic", None)
     data = {key: value for key, value in changed_only(current).items() if key not in PRIVATE_KEYS}
@@ -410,7 +510,7 @@ def import_settings(value):
             usable[key] = item
         except BackendError:
             skipped.append(key)
-    return {"settings": save_settings(usable), "applied": sorted(usable), "skipped": sorted(skipped), "shortcuts": data.get("shortcuts")}
+    return {"settings": save_settings(usable, keep_previous=True), "applied": sorted(usable), "skipped": sorted(skipped), "shortcuts": data.get("shortcuts")}
 
 def migrated_settings():
     """settings(), after upgrades that depend on more than the file. History recorded before
@@ -890,9 +990,7 @@ class Backend:
     COMMANDS = ["hyprctl", "cliphist", "wl-copy", "wl-paste", "grim", "slurp", "hyprpicker", "wf-recorder", "brightnessctl",
                 "hyprlock", "hypridle", "fd", "cava", "hyprpaper", "awww", "swww", "xdg-terminal-exec"]
 
-    # How each terminal takes a command to run; $TERMINAL is assumed to follow the common -e convention.
-    TERMINALS = (("xdg-terminal-exec",), ("foot",), ("kitty",), ("alacritty", "-e"), ("wezterm", "start", "--"),
-                 ("ghostty", "-e"), ("konsole", "-e"), ("gnome-terminal", "--"))
+    TERMINALS = TERMINALS
 
     def terminal(self):
         """The command prefix that runs a program in a terminal, or [] when none is installed."""
@@ -989,20 +1087,22 @@ class Backend:
         return shortcuts.listing(bound, changed, ready)
 
     async def import_shortcuts(self, wanted):
-        """Applies imported shortcuts when all of them fit this computer; True if they did."""
+        """Applies imported shortcuts when all of them fit this computer; "" if they did, or why not."""
         bound, ready = shortcuts.installed(HYPR)
         try:
             shortcuts.check(wanted)
         except ValueError:
-            return False
+            return "the file's shortcuts can't be read"
+        if not ready:
+            return "shortcuts aren't set up on this computer; run the installer"
         current = shortcuts.effective(bound, settings()["shortcuts"])
         after = shortcuts.effective(bound, wanted)
         binds = await self.live_binds()
-        if not ready or any(keys and shortcuts.clash(keys, n, current, binds, after) for n, keys in after.items() if keys != current[n]):
-            return False
+        if any(keys and shortcuts.clash(keys, n, current, binds, after) for n, keys in after.items() if keys != current[n]):
+            return "their keys are taken here"
         await self.save_shortcuts({n: keys for n, keys in wanted.items() if keys != bound.get(n, "")},
                                   {n: (current[n], after[n]) for n in after})
-        return True
+        return ""
 
     async def record_keys(self, active):
         """Enters or leaves the empty submap shale.lua defines, so pressing keys that are already bound reaches the
@@ -1573,7 +1673,9 @@ class Backend:
                 raise BackendError("invalid", "Settings must be an object.")
             # The shell echoes every setting back; shortcuts change only through shortcuts.set, which binds them.
             before = settings()["bluetoothAutoConnect"]
-            current = save_settings({key: value for key, value in changes.items() if key != "shortcuts"})
+            # A value the shell can't use is reported and left as it was; the others are saved.
+            rejected = []
+            current = save_settings({key: value for key, value in changes.items() if key != "shortcuts"}, rejected)
             added = [address for address in current["bluetoothAutoConnect"] if address not in before]
             if added and self.bluetooth:
                 # A device just marked for auto-connect is tried straight away, even one disconnected by hand.
@@ -1581,7 +1683,14 @@ class Backend:
                 self.bluetooth.trigger("auto-connect turned on")
             if current["activityTracking"] != "on":
                 self.close_activity()
-            return current
+            return {**current, "rejected": rejected} if rejected else current
+        if method == "settings.restore":
+            before = settings()
+            current = restore_settings()
+            problem = await self.settings_replaced(before, current)
+            return {"settings": current, "problem": problem}
+        if method == "settings.backup":
+            return backup_state(p.get("path"))
         if method == "settings.reset":
             before = settings()
             current = reset_settings(p.get("keys"))
@@ -1595,8 +1704,9 @@ class Backend:
             wanted = result.pop("shortcuts")
             if wanted is not None:
                 async with self.shortcut_lock:
-                    applied = await self.import_shortcuts(wanted)
-                (result["applied"] if applied else result["skipped"]).append("shortcuts")
+                    reason = await self.import_shortcuts(wanted)
+                (result["skipped"] if reason else result["applied"]).append("shortcuts")
+                result["shortcutsReason"] = reason
                 result["settings"] = settings()
             result["problem"] = await self.settings_replaced(before, result["settings"])
             return result
