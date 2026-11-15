@@ -215,6 +215,7 @@ var ACTIONS = [
     {key: "settings:General", name: "General settings", keywords: ["general", "clock", "units", "search engine", "terminal", "updates"], glyph: "settings"},
     {key: "settings:Notifications", name: "Notification settings", keywords: ["notification settings", "history"], glyph: "bell"},
     {key: "settings:Sound", name: "Sound settings", keywords: ["sound settings", "amplification"], glyph: "volume"},
+    {key: "settings:Power", name: "Power settings", keywords: ["power settings", "lid", "refresh rate", "power saver"], glyph: "power"},
     {key: "settings:Capture", name: "Capture settings", keywords: ["capture settings", "screenshot folder", "recording folder"], glyph: "camera"},
     {key: "settings:Bar", name: "Bar settings", keywords: ["bar", "taskbar", "panel layout", "clock format"], glyph: "window"},
     {key: "settings:Control center", name: "Control layout", keywords: ["control", "control center", "quick settings", "tiles"], glyph: "settings"},

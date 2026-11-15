@@ -124,6 +124,7 @@ FocusScope {
         {name: "General", icon: "settings", description: "Time, units, search, the terminal and updates."},
         {name: "Notifications", icon: "bell", description: "History and focus sessions."},
         {name: "Sound", icon: "volume", aliases: ["audio"], description: "Volume limits and the player."},
+        {name: "Power", icon: "power", aliases: ["battery", "lid"], description: "Power modes, the lid and refresh rate."},
         {name: "Capture", icon: "camera", description: "Screenshots and recordings, and where they go."},
         {name: "Activity", icon: "pulse", description: "Your private desktop history."},
         {name: "Backup", icon: "folder", description: "Keep a copy of your settings or move them."},
@@ -140,6 +141,7 @@ FocusScope {
             General: ["clock24h", "weekStart", "weatherUnits", "searchEngine", "terminal", "updateCheck"],
             Notifications: ["persistNotifications", "focusMinutes"],
             Sound: ["amplification", "mediaRemaining"],
+            Power: ["saverRefresh"],
             Capture: ["screenshotDirectory", "recordingDirectory", "recordAudio", "captureDelay"],
             Activity: ["activityKeep"],
             Diagnostics: ["systemWindow"]
@@ -793,6 +795,58 @@ FocusScope {
                                     onOpened: {
                                         ShellState.open("control");
                                         ShellState.detail = "audio";
+                                    }
+                                }
+                            }
+                        }
+
+                        // Power: the power mode, the lid and the refresh rate in power saver. Control → Power has the battery.
+                        ColumnLayout {
+                            objectName: "Power"
+                            visible: root.category === objectName
+                            Layout.fillWidth: true
+                            spacing: 8
+                            Component.onCompleted: ShellState.refreshProfiles()
+                            C.Group {
+                                C.ChoiceRow {
+                                    readonly property var modes: ShellState.profiles.profiles || []
+                                    label: "Power mode"
+                                    description: modes.length ? "Until you change it; battery rules may switch it" : "Unavailable on this computer"
+                                    enabled: modes.length > 0
+                                    model: modes.map(mode => ({key: mode, text: ({"power-saver": "Saver", "balanced": "Balanced", "performance": "Performance"})[mode] || mode}))
+                                    current: ShellState.profiles.active || ""
+                                    onActivated: key => Backend.request("power.set", {profile: key}, (r, e) => {
+                                        if (e)
+                                            ShellState.message(e.message, "error");
+                                        else
+                                            ShellState.profiles = r;
+                                    })
+                                }
+                                C.Toggle {
+                                    visible: Backend.capabilities.lid === true
+                                    Layout.fillWidth: true
+                                    flat: true
+                                    text: "Stay awake with the lid closed"
+                                    description: "For an external screen; until you turn it off or log out"
+                                    selected: ShellState.lidAwake
+                                    enabled: !ShellState.lidBusy
+                                    onClicked: ShellState.toggleLidAwake()
+                                }
+                                SettingToggle {
+                                    visible: Backend.capabilities.builtinPanel !== false
+                                    text: "Lower refresh rate in power saver"
+                                    description: "The built-in screen drops to its lowest refresh rate"
+                                    key: "saverRefresh"
+                                    fallback: true
+                                }
+                                OpenRow {
+                                    label: "Battery"
+                                    description: "Charge, time left and the power modes in Control"
+                                    action: "Open"
+                                    glyph: "battery"
+                                    onOpened: {
+                                        ShellState.open("control");
+                                        ShellState.detail = "power";
                                     }
                                 }
                             }
