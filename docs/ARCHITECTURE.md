@@ -23,7 +23,7 @@ services/*.qml ─────── Quickshell services wrapped for the views (
 |---|---|---|
 | `shell.qml` | The root: one `Variants` per screen with the bar, panel host, widgets, toasts | adding a new kind of window |
 | `core/` | Singletons (`ShellState`, `Backend`, `Theme`) and plain JS libraries (registries, search, icons, colour) | rarely; the registries often |
-| `services/` | Singletons over Quickshell services: `Services` (audio, network, Bluetooth, battery, workspaces), `Focus`, `NowPlaying`, `Note`, `Updates`, `ActivityTracker`, `WallpaperAccent` | a view needs data no service exposes yet |
+| `services/` | Singletons over Quickshell services: `Services` (audio, network, Bluetooth, battery, workspaces), `Focus`, `NowPlaying`, `Note`, `Updates`, `Weather` (one forecast for the bar, lock screen, Sky card and Find), `ActivityTracker`, `WallpaperAccent` | a view needs data no service exposes yet |
 | `components/` | Shared controls in the Rack style: `Button`, `Switch`, `Segmented`, `ListRow`, `SettingRow`, `QuickTile`, `Card`, `Group`, `EdgeFade`, … | a control is used by two or more views |
 | `features/` | Views: the bar, every panel and its parts, the lock screen, toasts, widgets | most changes |
 | `helpers/` | The Python helper (`backend.py`) and its modules, one per area (`weather.py`, `sysmon.py`, `activity.py`, …) | a view needs the system to do something |

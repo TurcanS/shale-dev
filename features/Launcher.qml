@@ -445,25 +445,13 @@ FocusScope {
     }
     // The at-a-glance strip over the empty query: today, the weather Clock and sky keeps (cached by the backend, never
     // fetched for this), the battery and a running focus session.
-    property var weather: null
-    readonly property var weatherLocation: ShellState.setting("weatherLocation", {})
-    function refreshWeather() {
-        if (!weatherLocation || !weatherLocation.name || !Backend.ready)
-            return;
-        Backend.request("weather.get", {location: weatherLocation, units: ShellState.setting("weatherUnits", "metric"), refresh: false}, (r, e) => {
-            if (!e)
-                root.weather = r;
-        });
-    }
+    readonly property var weather: Weather.forecast
     // The Note card opens Find with "note " typed (as ShellState.detail), so Enter adds the line.
     function prefill() {
         if (ShellState.panel === "launcher" && ShellState.detail !== "")
             search.text = ShellState.detail;
     }
-    Component.onCompleted: {
-        refreshWeather();
-        prefill();
-    }
+    Component.onCompleted: prefill()
     Connections {
         target: ShellState
         function onDetailChanged() {
@@ -1034,7 +1022,6 @@ FocusScope {
     Connections {
         target: Backend
         function onReadyChanged() {
-            if (Backend.ready && !root.weather) root.refreshWeather();
             if (Backend.ready && root.calculatorQuery && !root.calculationValid) calcTimer.restart();
             if (Backend.ready && root.mode === "files") filesTimer.restart();
         }

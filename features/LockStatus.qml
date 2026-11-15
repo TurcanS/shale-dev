@@ -13,29 +13,7 @@ RowLayout {
 
     // The forecast Clock and sky shows, as the bar reads it (the backend keeps it for 30 minutes). Nothing is
     // requested until a city is chosen there.
-    readonly property var weatherLocation: ShellState.setting("weatherLocation", {})
-    readonly property string weatherKey: weatherLocation && weatherLocation.name ? weatherLocation.latitude + "," + weatherLocation.longitude + "," + ShellState.setting("weatherUnits", "metric") : ""
-    property var weather: null
-    function refreshWeather() {
-        if (weatherKey === "" || !Backend.ready)
-            return;
-        const key = weatherKey;
-        Backend.request("weather.get", {location: weatherLocation, units: ShellState.setting("weatherUnits", "metric"), refresh: false}, (r, e) => {
-            if (!e && key === root.weatherKey)
-                root.weather = r;
-        });
-    }
-    onWeatherKeyChanged: {
-        weather = null;
-        refreshWeather();
-    }
-    Timer {
-        interval: 600000
-        repeat: true
-        triggeredOnStart: true
-        running: root.weatherKey !== "" && Backend.ready
-        onTriggered: root.refreshWeather()
-    }
+    readonly property var weather: Weather.forecast
 
     readonly property var items: {
         const list = [];

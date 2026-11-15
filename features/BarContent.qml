@@ -119,29 +119,7 @@ Item {
     }
     // Today's weather beside the clock, from the forecast Clock and sky shows (the backend keeps it for 30 minutes).
     // Nothing is requested until a city is chosen there.
-    readonly property var weatherLocation: ShellState.setting("weatherLocation", {})
-    readonly property string weatherKey: weatherLocation && weatherLocation.name ? weatherLocation.latitude + "," + weatherLocation.longitude + "," + ShellState.setting("weatherUnits", "metric") : ""
-    property var weather: null
-    function refreshWeather() {
-        if (weatherKey === "" || !Backend.ready)
-            return;
-        const key = weatherKey;
-        Backend.request("weather.get", {location: weatherLocation, units: ShellState.setting("weatherUnits", "metric"), refresh: false}, (r, e) => {
-            if (!e && key === bar.weatherKey)
-                bar.weather = r;
-        });
-    }
-    onWeatherKeyChanged: {
-        weather = null;
-        refreshWeather();
-    }
-    Timer {
-        interval: 600000
-        repeat: true
-        triggeredOnStart: true
-        running: bar.weatherKey !== "" && Backend.ready
-        onTriggered: bar.refreshWeather()
-    }
+    readonly property var weather: Weather.forecast
     // The case: floating, it is a rounded strip with a hairline edge; edge to edge, a hairline under it.
     Rectangle {
         anchors.fill: parent

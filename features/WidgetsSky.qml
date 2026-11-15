@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Shapes
 import "../core"
+import "../services"
 import "../core/sky.js" as Sky
 import "../components" as C
 
@@ -14,35 +15,14 @@ WidgetsCard {
     property bool live: false
     readonly property var location: ShellState.setting("weatherLocation", {})
     readonly property bool hasLocation: !!location && !!location.name
-    readonly property string weatherKey: hasLocation ? location.latitude + "," + location.longitude + "," + ShellState.setting("weatherUnits", "metric") : ""
-    property var weather: null
+    readonly property var weather: Weather.forecast
     readonly property var current: weather && weather.current ? weather.current : null
     readonly property var sun: hasLocation ? Sky.sunTimes(now, location.latitude, location.longitude) : null
     readonly property var sky: Sky.sky(now.getTime(), sun, location)
     panel: "calendar"
     padding: 18
-    function refresh() {
-        if (!live || weatherKey === "" || !Backend.ready)
-            return;
-        const key = weatherKey;
-        Backend.request("weather.get", {location: location, units: ShellState.setting("weatherUnits", "metric"), refresh: false}, (r, e) => {
-            if (!e && key === root.weatherKey)
-                root.weather = r;
-        });
-    }
     function degrees(value) {
         return value === null || value === undefined ? "–" : value + "°";
-    }
-    onWeatherKeyChanged: {
-        weather = null;
-        refresh();
-    }
-    Timer {
-        interval: 600000
-        repeat: true
-        triggeredOnStart: true
-        running: root.live && root.weatherKey !== "" && Backend.ready
-        onTriggered: root.refresh()
     }
     Accessible.role: Accessible.StaticText
     Accessible.name: root.current ? root.degrees(root.current.temperature) + ", " + root.current.label + ". " + root.sky.status : "Weather"

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Shapes
 import "../core"
+import "../services"
 import "../core/sky.js" as Sky
 import "../components" as C
 
@@ -46,8 +47,10 @@ Rectangle {
                 return;
             loading = false;
             error = e ? e.message : (r.stale ? r.warning || "" : "");
-            if (!e)
+            if (!e) {
                 weather = r;
+                Weather.take(r);
+            }
         });
     }
     function startSearch() {
