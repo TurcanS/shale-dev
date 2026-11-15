@@ -512,6 +512,23 @@ class ActivityStore:
         self.db.commit()
         return self.status()
 
+    def trim(self, days):
+        """Forgets what is older than `days` days (0 keeps everything); the record then starts at the cutoff."""
+        if not days:
+            return self.status()
+        cutoff = shift_day(self._today(), -days)
+        start, _ = day_bounds(cutoff)
+        removed = 0
+        for table, column, value in (("segments", "day", cutoff), ("legacy_days", "day", cutoff),
+                                     ("windows", "end", start), ("focus_sessions", "end", start)):
+            removed += self.db.execute(f"DELETE FROM {table} WHERE {column} < ?", (value,)).rowcount
+        # Days before the cutoff were never kept, not "before tracking": the year grid starts there.
+        if self.started and int(self.started) < start:
+            self.started = str(start)
+            self._set_meta("started", self.started)
+        self.db.commit()
+        return {**self.status(), "removed": removed}
+
     def add_focus(self, start, end):
         """Records a finished focus session (epoch milliseconds). Nothing is kept while tracking is paused."""
         if type(start) not in (int, float) or type(end) not in (int, float) or not 0 < start < end:

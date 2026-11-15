@@ -70,7 +70,7 @@ DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
             "workspaceSlots": 0, "trayIcons": -1, "batteryPercent": "auto", "barStyle": "floating", "weekStart": "locale", "terminal": "auto", "shortcuts": {},
             "screenshotDirectory": user_dir("PICTURES", "~/Pictures") + "/Screenshots",
             "recordingDirectory": user_dir("VIDEOS", "~/Videos") + "/Recordings",
-            "wallpaperDirectory": user_dir("PICTURES", "~/Pictures") + "/Wallpapers", "wallpaperFit": "cover"}
+            "wallpaperDirectory": user_dir("PICTURES", "~/Pictures") + "/Wallpapers", "wallpaperFit": "cover", "activityKeep": 0}
 CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))) / "shale/config.json"
 RUNTIME = runtime_base() / "shale"
 STATE = Path(os.environ.get("XDG_STATE_HOME", str(Path.home() / ".local/state"))) / "shale"
@@ -115,6 +115,8 @@ RESTORE_KEEPS = ("shortcuts", "focusSession", "timers")
 TERMINALS = (("xdg-terminal-exec",), ("foot",), ("kitty",), ("alacritty", "-e"), ("wezterm", "start", "--"),
              ("ghostty", "-e"), ("konsole", "-e"), ("gnome-terminal", "--"))
 ACTIVITY_TRACKING = ("ask", "on", "off")
+# Days of activity kept; 0 keeps everything until it is cleared.
+ACTIVITY_KEEP = (0, 30, 90, 365)
 
 def keyboard_state(devices):
     """The layouts of the main keyboard from `hyprctl devices -j`: {layouts: [{code, variant}], index, name}."""
@@ -264,6 +266,8 @@ def check_setting(key, value):
         raise BackendError("invalid", "Folders must be absolute paths or start with ~/.")
     if key == "wallpaperFit" and value not in wallpaper.FITS:
         raise BackendError("invalid", "Choose how the wallpaper fits the screen.")
+    if key == "activityKeep" and value not in ACTIVITY_KEEP:
+        raise BackendError("invalid", "Choose how long to keep activity.")
     if key == "systemWindow" and value not in (60, 300):
         raise BackendError("invalid", "Choose one minute or five for the system monitor.")
     if key == "hiddenOutputs" and not check_names(value, 16, 64):
@@ -901,6 +905,7 @@ async def quit_process(pid, proc=Path("/proc"), kill=os.kill, command=None, prot
 class Backend:
     def __init__(self):
         self.activity = None
+        self.activity_trimmed = ""
         self.activity_snapshot = None
         # Keeps the previous counters for the system monitor's rates.
         self.sysmon = sysmon.Sampler(run=run)
@@ -1767,6 +1772,11 @@ class Backend:
             try:
                 if self.activity is None:
                     self.activity = activity.ActivityStore(STATE / "activity.sqlite3")
+                    self.activity_trimmed = ""
+                # Old days go once a day, while recording or when the panel opens.
+                if self.activity_trimmed != datetime.date.today().isoformat():
+                    self.activity.trim(settings()["activityKeep"])
+                    self.activity_trimmed = datetime.date.today().isoformat()
                 if method == "activity.update":
                     self.activity_snapshot = dict(p)
                     return self.activity.ingest({**p, "unlocked": bool(p.get("unlocked")) and not self.activity_locked and not self.activity_sleeping})
@@ -1814,6 +1824,8 @@ class Backend:
                 self.bluetooth.trigger("auto-connect turned on")
             if current["activityTracking"] != "on":
                 self.close_activity()
+            if current["activityKeep"] != before_settings["activityKeep"]:
+                self.activity_trimmed = ""  # the next activity request trims to the new length
             if current["wallpaperFit"] != before_settings["wallpaperFit"]:
                 await self.refit_wallpapers(current["wallpaperFit"])
             return {**current, "rejected": rejected} if rejected else current
