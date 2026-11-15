@@ -319,7 +319,11 @@ FocusScope {
         if (busy)
             return;
         if (ShellState.detail === "wifi") {
-            perform("wifi.list", {}, r => ShellState.wifi = r);
+            perform("wifi.list", {}, r => {
+                // Rows are rebuilt only when something changed, so hover and focus survive the refresh.
+                if (JSON.stringify(r) !== JSON.stringify(ShellState.wifi))
+                    ShellState.wifi = r;
+            });
             ShellState.refreshVpn();
         }
         if (ShellState.detail === "power")

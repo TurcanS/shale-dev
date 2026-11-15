@@ -99,6 +99,8 @@ Rectangle {
         ShellState.setSetting("eqPreset", matchingPreset(values));
         draft = null;
     }
+    // Closing the panel within the save delay must not lose the curve just dragged.
+    Component.onDestruction: commit()
     // Picks up a filter that stopped outside the shell, e.g. after a PipeWire restart.
     onActiveChanged: if (active && eqOn)
         Backend.request("eq.status", {}, (r, e) => {

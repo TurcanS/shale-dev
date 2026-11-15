@@ -64,7 +64,8 @@ QtObject {
     readonly property bool batteryCharging: UPower.displayDevice.state === UPowerDeviceState.Charging
     readonly property bool onBattery: UPower.onBattery
     readonly property real batterySeconds: batteryCharging ? UPower.displayDevice.timeToFull : UPower.displayDevice.timeToEmpty
-    property string lastError: ""
+    // Something a service couldn't do, in words for a toast; said each time it happens.
+    signal failed(string message)
     signal osdRequested(string kind, real value, bool muted)
     signal batteryWarning(int percent)
     property var batteryWarnings: []
@@ -98,7 +99,8 @@ QtObject {
             osdRequested("volume", volume, muted);
     }
     onMutedChanged: {
-        if (initializedAudio)
+        // Without an output `muted` reads true: an unplugged device isn't a mute to announce.
+        if (initializedAudio && output && output.audio)
             osdRequested("volume", volume, muted);
     }
     function setVolume(value) {
@@ -183,7 +185,7 @@ QtObject {
         interval: 1500
         onTriggered: {
             root.pendingMoveAddress = "";
-            root.lastError = "Could not focus the window to move it.";
+            root.failed("Could not focus the window to move it.");
         }
     }
 

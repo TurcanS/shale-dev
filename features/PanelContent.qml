@@ -199,6 +199,17 @@ Rectangle {
                 if (loaded)
                     loaded.forceActiveFocus();
             }
+            visible: status !== Loader.Error
+        }
+        // A page that can't be loaded (a damaged install, a half-finished update) says so instead of an empty case.
+        C.EmptyState {
+            visible: loader.status === Loader.Error
+            title: "This panel couldn't be opened"
+            description: "Run `shale logs` to see why, or update Shale."
+            glyph: "info"
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.alignment: Qt.AlignCenter
         }
     }
     Keys.onEscapePressed: {

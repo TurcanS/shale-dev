@@ -699,6 +699,8 @@ QtObject {
         function status(): string {
             return JSON.stringify({
                 panel: root.panel,
+                detail: root.detail,
+                screen: root.panel ? root.screenName : "",
                 helperReady: Backend.ready,
                 lastError: Backend.lastError,
                 recording: root.recording.active
@@ -706,6 +708,11 @@ QtObject {
         }
         function toggle(panel: string): void {
             root.toggle(panel);
+        }
+        // Opens a panel, or leaves it open: for scripts that must not close what is already showing.
+        function open(panel: string): void {
+            if (root.panel !== panel)
+                root.open(panel);
         }
         function close(): void {
             root.close();
@@ -728,6 +735,8 @@ QtObject {
             }
         }
         function dnd(state: string): void {
+            if (["on", "off", "toggle"].indexOf(state) < 0)
+                return;
             const on = state === "toggle" ? !root.setting("dnd", false) : state === "on";
             root.setSetting("dnd", on);
             root.osd(on ? "Do not disturb on" : "Do not disturb off", -1, on ? "bell-off" : "bell");
@@ -739,7 +748,9 @@ QtObject {
             if (["wifi", "bluetooth", "audio", "power", "media", "tray", "update", "focus"].indexOf(name) < 0)
                 return;
             root.open("control");
-            root.detail = name;
+            // Not while locked: the page would be waiting behind the lock screen.
+            if (root.panel === "control")
+                root.detail = name;
         }
     }
 }

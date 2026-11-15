@@ -48,7 +48,9 @@ FocusScope {
         {key: "brave", name: "Brave", url: "https://search.brave.com/search?q="}
     ]
     readonly property var engine: engines.find(e => e.key === ShellState.setting("searchEngine", "duckduckgo")) || engines[0]
-    readonly property Item view: mode === "emoji" ? grid : list
+    readonly property var view: mode === "emoji" ? grid : list
+    // Whole minutes, so the results are rebuilt once a minute during a focus session, not every second.
+    readonly property int focusMinutesLeft: Math.ceil(Focus.remainingSeconds / 60)
     function modeOf(value) {
         const first = value.charAt(0);
         return first === ":" ? "emoji" : first === "/" ? "files" : first === "?" ? "web" : first === ">" ? "run" : "apps";
@@ -186,7 +188,7 @@ FocusScope {
         if (key.startsWith("power:"))
             return "Opens the session menu";
         if (key === "focus")
-            return Focus.active ? "End focus · " + Focus.minutesText(Focus.remainingSeconds) + " left" : "Focus for " + Focus.lastMinutes + " minutes";
+            return Focus.active ? "End focus · " + Focus.minutesText(focusMinutesLeft * 60) + " left" : "Focus for " + Focus.lastMinutes + " minutes";
         if (key === "dnd")
             return ShellState.setting("dnd", false) ? "Turn off" : "Turn on";
         return key.startsWith("page:") ? "Control" : key.startsWith("settings:") ? "Settings" : "Shale";

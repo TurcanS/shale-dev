@@ -57,9 +57,8 @@ ShellRoot {
         function onBatteryWarning(percent) {
             ShellState.message("Battery at " + percent + "% · Connect your charger", "error");
         }
-        function onLastErrorChanged() {
-            if (Services.lastError)
-                ShellState.message(Services.lastError, "error");
+        function onFailed(message) {
+            ShellState.message(message, "error");
         }
         function onNotificationsChanged() {
             historySave.restart();

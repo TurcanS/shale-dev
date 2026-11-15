@@ -120,7 +120,7 @@ Rectangle {
                         }
                         Behavior on height {
                             NumberAnimation {
-                                duration: Theme.reduced ? 0 : 120
+                                duration: Theme.fast
                                 easing.type: Easing.OutQuad
                             }
                         }

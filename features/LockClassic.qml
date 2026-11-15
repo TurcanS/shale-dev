@@ -15,7 +15,7 @@ Item {
     opacity: context.unlocking ? 0 : reveal
     Behavior on opacity {
         NumberAnimation {
-            duration: Theme.reduced ? 0 : 220
+            duration: Theme.enter
             easing.type: Easing.OutCubic
         }
     }

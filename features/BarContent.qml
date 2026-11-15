@@ -342,14 +342,19 @@ Item {
                     NumberAnimation { property: "opacity"; to: 0; duration: Theme.fast }
                 }
                 displaced: Transition {
-                    NumberAnimation { property: "x"; duration: Theme.reduced ? 0 : 200; easing.type: Easing.OutCubic }
+                    NumberAnimation { property: "x"; duration: Theme.reduced ? 0 : Theme.lowPower ? 120 : 200; easing.type: Easing.OutCubic }
                 }
             }
             WheelHandler {
+                // A touchpad sends many small movements: one notch of a wheel (120) is one step.
+                property real travelled: 0
                 onWheel: event => {
-                    if (!workspaceModel.count || event.angleDelta.y === 0)
+                    travelled += event.angleDelta.y;
+                    const steps = Math.trunc(travelled / 120);
+                    if (!workspaceModel.count || !steps)
                         return;
-                    const next = (strip.currentIndex + (event.angleDelta.y < 0 ? 1 : -1) + workspaceModel.count) % workspaceModel.count;
+                    travelled -= steps * 120;
+                    const next = (strip.currentIndex + (steps < 0 ? 1 : -1) + workspaceModel.count) % workspaceModel.count;
                     Services.workspace(workspaceModel.get(next).workspaceId);
                 }
             }
@@ -474,7 +479,7 @@ Item {
                     visible: clockKey.showWeather
                     spacing: Theme.gapXs
                     C.Icon {
-                        name: bar.weather ? bar.weather.current.icon : "cloud"
+                        name: bar.weather && bar.weather.current ? bar.weather.current.icon : "cloud"
                         size: 13
                         color: Theme.textMuted
                     }
@@ -736,9 +741,14 @@ Item {
             Accessible.name: "Focus, " + remaining + " left"
             onClicked: Focus.end(true)
             WheelHandler {
+                property real travelled: 0
                 onWheel: event => {
-                    if (event.angleDelta.y !== 0)
-                        Focus.extend(event.angleDelta.y > 0 ? 5 : -5);
+                    travelled += event.angleDelta.y;
+                    const steps = Math.trunc(travelled / 120);
+                    if (!steps)
+                        return;
+                    travelled -= steps * 120;
+                    Focus.extend(steps > 0 ? 5 : -5);
                 }
             }
             contentItem: RowLayout {
@@ -881,9 +891,14 @@ Item {
             tooltip: bar.tooltip
             onClicked: bar.toggleControl("audio")
             WheelHandler {
+                property real travelled: 0
                 onWheel: event => {
-                    if (Services.audioAvailable && event.angleDelta.y !== 0)
-                        Services.setVolume(Services.volume + (event.angleDelta.y > 0 ? 0.05 : -0.05));
+                    travelled += event.angleDelta.y;
+                    const steps = Math.trunc(travelled / 120);
+                    if (!Services.audioAvailable || !steps)
+                        return;
+                    travelled -= steps * 120;
+                    Services.setVolume(Services.volume + 0.05 * steps);
                 }
             }
             TapHandler {

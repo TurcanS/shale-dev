@@ -13,12 +13,12 @@ Item {
     property color secondary: Theme.tint(color, 0.15)
     Behavior on color {
         ColorAnimation {
-            duration: Theme.reduced ? 0 : 600
+            duration: Theme.reduced ? 0 : Theme.lowPower ? 250 : 600
         }
     }
     Behavior on secondary {
         ColorAnimation {
-            duration: Theme.reduced ? 0 : 600
+            duration: Theme.reduced ? 0 : Theme.lowPower ? 250 : 600
         }
     }
     property real spacing: 3
@@ -79,7 +79,7 @@ Item {
                 }
                 Behavior on height {
                     NumberAnimation {
-                        duration: Theme.reduced ? 0 : 80
+                        duration: Theme.reduced || Theme.lowPower ? 0 : 80
                         easing.type: Easing.OutQuad
                     }
                 }

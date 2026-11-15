@@ -129,7 +129,7 @@ Scope {
                         property: "x"
                         from: Theme.reduced ? 0 : 24
                         to: 0
-                        duration: Theme.reduced ? 0 : 200
+                        duration: Theme.reduced ? 0 : Theme.lowPower ? 120 : 200
                         easing.type: Easing.BezierSpline
                         easing.bezierCurve: Theme.easeOut
                     }
