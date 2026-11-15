@@ -113,7 +113,8 @@ checks saved values:
   `core/search.js`).
 - **A desktop card:** a `WidgetsCard` file in `features/` (it may declare `now` and `live`; `Widgets.qml` sets
   them), an entry in `core/parts.js`, its ID in `WIDGET_CARDS`.
-- **A bar item:** an entry in `core/barItems.js`, its ID in `BAR_ITEMS`, its key in `BarContent.qml`.
+- **A bar item:** an entry in `core/barItems.js`, its ID in `BAR_ITEMS`, a `Bar<Name>.qml` file (a `BarKey`,
+  `BarLiveChip` or `BarStatusPart` with `required property var bar`) and its `Component` in `BarContent.qml`.
 - **A setting:** the default and check in `backend.py`, a row on its Settings page.
 - **A helper method:** a branch in `Backend.dispatch` (or the module it belongs to); return plain JSON and raise
   `BackendError(code, message)` with a message the user can read.
