@@ -129,7 +129,7 @@ class Sampler:
             now = self.clock()
             if self.sampled is not None and 0 <= now - self.sampled < 3:
                 return False
-            self.record(now, self.collect(now, full=False))
+            self.record(now, await asyncio.to_thread(self.collect, now, full=False))
             return True
 
     def record(self, now, result):

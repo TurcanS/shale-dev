@@ -1,6 +1,7 @@
 """City search and forecasts from Open-Meteo (no API key) using the Python standard library."""
 import json
 import math
+import os
 from pathlib import Path
 import time
 from urllib.error import HTTPError, URLError
@@ -167,7 +168,7 @@ def forecast(location, units, cache, refresh=False, fetch=_json, now=time.time):
         raise
     fetched = now()
     Path(cache).parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    temporary = Path(cache).with_suffix('.tmp')
+    temporary = Path(cache).with_suffix(f'.{os.getpid()}.tmp')  # the installed and the dev helper share this folder
     temporary.write_text(json.dumps({'key': key, 'fetched': fetched, 'weather': weather}))
     temporary.replace(cache)
     return {**weather, 'location': location, 'units': units, 'fetched': fetched, 'stale': False}

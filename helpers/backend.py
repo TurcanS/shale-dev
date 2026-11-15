@@ -2,7 +2,9 @@
 """Shale JSON-lines backend. Credentials and clipboard data never enter logs."""
 import ast
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import datetime
+import hashlib
 import importlib.util
 import json
 import math
@@ -206,6 +208,8 @@ class BackendError(Exception):
 
 def atomic_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if path.parent == STATE and path.parent.stat().st_mode & 0o077:
+        path.parent.chmod(0o700)  # made by an earlier installer with the usual permissions
     fd, name = tempfile.mkstemp(prefix=".shale-", dir=path.parent)
     try:
         with os.fdopen(fd, "w") as stream:
@@ -350,7 +354,21 @@ def check_setting(key, value):
     except ValueError as error:
         raise BackendError("invalid", str(error)) from None
 
+# The file as last read and checked, with what identified it then; settings() is asked for many times a minute.
+SETTINGS_READ = {"mark": None, "value": None}
+
 def settings():
+    """Every setting. The file is read and checked again only when it has changed."""
+    try:
+        status = CONFIG.stat()
+        mark = (status.st_mtime_ns, status.st_size, status.st_ino)
+    except OSError:
+        mark = None
+    if mark is None or SETTINGS_READ["mark"] != mark:
+        SETTINGS_READ.update(mark=mark, value=read_settings())
+    return dict(SETTINGS_READ["value"])
+
+def read_settings():
     try:
         value = json.loads(CONFIG.read_text())
         if not isinstance(value, dict) or value.get("version", 1) != 1:
@@ -615,6 +633,29 @@ async def run(*args, data=None, timeout=15, cancel_ok=False):
         raise BackendError("cancelled" if cancel_ok else "failed", "Action cancelled." if cancel_ok else f"{args[0]} failed (exit {process.returncode}).")
     return out
 
+async def hypr_json(*args):
+    """Hyprland's answer to `hyprctl <args>` as JSON, or a "failed" error when it can't be read."""
+    try:
+        return json.loads(await run("hyprctl", *args))
+    except ValueError:
+        raise BackendError("failed", "Hyprland gave an answer Shale can't read.") from None
+
+# Looks at the disk for the clipboard (is this text a file?). A hung network mount can hold these threads for
+# good, so they are kept apart from the ones weather, wallpapers and the system monitor share.
+PROBES = ThreadPoolExecutor(max_workers=2, thread_name_prefix="probe")
+
+async def probe(function, *args, timeout):
+    return await asyncio.wait_for(asyncio.get_running_loop().run_in_executor(PROBES, function, *args), timeout)
+
+ENTRY_ID = re.compile(r"[0-9]+")
+
+def clipboard_entry(value):
+    """A cliphist list line ("id<TAB>preview") from a request, or an "invalid" error."""
+    entry = str(value or "")
+    if not ENTRY_ID.fullmatch(entry.partition("\t")[0]) or "\n" in entry:
+        raise BackendError("invalid", "Select a clipboard entry.")
+    return entry
+
 
 BINARY_ENTRY = re.compile(r"^\[\[ binary data (?P<size>[\d.]+ \w+) (?P<kind>\w+)(?: (?P<width>\d+)x(?P<height>\d+))? \]\]$")
 
@@ -722,8 +763,27 @@ def clipboard_pins():
         return []
     if not isinstance(pins, list):
         return []
-    return [pin for pin in pins if isinstance(pin, dict) and isinstance(pin.get("text"), str)
+    pins = [pin for pin in pins if isinstance(pin, dict) and isinstance(pin.get("text"), str)
             and PIN_ID.fullmatch(str(pin.get("pin", ""))) and PIN_FILE.fullmatch(str(pin.get("file", "")))]
+    for pin in pins:
+        # Pins saved before they carried their contents' hash get it from their file.
+        if not re.fullmatch(r"[0-9a-f]{40}", str(pin.get("sha", ""))):
+            if pin["pin"] not in PIN_HASHES:
+                try:
+                    PIN_HASHES[pin["pin"]] = hashlib.sha1((CLIPBOARD_PINS / pin["file"]).read_bytes()).hexdigest()
+                except OSError:
+                    PIN_HASHES[pin["pin"]] = ""
+            pin["sha"] = PIN_HASHES[pin["pin"]]
+    return pins
+
+
+PIN_HASHES = {}
+
+
+def ambiguous_preview(text):
+    """cliphist's preview line doesn't settle what an entry holds: images of one size share a line, and long
+    text is cut."""
+    return text.endswith("…") or bool(clipboard_label(text))
 
 
 def clipboard_pin(pins, identity):
@@ -873,24 +933,67 @@ class Backend:
         self.clipboard_deleted = set()
         self.clipboard_wipes = 0
         self.clipboard_pin_lock = asyncio.Lock()
+        # sha1 of history entries' contents by cliphist id, worked out only for entries that look like a pin.
+        self.clipboard_hashes = {}
+        # Counts the system buses connected so far: watches set up on an earlier one are set up again.
+        self.bus_generation = 0
+        # Introspection of objects that all look alike (access points, saved connections), by a caller's key.
+        self.introspection = {}
         # Leaves the key-recording submap if Settings never says it's done.
         self.record_timeout = None
         # Closes links left open after a device switched off and runs auto-connect; set up by watch_bluetooth.
         self.bluetooth = None
 
-    async def interface(self, name, path, interface, timeout=25):
-        """A system bus interface whose method calls time out after `timeout` seconds (None: never)."""
+    async def interface(self, name, path, interface, timeout=25, alike=None):
+        """A system bus interface whose method calls time out after `timeout` seconds (None: never).
+
+        `alike` names a kind of object whose instances all have the same interfaces (an access point, a saved
+        connection): the first one is introspected and the rest reuse its description, which halves the calls
+        of a list."""
         try:
             from dbus_next.aio import MessageBus
             from dbus_next import BusType
         except ImportError:
             raise BackendError("unavailable", "Install python-dbus-next to enable system controls.") from None
-        async with self.bus_lock:
-            if self.bus is None or not self.bus.connected:
-                self.bus = await MessageBus(bus_type=BusType.SYSTEM, negotiate_unix_fd=True).connect()
-        intro = await self.bus.introspect(name, path)
+        try:
+            async with self.bus_lock:
+                if self.bus is None or not self.bus.connected:
+                    self.bus = await asyncio.wait_for(MessageBus(bus_type=BusType.SYSTEM, negotiate_unix_fd=True).connect(), 10)
+                    self.bus_generation += 1
+                    self.introspection = {}
+            intro = self.introspection.get(alike) if alike else None
+            if intro is None:
+                # A service that hangs must not hold the request for its whole allowance.
+                intro = await asyncio.wait_for(self.bus.introspect(name, path), 10 if timeout is None else min(10, timeout))
+                if alike:
+                    self.introspection[alike] = intro
+        except asyncio.TimeoutError:
+            raise BackendError("timeout", "A system service did not answer in time.") from None
         proxy = self.bus.get_proxy_object(name, path, intro).get_interface(interface)
         return proxy if timeout is None else TimedInterface(proxy, timeout)
+
+    async def entry_hash(self, line):
+        """sha1 of a history entry's contents ("" if it can't be read), remembered by its cliphist id."""
+        identity = line.partition("\t")[0]
+        if identity not in self.clipboard_hashes:
+            if len(self.clipboard_hashes) > 2000:
+                self.clipboard_hashes.clear()
+            try:
+                self.clipboard_hashes[identity] = hashlib.sha1(await run("cliphist", "decode", data=line.encode())).hexdigest()
+            except BackendError:
+                return ""
+        return self.clipboard_hashes[identity]
+
+    async def same_as_pin(self, line, pins):
+        """Whether a history line holds what one of `pins` holds. The preview line settles it for short text;
+        images and cut text are compared by their contents."""
+        text = line.partition("\t")[2]
+        matches = [pin for pin in pins if pin["text"] == text]
+        if not matches:
+            return False
+        if not ambiguous_preview(text) or not all(pin["sha"] for pin in matches):
+            return True
+        return await self.entry_hash(line) in {pin["sha"] for pin in matches}
 
     async def session_call(self, destination, path, interface, member, signature="", body=()):
         """One call on the session bus, without introspection; returns the reply body."""
@@ -1006,7 +1109,7 @@ class Backend:
     async def capabilities(self):
         """What this machine offers, so the shell can hide controls instead of failing on click."""
         try:
-            monitors = json.loads(await run("hyprctl", "monitors", "-j"))
+            monitors = await hypr_json("monitors", "-j")
             builtin_panel = any(BUILTIN_PANEL.fullmatch(str(m.get("name", ""))) for m in monitors)
         except (BackendError, ValueError, TypeError):
             builtin_panel = None
@@ -1026,7 +1129,7 @@ class Backend:
 
     async def live_binds(self):
         try:
-            return json.loads(await run("hyprctl", "binds", "-j"))
+            return await hypr_json("binds", "-j")
         except (BackendError, ValueError):
             return []
 
@@ -1124,7 +1227,7 @@ class Backend:
 
     async def leave_recording(self):
         try:
-            current = json.loads(await run("hyprctl", "-j", "submap"))
+            current = await hypr_json("-j", "submap")
         except (BackendError, ValueError):
             return
         if current == shortcuts.RECORD_SUBMAP:
@@ -1175,7 +1278,7 @@ class Backend:
     async def displays(self, action, p):
         """Settings → Displays. `set` applies a resolution, refresh rate and scale at once and puts the old ones back
         after DISPLAY_REVERT seconds unless `keep` confirms them; `reset` forgets a kept choice."""
-        monitors = [m for m in json.loads(await run("hyprctl", "monitors", "-j")) if not m.get("disabled")]
+        monitors = [m for m in await hypr_json("monitors", "-j") if not m.get("disabled")]
         if action == "list":
             saved = self.saved_displays()
             now = time.monotonic()
@@ -1250,7 +1353,7 @@ class Backend:
             return "hl.monitor({" + ", ".join(fields) + "})"
         changes, keep = [], {}
         for option in ("blur", "shadow"):
-            current = json.loads(await run("hyprctl", "getoption", f"decoration:{option}:enabled", "-j")).get("bool", False)
+            current = (await hypr_json("getoption", f"decoration:{option}:enabled", "-j")).get("bool", False)
             if saver:
                 # After a config reload the compositor is back at the user's value; record it again.
                 keep[option] = current or options.get(option, False)
@@ -1259,7 +1362,7 @@ class Backend:
             elif options.get(option) and not current:
                 changes.append(f"hl.config({{decoration = {{{option} = {{enabled = true}}}}}})")
         monitors_kept = {}
-        for monitor in json.loads(await run("hyprctl", "monitors", "-j")):
+        for monitor in await hypr_json("monitors", "-j"):
             name = str(monitor.get("name", ""))
             if not BUILTIN_PANEL.fullmatch(name):
                 continue
@@ -1301,8 +1404,8 @@ class Backend:
 
     async def bluetooth_call(self, path, member, timeout=25):
         """Device1.Connect or Disconnect on one device, without introspecting it."""
-        from dbus_next import Message, MessageType
         await self.interface("org.bluez", "/", "org.freedesktop.DBus.ObjectManager")  # connects the bus, checks BlueZ is there
+        from dbus_next import Message, MessageType  # importable once interface() has found dbus-next
         reply = await asyncio.wait_for(self.bus.call(Message(destination="org.bluez", path=path, interface="org.bluez.Device1", member=member)), timeout)
         if reply.message_type == MessageType.ERROR:
             if reply.error_name in ("org.bluez.Error.AlreadyConnected", "org.bluez.Error.NotConnected"):
@@ -1313,8 +1416,8 @@ class Backend:
 
     async def watch_bluetooth(self):
         """Follows BlueZ's objects and properties for bluetooth_keep, from login until the helper stops."""
-        from dbus_next import Message, MessageType
         manager = await self.interface("org.bluez", "/", "org.freedesktop.DBus.ObjectManager")
+        from dbus_next import Message, MessageType  # importable once interface() has found dbus-next
         if self.bluetooth is None:
             self.bluetooth = bluetooth_keep.Keeper(lambda path: self.bluetooth_call(path, "Connect"),
                                                    lambda path: self.bluetooth_call(path, "Disconnect"),
@@ -1368,7 +1471,7 @@ class Backend:
         settings = await self.interface(name, "/org/freedesktop/NetworkManager/Settings", name + ".Settings")
         profiles = {}
         for path in await settings.call_list_connections():
-            connection = await self.interface(name, path, name + ".Settings.Connection")
+            connection = await self.interface(name, path, name + ".Settings.Connection", alike="nm-connection")
             try:
                 config = await connection.call_get_settings()
             except Exception:
@@ -1382,7 +1485,7 @@ class Backend:
             profiles[path] = {"path": path, "name": section.get("id", Variant("s", "VPN")).value,
                               "kind": service.rsplit(".", 1)[-1] or kind, "state": "off", "active": ""}
         for active in (await manager_props.call_get(name, "ActiveConnections")).value:
-            props = await self.interface(name, active, "org.freedesktop.DBus.Properties")
+            props = await self.interface(name, active, "org.freedesktop.DBus.Properties", alike="nm-active")
             try:
                 connection = (await props.call_get(name + ".Connection.Active", "Connection")).value
                 state = (await props.call_get(name + ".Connection.Active", "State")).value
@@ -1451,7 +1554,7 @@ class Backend:
         settings = await self.interface(name, "/org/freedesktop/NetworkManager/Settings", name + ".Settings")
         profiles = {}
         for path in await settings.call_list_connections():
-            connection = await self.interface(name, path, name + ".Settings.Connection")
+            connection = await self.interface(name, path, name + ".Settings.Connection", alike="nm-connection")
             try:
                 config = await connection.call_get_settings()
             except Exception:
@@ -1460,30 +1563,33 @@ class Backend:
                 continue
             ssid = bytes(config.get("802-11-wireless", {}).get("ssid", Variant("ay", b"")).value)
             security = config.get("802-11-wireless-security", {}).get("key-mgmt")
-            profiles[(ssid, "open" if security is None else "8021x" if security.value == "wpa-eap" else "secured")] = path
+            profiles[(ssid, "open" if security is None or security.value == "owe" else "8021x" if security.value == "wpa-eap" else "secured")] = path
 
         active_ap = (await device_props.call_get(name + ".Device.Wireless", "ActiveAccessPoint")).value
         state = (await device_props.call_get(name + ".Device", "State")).value
         powered = (await manager_props.call_get(name, "WirelessEnabled")).value
         networks, rsn = {}, {}
         for path in await wireless.call_get_all_access_points():
-            props = await self.interface(name, path, "org.freedesktop.DBus.Properties")
+            props = await self.interface(name, path, "org.freedesktop.DBus.Properties", alike="nm-access-point")
             ap = await props.call_get_all(name + ".AccessPoint")
             ssid = bytes(ap["Ssid"].value)
             if not ssid:
                 continue
             rsn[path] = ap["RsnFlags"].value
             flags = ap["WpaFlags"].value | ap["RsnFlags"].value
-            kind = "8021x" if flags & 0x200 else "open" if not (ap["Flags"].value & 1 or flags) else "secured"
+            # Enhanced Open (OWE, 0x800 and its transition mode 0x1000) encrypts without a password.
+            owe = bool(flags & 0x1800) and not flags & 0x700
+            kind = "8021x" if flags & 0x200 else "open" if owe or not (ap["Flags"].value & 1 or flags) else "secured"
             connected = path == active_ap and state == 100
-            network = {"path": path, "name": ssid.decode("utf-8", "replace"), "type": kind,
+            network = {"path": path, "name": ssid.decode("utf-8", "replace"), "type": kind, "owe": owe,
                        "connected": connected, "saved": (ssid, kind) in profiles,
                        "signal": ap["Strength"].value}
             key = (ssid, kind)
             if key not in networks or connected or (not networks[key]["connected"] and network["signal"] > networks[key]["signal"]):
                 networks[key] = network
         if action == "list":
-            return {"networks": sorted(networks.values(), key=lambda n: (-n["connected"], -n["signal"], n["name"])),
+            return {"networks": sorted(({key: value for key, value in n.items() if key != "owe"} for n in networks.values()),
+                                       key=lambda n: (-n["connected"], -n["signal"], n["name"])),
                     "state": "connected" if state == 100 else "disconnected", "powered": powered}
 
         path = p.get("path", "")
@@ -1507,7 +1613,9 @@ class Backend:
                 raise BackendError("invalid", "Configure enterprise credentials in NetworkManager first.")
             config = {"connection": {"id": Variant("s", network["name"]), "type": Variant("s", "802-11-wireless")},
                       "802-11-wireless": {"ssid": Variant("ay", ssid)}}
-            if network["type"] != "open":
+            if network["owe"]:
+                config["802-11-wireless-security"] = {"key-mgmt": Variant("s", "owe")}
+            elif network["type"] != "open":
                 password = p.get("password")
                 if not isinstance(password, str) or not password:
                     raise BackendError("invalid", "Enter the Wi-Fi password.")
@@ -1524,9 +1632,9 @@ class Backend:
         raise BackendError("timeout", "Wi-Fi connection timed out.")
 
     async def bluetooth_pair(self, p):
-        from dbus_next.service import ServiceInterface, method
-        from dbus_next import DBusError
         objects = await self.objects("org.bluez")
+        from dbus_next.service import ServiceInterface, method  # importable once interface() has found dbus-next
+        from dbus_next import DBusError
         path = p.get("path", "")
         if path not in objects or "org.bluez.Device1" not in objects[path]:
             raise BackendError("invalid", "Select an available Bluetooth device.")
@@ -1810,7 +1918,7 @@ class Backend:
                 saved = {}
             if not isinstance(saved, dict) or not saved:
                 return {"restored": restored, "failed": failed}
-            names = [monitor["name"] for monitor in json.loads((await run("hyprctl", "monitors", "-j")).decode())]
+            names = [monitor["name"] for monitor in await hypr_json("monitors", "-j")]
             if not any(name in saved for name in names):
                 return {"restored": restored, "failed": failed}
             daemon = await self.wallpaper_daemon()
@@ -1952,7 +2060,7 @@ class Backend:
                 return {"enabled": self.lid_fd is not None}
         if method in ("display.grayscale.get", "display.grayscale.toggle"):
             shader = str(Path(__file__).resolve().parents[1] / "assets/grayscale.frag")
-            current = json.loads(await run("hyprctl", "getoption", "decoration:screen_shader", "-j"))["str"]
+            current = (await hypr_json("getoption", "decoration:screen_shader", "-j"))["str"]
             enabled = current == shader
             if method.endswith(".toggle"):
                 saved = RUNTIME / "grayscale.json"
@@ -1970,7 +2078,7 @@ class Backend:
                 result = (await run("hyprctl", "eval", 'hl.config({decoration = {screen_shader = ' + literal + '}})')).decode().strip()
                 if result != "ok":
                     raise BackendError("failed", "Could not change the screen shader.")
-                actual = json.loads(await run("hyprctl", "getoption", "decoration:screen_shader", "-j"))["str"]
+                actual = (await hypr_json("getoption", "decoration:screen_shader", "-j"))["str"]
                 enabled = actual == shader
             return {"enabled": enabled}
         if method.startswith("display.") and method[8:] in ("list", "set", "keep", "revert", "reset"):
@@ -1980,7 +2088,7 @@ class Backend:
             if method == "keyboard.next":
                 # Every keyboard, so an external one and the laptop's never disagree.
                 await run("hyprctl", "switchxkblayout", "all", "next")
-            return keyboard_state(json.loads(await run("hyprctl", "devices", "-j")))
+            return keyboard_state(await hypr_json("devices", "-j"))
         if method == "brightness.get":
             return self.brightness()
         if method == "brightness.set":
@@ -1995,10 +2103,8 @@ class Backend:
             await run("wl-copy", data=str(p.get("text", "")).encode())
             return {"done": True}
         if method == "clipboard.thumbnail":
-            entry = str(p.get("entry", ""))
+            entry = clipboard_entry(p.get("entry"))
             identity = entry.partition("\t")[0]
-            if not identity.isdigit() or "\n" in entry:
-                raise BackendError("invalid", "Select a clipboard entry.")
             wipes = self.clipboard_wipes
             data = await run("cliphist", "decode", data=entry.encode())
             if identity in self.clipboard_deleted or wipes != self.clipboard_wipes:
@@ -2011,8 +2117,15 @@ class Backend:
             for stale in sorted(folder.glob("*"), key=modified, reverse=True)[31:]:
                 stale.unlink(missing_ok=True)
             path = folder / (identity + extension)
-            path.write_bytes(data)
-            path.chmod(0o600)
+            # Written whole and private before it takes its name: the shell may be loading the old one.
+            fd, name = tempfile.mkstemp(prefix=".shale-", dir=folder)
+            try:
+                with os.fdopen(fd, "wb") as stream:
+                    stream.write(data)
+                os.replace(name, path)
+            finally:
+                if os.path.exists(name):
+                    os.unlink(name)
             return {"path": str(path)}
         if method == "notifications.get":
             if not settings()["persistNotifications"]:
@@ -2091,7 +2204,7 @@ class Backend:
             entries = []
             for line in data.splitlines():
                 identity, _, text = line.partition("\t")
-                if query in text.casefold() and text not in pinned:
+                if query in text.casefold() and not (text in pinned and await self.same_as_pin(line, saved)):
                     entry = {"id": identity, "text": text, "raw": line}
                     label = clipboard_label(text)
                     if label:
@@ -2110,7 +2223,7 @@ class Backend:
                     paths.append((entry, text))
             if paths:
                 try:
-                    kinds = await asyncio.wait_for(asyncio.to_thread(path_kinds, [text for _, text in paths]), 1)
+                    kinds = await probe(path_kinds, [text for _, text in paths], timeout=1)
                 except asyncio.TimeoutError:
                     # A hung network mount must not hold up the list; paths just go unmarked.
                     kinds = []
@@ -2119,26 +2232,28 @@ class Backend:
                         entry.update(kind)
             return {"entries": entries, "pins": pins}
         if method == "clipboard.pin":
-            entry = str(p.get("entry", ""))
-            if not entry.partition("\t")[0].isdigit() or "\n" in entry:
-                raise BackendError("invalid", "Select a clipboard entry.")
+            entry = clipboard_entry(p.get("entry"))
             text = entry.partition("\t")[2]
             async with self.clipboard_pin_lock:
                 pins = clipboard_pins()
-                if any(pin["text"] == text for pin in pins):
+                if any(pin["text"] == text for pin in pins) and not ambiguous_preview(text):
                     return {"done": True}
                 if len(pins) >= MAX_PINS:
                     raise BackendError("invalid", f"Up to {MAX_PINS} pins. Unpin one first.")
                 data = await run("cliphist", "decode", data=entry.encode())
                 if len(data) > 20 * 1024 * 1024:
                     raise BackendError("invalid", "This entry is too large to pin.")
+                # Two images of one size share a preview line; what they hold tells them apart.
+                sha = hashlib.sha1(data).hexdigest()
+                if any(pin["sha"] == sha for pin in pins):
+                    return {"done": True}
                 extension = ".png" if data.startswith(b"\x89PNG\r\n\x1a\n") else ".jpg" if data.startswith(b"\xff\xd8\xff") else ".data"
                 identity = os.urandom(8).hex()
                 CLIPBOARD_PINS.mkdir(parents=True, exist_ok=True, mode=0o700)
                 path = CLIPBOARD_PINS / (identity + extension)
                 with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "wb") as stream:
                     stream.write(data)
-                atomic_json(CLIPBOARD_PINS / "pins.json", [{"pin": identity, "text": text, "file": path.name}] + pins)
+                atomic_json(CLIPBOARD_PINS / "pins.json", [{"pin": identity, "text": text, "file": path.name, "sha": sha}] + pins)
             return {"done": True}
         if method == "clipboard.unpin":
             async with self.clipboard_pin_lock:
@@ -2149,7 +2264,7 @@ class Backend:
             # Removing (not just unpinning) also takes the copies the pin hid from history.
             if p.get("forget") is True:
                 for line in (await run("cliphist", "list")).decode(errors="replace").splitlines():
-                    if line.partition("\t")[2] == pin["text"] and line.partition("\t")[0].isdigit():
+                    if ENTRY_ID.fullmatch(line.partition("\t")[0]) and await self.same_as_pin(line, [pin]):
                         await run("cliphist", "delete", data=line.encode())
             return {"done": True}
         if method == "clipboard.text":
@@ -2157,9 +2272,7 @@ class Backend:
             if "pin" in p:
                 data = pin_data(clipboard_pin(clipboard_pins(), p.get("pin")))
             else:
-                entry = str(p.get("entry", ""))
-                if not entry.partition("\t")[0].isdigit() or "\n" in entry:
-                    raise BackendError("invalid", "Select a clipboard entry.")
+                entry = clipboard_entry(p.get("entry"))
                 data = await run("cliphist", "decode", data=entry.encode())
             try:
                 text = data[:65536].decode()
@@ -2177,16 +2290,14 @@ class Backend:
             except UnicodeDecodeError:
                 text = ""
             try:
-                target = await asyncio.wait_for(asyncio.to_thread(clipboard_target, text), 3)
+                target = await probe(clipboard_target, text, timeout=3)
             except asyncio.TimeoutError:
                 raise BackendError("failed", "That location isn't responding.")
             if not target:
                 raise BackendError("invalid", "This entry can't be opened.")
             return target
         if method in ("clipboard.copy", "clipboard.delete", "clipboard.open"):
-            entry = str(p.get("entry", ""))
-            if not entry.partition("\t")[0].isdigit() or "\n" in entry:
-                raise BackendError("invalid", "Select a clipboard entry.")
+            entry = clipboard_entry(p.get("entry"))
             data = await run("cliphist", "delete" if method.endswith("delete") else "decode", data=entry.encode())
             if method.endswith("delete"):
                 # The preview is a full copy of the image; it goes with the entry.
@@ -2201,7 +2312,7 @@ class Backend:
                 except UnicodeDecodeError:
                     text = ""
                 try:
-                    target = await asyncio.wait_for(asyncio.to_thread(clipboard_target, text), 3)
+                    target = await probe(clipboard_target, text, timeout=3)
                 except asyncio.TimeoutError:
                     raise BackendError("failed", "That location isn't responding.")
                 if not target:
@@ -2248,14 +2359,14 @@ class Backend:
         if mode == "region":
             return ["-g", (await run("slurp", timeout=120, cancel_ok=True)).decode().strip()]
         if mode == "window":
-            window = json.loads(await run("hyprctl", "-j", "activewindow"))
+            window = await hypr_json("-j", "activewindow")
             if not window.get("at") or not window.get("size"):
                 raise BackendError("unavailable", "No active window.")
             x, y = window["at"]
             w, h = window["size"]
             return ["-g", f"{x},{y} {w}x{h}"]
         if mode == "output":
-            outputs = json.loads(await run("hyprctl", "-j", "monitors"))
+            outputs = await hypr_json("-j", "monitors")
             output = next((x for x in outputs if x.get("focused")), None)
             if not output:
                 raise BackendError("unavailable", "No focused output.")
@@ -2450,6 +2561,9 @@ async def watch_brightness(backend, recheck=10, poll=1, unavailable=30):
             watch.close()
 
 
+# The shell writes a request's id, then its method.
+QUICK_REQUEST = re.compile(rb'"method"\s*:\s*"(settings\.|note\.|notifications\.|activity\.(update|focus)")')
+
 async def watch_with_retries(name, setup, delays=(5, 10, 30, 60, 120, 300)):
     """Sets up a D-Bus watch, again after each delay while it fails: the service may start after the shell."""
     for delay in (0, *delays):
@@ -2466,7 +2580,7 @@ async def watch_with_retries(name, setup, delays=(5, 10, 30, 60, 120, 300)):
 
 async def main():
     backend = Backend()
-    tasks = set()
+    tasks, quick = set(), set()
     async def watch_session():
         """Gate activity at external locks and immediately before suspend. Until it works, the shell's
         own lock state and monotonic gap detection remain available."""
@@ -2533,7 +2647,22 @@ async def main():
             if code == "failed":
                 log_unexpected(error, method if isinstance(method, str) else "Request")
             response = {"id": identity, "ok": False, "error": {"code": code, "message": message}}
-        print(json.dumps(response, ensure_ascii=False), flush=True)
+        try:
+            print(json.dumps(response, ensure_ascii=False), flush=True)
+        except (UnicodeError, ValueError, TypeError) as error:
+            # A file name that isn't valid text, or a value JSON can't carry: the request still gets its answer.
+            log_unexpected(error, method if isinstance(method, str) else "Request")
+            print(json.dumps({"id": identity, "ok": False, "error": {"code": "failed", "message": "The answer couldn't be sent."}}), flush=True)
+
+    async def keep_watches():
+        """Sets the D-Bus watches up again on a system bus that had to be reconnected: they died with the old one."""
+        seen = backend.bus_generation
+        while True:
+            await asyncio.sleep(30)
+            if backend.bus_generation != seen and backend.bus and backend.bus.connected:
+                seen = backend.bus_generation
+                for name, setup in (("Session watch", watch_session), ("Power profile watch", watch_power), ("Bluetooth watch", backend.watch_bluetooth)):
+                    await watch_with_retries(name, setup, delays=())
 
     async def keep_equalizer():
         backend.equalizer.reap_stale()
@@ -2572,6 +2701,7 @@ async def main():
     bluetooth_watcher = asyncio.create_task(watch_with_retries("Bluetooth watch", backend.watch_bluetooth))
     clipboard_keeper = asyncio.create_task(keep_clipboard_history(clipboard))
     system_keeper = asyncio.create_task(keep_system_history(backend))
+    watch_keeper = asyncio.create_task(keep_watches())
     reader = asyncio.StreamReader(limit=1024 * 1024 + 1)
     transport, _ = await asyncio.get_running_loop().connect_read_pipe(lambda: asyncio.StreamReaderProtocol(reader), sys.stdin)
     try:
@@ -2582,13 +2712,19 @@ async def main():
             if isinstance(line, tuple):
                 print(json.dumps({"id": line[1], "ok": False, "error": {"code": "invalid", "message": "Request is too large."}}), flush=True)
                 continue
-            if len(tasks) >= 32:
+            # Up to 32 requests run at once; some wait a long time on purpose (a colour pick, a pairing, a VPN
+            # password). Saving settings and notes is quick and never waits behind them.
+            if len(tasks) >= 32 and not QUICK_REQUEST.search(line[:160]):
                 await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
             task = asyncio.create_task(handle(line))
-            tasks.add(task)
-            task.add_done_callback(tasks.discard)
-        if tasks:
-            await asyncio.gather(*tasks)
+            if QUICK_REQUEST.search(line[:160]):
+                quick.add(task)
+                task.add_done_callback(quick.discard)
+            else:
+                tasks.add(task)
+                task.add_done_callback(tasks.discard)
+        if tasks or quick:
+            await asyncio.gather(*tasks, *quick)
     finally:
         watcher.cancel()
         session_watcher.cancel()
@@ -2598,13 +2734,15 @@ async def main():
             backend.bluetooth.stop()
         clipboard_keeper.cancel()
         system_keeper.cancel()
+        watch_keeper.cancel()
         equalizer_keeper.cancel()
         backend.equalizer.stop()
         clipboard.stop()
         leave_recording()
         transport.close()
-    if backend.bus:
-        backend.bus.disconnect()
+    for bus in (backend.bus, backend.session_bus):
+        if bus:
+            bus.disconnect()
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "record-worker":
