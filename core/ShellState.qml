@@ -633,6 +633,9 @@ QtObject {
                 root.profiles = Object.assign({}, root.profiles, {
                     active: data.active
                 });
+            // Caps Lock outside the lock screen (which has its own note under the password).
+            if (name === "capslock")
+                root.osd(data.on ? "On · Caps Lock" : "Off · Caps Lock", -1, "keyboard");
             if (name === "brightness") {
                 root.brightness = data.available ? data.value : -1;
                 if (data.available && !data.initial)

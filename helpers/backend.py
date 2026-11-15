@@ -2602,6 +2602,29 @@ async def watch_brightness(backend, recheck=10, poll=1, unavailable=30):
 # The shell writes a request's id, then its method.
 QUICK_REQUEST = re.compile(rb'"method"\s*:\s*"(settings\.|note\.|notifications\.|activity\.(update|focus)")')
 
+async def watch_capslock(leds=Path("/sys/class/leds"), every=0.4, rescan=30):
+    """Reports Caps Lock as it changes, from the keyboards' Caps Lock lights: the shell sees no keys outside its own
+    windows. The kernel gives no notice when a light changes, so the few small files are read a few times a second;
+    without any light (some laptops) it only looks again now and then for a keyboard plugged in later."""
+    previous, files, scanned = None, [], -rescan
+    while True:
+        now = time.monotonic()
+        if now - scanned >= rescan:
+            files, scanned = sorted(leds.glob("*::capslock/brightness")), now
+        if not files:
+            await asyncio.sleep(rescan)
+            continue
+        on = False
+        for path in files:
+            try:
+                on = on or int(path.read_text().strip() or 0) > 0
+            except (OSError, ValueError):
+                scanned = -rescan  # a keyboard went away
+        if previous is not None and on != previous:
+            emit("capslock", {"on": on})
+        previous = on
+        await asyncio.sleep(every)
+
 async def watch_with_retries(name, setup, delays=(5, 10, 30, 60, 120, 300)):
     """Sets up a D-Bus watch, again after each delay while it fails: the service may start after the shell."""
     for delay in (0, *delays):
@@ -2733,6 +2756,7 @@ async def main():
 
     asyncio.get_running_loop().add_signal_handler(signal.SIGTERM, terminate)
     watcher = asyncio.create_task(watch_brightness(backend))
+    caps_watcher = asyncio.create_task(watch_capslock())
     equalizer_keeper = asyncio.create_task(keep_equalizer())
     session_watcher = asyncio.create_task(watch_with_retries("Session watch", watch_session))
     power_watcher = asyncio.create_task(watch_with_retries("Power profile watch", watch_power))
@@ -2765,6 +2789,7 @@ async def main():
             await asyncio.gather(*tasks, *quick)
     finally:
         watcher.cancel()
+        caps_watcher.cancel()
         session_watcher.cancel()
         power_watcher.cancel()
         bluetooth_watcher.cancel()
