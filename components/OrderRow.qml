@@ -44,6 +44,34 @@ Item {
             easing.type: Easing.OutCubic
         }
     }
+    // Near the top or bottom of the scrolling page, a dragged row scrolls it, faster the closer it gets, so a row can
+    // go past what is on screen without the arrow keys. The row stays under the pointer as the page moves.
+    property Flickable scroller: null
+    function findScroller() {
+        for (let item = parent; item; item = item.parent)
+            if (item.flicking !== undefined && item.contentHeight > item.height)
+                return item;
+        return null;
+    }
+    onDraggingChanged: scroller = dragging ? findScroller() : null
+    Timer {
+        interval: 16
+        repeat: true
+        running: root.dragging && !!root.scroller
+        onTriggered: {
+            const view = root.scroller;
+            const middle = root.mapToItem(view, 0, root.height / 2).y;
+            const edge = 56;
+            const speed = middle < edge ? -(edge - middle) / 4 : middle > view.height - edge ? (middle - view.height + edge) / 4 : 0;
+            const before = view.contentY;
+            view.contentY = Math.max(0, Math.min(view.contentHeight - view.height, view.contentY + Math.max(-14, Math.min(14, speed))));
+            const moved = view.contentY - before;
+            if (moved) {
+                handle.startY -= moved;
+                root.dragOffset += moved;
+            }
+        }
+    }
     // The lifted row covers the ones it passes over.
     Rectangle {
         anchors.fill: parent
