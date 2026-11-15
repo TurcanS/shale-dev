@@ -44,7 +44,7 @@ runs the rise-and-fade entrance. `PanelContent` draws the case and header and lo
 belongs in `ShellState` or a service.
 
 Big panels are split into files named after the panel: `ControlCenter.qml` holds Control's state and requests and
-its home view; `ControlBluetooth.qml`, `ControlSound.qml` and `ControlPower.qml` are its detail views and get the
+its home view; `ControlWifi.qml`, `ControlBluetooth.qml`, `ControlSound.qml` and `ControlPower.qml` are its detail views and get the
 page as `control`; `ControlStrip.qml`, `ControlModuleHeader.qml` and the other `Control*.qml` files are its parts.
 
 ## The helper
