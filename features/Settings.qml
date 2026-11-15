@@ -147,6 +147,30 @@ FocusScope {
             Diagnostics: ["systemWindow"]
         })
     readonly property var currentCategory: categories.find(item => item.name === category) || categories[0]
+    // The first control on the page shown, for the sidebar's Right and Enter.
+    function firstControl(item) {
+        if (!item || item.visible === false || item.enabled === false)
+            return null;
+        if (item.activeFocusOnTab)
+            return item;
+        for (let i = 0; i < item.children.length; i++) {
+            const found = firstControl(item.children[i]);
+            if (found)
+                return found;
+        }
+        return null;
+    }
+    function enterPage() {
+        for (let i = 0; i < pages.children.length; i++) {
+            const page = pages.children[i];
+            if (page.objectName === category) {
+                const control = firstControl(page);
+                if (control)
+                    control.forceActiveFocus(Qt.TabFocusReason);
+                return;
+            }
+        }
+    }
     // Opens a page by its name or as typed after `shale settings` ("control-center").
     function showPage(name) {
         const wanted = String(name || "").toLowerCase().replace(/[-_]/g, " ").trim();
@@ -366,11 +390,26 @@ FocusScope {
                             rightPadding: 10
                             cornerRadius: Theme.radiusKey
                             Accessible.role: Accessible.PageTab
+                            Accessible.selected: selected
+                            // One Tab stop for the list: Tab goes from the chosen page's name into the page, and the
+                            // arrows, Home and End move between pages.
+                            activeFocusOnTab: selected
                             onClicked: root.category = modelData.name
+                            Keys.onRightPressed: root.enterPage()
+                            Keys.onReturnPressed: root.enterPage()
+                            Keys.onEnterPressed: root.enterPage()
+                            Keys.onPressed: event => {
+                                if (event.key !== Qt.Key_Home && event.key !== Qt.Key_End)
+                                    return;
+                                const target = navigationItems.itemAt(event.key === Qt.Key_Home ? 0 : root.categories.length - 1);
+                                target.forceActiveFocus(Qt.TabFocusReason);
+                                root.category = target.modelData.name;
+                                event.accepted = true;
+                            }
                             Keys.onDownPressed: {
                                 const next = navigationItems.itemAt(Math.min(index + 1, root.categories.length - 1));
-                                root.category = next.modelData.name;
                                 next.forceActiveFocus(Qt.TabFocusReason);
+                                root.category = next.modelData.name;
                             }
                             Keys.onUpPressed: {
                                 if (index === 0) {
@@ -378,8 +417,8 @@ FocusScope {
                                     return;
                                 }
                                 const previous = navigationItems.itemAt(index - 1);
-                                root.category = previous.modelData.name;
                                 previous.forceActiveFocus(Qt.TabFocusReason);
+                                root.category = previous.modelData.name;
                             }
                             // The chosen section is an accent wash with accent text; the others light up under the pointer.
                             background: Rectangle {
