@@ -155,9 +155,11 @@ FocusScope {
                 Layout.leftMargin: 2
             }
             C.Label {
+                // A search that finds nothing says so here, where the window count usually is.
                 text: root.moving ? root.appName(root.moving) + " picked · choose a page"
+                    : root.folded !== "" ? (root.hits.length ? root.hits.length + (root.hits.length === 1 ? " window matches" : " windows match") : "No window matches “" + root.query.trim() + "”")
                     : (root.currentId > 0 ? "Page " + root.currentId : "Scratch") + " · " + Services.windows.length + (Services.windows.length === 1 ? " window open" : " windows open")
-                color: root.moving ? Theme.accentText : Theme.textDim
+                color: root.moving ? Theme.accentText : root.folded !== "" && !root.hits.length ? Theme.dangerText : Theme.textDim
                 font.pixelSize: 13
                 Layout.fillWidth: true
                 Layout.minimumWidth: 0

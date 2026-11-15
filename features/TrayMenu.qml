@@ -46,7 +46,8 @@ PopupWindow {
     anchor.edges: Edges.Bottom
     anchor.gravity: Edges.Bottom
     implicitWidth: list.implicitWidth + 12
-    implicitHeight: list.implicitHeight + 12
+    // No taller than the screen below the bar allows; the list scrolls past that.
+    implicitHeight: Math.min(list.implicitHeight + 12, Math.max(200, (anchor.window && anchor.window.screen ? anchor.window.screen.height : 1080) - ShellState.barBottom - 24))
     visible: reveal > 0
     color: "transparent"
     QsMenuOpener {
