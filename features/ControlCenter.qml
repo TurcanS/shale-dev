@@ -882,7 +882,7 @@ FocusScope {
                                             Layout.fillWidth: true
                                         }
                                         C.Label {
-                                            text: wifiModule.current ? ["Connected", Math.round(wifiModule.current.signal) + "% signal", wifiModule.current.band, wifiModule.current.speed ? wifiModule.current.speed + " Mbit/s" : ""].filter(part => !!part).join(" · ") : ""
+                                            text: wifiModule.current ? [Math.round(wifiModule.current.signal) + "%", wifiModule.current.band, wifiModule.current.speed ? wifiModule.current.speed + " Mbit/s" : ""].filter(part => !!part).join(" · ") : ""
                                             color: Theme.mix(Theme.textSecondary, Theme.text, 0.4)
                                             font.pixelSize: 12
                                             Layout.fillWidth: true

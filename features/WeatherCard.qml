@@ -311,10 +311,10 @@ Rectangle {
                             return place;
                         const now = root.weather.current;
                         const known = value => value !== null && value !== undefined;
-                        // Wind as people say it: its speed and the side it blows from.
+                        // Wind as people say it: its speed and the side it blows from. The line is short: the place must fit.
                         const from = known(now.windFrom) ? " " + ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(now.windFrom / 45) % 8] : "";
-                        const wind = known(now.wind) ? " · Wind " + now.wind + (root.weather.units === "imperial" ? " mph" : " km/h") + from : "";
-                        return "Feels " + root.degrees(now.feelsLike) + wind + (known(now.humidity) ? " · " + now.humidity + "% humid" : "") + " · " + place;
+                        const wind = known(now.wind) ? " · " + now.wind + (root.weather.units === "imperial" ? " mph" : " km/h") + from : "";
+                        return "Feels " + root.degrees(now.feelsLike) + wind + " · " + place;
                     }
                     color: Theme.textDim
                     font.pixelSize: 12
