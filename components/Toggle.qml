@@ -8,6 +8,8 @@ Button {
     property string description: ""
     // With a glyph the row becomes a header-style toggle (Wi-Fi, Bluetooth); positive adds a status dot.
     property bool positive: false
+    // The setting this switch changes, for the reset key beside its name while it differs from how Shale comes.
+    property string settingKey: ""
     // Flat inside a Group: no card of its own, only a hover highlight.
     implicitHeight: Math.max(glyph !== "" ? 60 : description !== "" ? 58 : Theme.controlLarge + 4, toggleContent.implicitHeight + topPadding + bottomPadding)
     padding: Theme.gapL
@@ -42,12 +44,25 @@ Button {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 2
-            Label {
-                text: root.text
+            // The name wraps when the line is too short; the reset key sits right after it while the setting is changed.
+            Item {
                 Layout.fillWidth: true
-                wrapMode: Text.WordWrap
-                font.weight: root.glyph !== "" ? Font.DemiBold : Font.Normal
-                color: root.enabled ? Theme.text : Theme.textFaint
+                implicitHeight: name.implicitHeight
+                Label {
+                    id: name
+                    width: Math.min(implicitWidth, parent.width - (rowReset.visible ? rowReset.width + Theme.gapXs : 0))
+                    text: root.text
+                    wrapMode: Text.WordWrap
+                    font.weight: root.glyph !== "" ? Font.DemiBold : Font.Normal
+                    color: root.enabled ? Theme.text : Theme.textFaint
+                }
+                RowReset {
+                    id: rowReset
+                    x: name.width + Theme.gapXs
+                    y: Math.round((Math.min(name.implicitHeight, name.font.pixelSize * 1.4) - height) / 2)
+                    key: root.settingKey
+                    name: root.text
+                }
             }
             Label {
                 visible: root.description !== ""

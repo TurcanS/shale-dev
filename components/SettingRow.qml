@@ -12,6 +12,8 @@ Item {
     // A row's own error or confirmation tints its description.
     property color descriptionColor: Theme.textDim
     property bool stacked: false
+    // The setting this row changes, for the reset key beside its name while it differs from how Shale comes.
+    property string settingKey: ""
     default property alias control: controls.data
     Layout.fillWidth: true
     implicitWidth: grid.implicitWidth + 2 * Theme.gapL
@@ -32,12 +34,25 @@ Item {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 2
-            C.Label {
-                visible: text !== ""
-                text: root.label
-                color: root.enabled ? Theme.text : Theme.textFaint
-                wrapMode: Text.WordWrap
+            // The name wraps when the line is too short; the reset key sits right after it while the setting is changed.
+            Item {
+                visible: root.label !== ""
                 Layout.fillWidth: true
+                implicitHeight: name.implicitHeight
+                C.Label {
+                    id: name
+                    width: Math.min(implicitWidth, parent.width - (rowReset.visible ? rowReset.width + Theme.gapXs : 0))
+                    text: root.label
+                    color: root.enabled ? Theme.text : Theme.textFaint
+                    wrapMode: Text.WordWrap
+                }
+                C.RowReset {
+                    id: rowReset
+                    x: name.width + Theme.gapXs
+                    y: Math.round((Math.min(name.implicitHeight, name.font.pixelSize * 1.4) - height) / 2)
+                    key: root.settingKey
+                    name: root.label
+                }
             }
             C.Label {
                 visible: text !== ""

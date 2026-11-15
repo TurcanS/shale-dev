@@ -1868,6 +1868,9 @@ class Backend:
             current = restore_settings()
             problem = await self.settings_replaced(before, current)
             return {"settings": current, "problem": problem}
+        if method == "settings.defaults":
+            # How Shale comes, for the reset key beside each changed setting.
+            return {key: value for key, value in DEFAULTS.items() if key not in ("version", "shortcuts")}
         if method == "settings.backup":
             return backup_state(p.get("path"))
         if method == "settings.reset":

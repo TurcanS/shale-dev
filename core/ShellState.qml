@@ -236,8 +236,17 @@ QtObject {
         unsaved[key] = true;
         save.restart();
     }
+    // How Shale comes, from the helper: a setting that differs gets a reset key on its Settings row.
+    property var defaults: ({})
+    function differs(key) {
+        return defaults[key] !== undefined && settings[key] !== undefined && JSON.stringify(settings[key]) !== JSON.stringify(defaults[key]);
+    }
     // Reads the settings from the helper, keeping what was changed here and not saved yet.
     function loadSettings() {
+        Backend.request("settings.defaults", {}, (r, e) => {
+            if (!e)
+                root.defaults = r;
+        });
         Backend.request("settings.get", {}, (r, e) => {
             if (e)
                 return;

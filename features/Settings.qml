@@ -57,6 +57,7 @@ FocusScope {
             saved = true;
             savedTimer.restart();
         }
+        settingKey: key
         description: error || (saved ? "Saved" : note)
         descriptionColor: error ? Theme.dangerText : saved ? Theme.success : Theme.textDim
         C.Field {
@@ -78,6 +79,7 @@ FocusScope {
     component SettingToggle: C.Toggle {
         property string key: ""
         property bool fallback: false
+        settingKey: key
         flat: true
         Layout.fillWidth: true
         selected: ShellState.setting(key, fallback)
@@ -596,6 +598,7 @@ FocusScope {
                             C.SectionHeader { text: "Size" }
                             C.Group {
                                 C.ChoiceRow {
+                                    settingKey: "fontSize"
                                     label: "Text size"
                                     description: "In panels; the bar keeps its own"
                                     model: [12, 14, 16, 18].map(size => ({key: size, text: String(size)}))
@@ -603,6 +606,7 @@ FocusScope {
                                     onActivated: key => ShellState.setSetting("fontSize", key)
                                 }
                                 C.ChoiceRow {
+                                    settingKey: "panelSize"
                                     label: "Panel size"
                                     description: "How large panels are drawn"
                                     model: [80, 85, 90, 100].map(size => ({key: size, text: size + "%"}))
@@ -644,6 +648,7 @@ FocusScope {
                                     fallback: "~/Pictures/Wallpapers"
                                 }
                                 C.ChoiceRow {
+                                    settingKey: "wallpaperFit"
                                     // hyprpaper has all four; awww and swww only crop or fit.
                                     readonly property bool hyprpaper: !Backend.has("awww", false) && !Backend.has("swww", false)
                                     label: "Wallpaper fit"
@@ -675,6 +680,7 @@ FocusScope {
                                     onClicked: ShellState.setSetting("lockScreen", builtin ? "hyprlock" : "builtin")
                                 }
                                 C.ChoiceRow {
+                                    settingKey: "lockStyle"
                                     visible: ShellState.setting("lockScreen", "builtin") === "builtin" || !Backend.has("hyprlock", true)
                                     label: "Style"
                                     description: ShellState.setting("lockStyle", "particles") === "classic" ? "A large clock over your wallpaper" : "The time drawn in points of light that gather, shift and burst"
@@ -726,6 +732,7 @@ FocusScope {
                                     fallback: true
                                 }
                                 C.ChoiceRow {
+                                    settingKey: "weekStart"
                                     label: "Week starts on"
                                     description: "In the calendar and Activity"
                                     model: [{key: "locale", text: "Auto", hint: "As your language and region have it"}, {key: "monday", text: "Mon"}, {key: "sunday", text: "Sun"}, {key: "saturday", text: "Sat"}]
@@ -733,6 +740,7 @@ FocusScope {
                                     onActivated: key => ShellState.setSetting("weekStart", key)
                                 }
                                 C.ChoiceRow {
+                                    settingKey: "weatherUnits"
                                     label: "Weather units"
                                     description: "Temperature and wind"
                                     model: [{key: "metric", text: "°C, km/h"}, {key: "imperial", text: "°F, mph"}]
@@ -743,6 +751,7 @@ FocusScope {
                             C.SectionHeader { text: "Search and terminal" }
                             C.Group {
                                 C.ChoiceRow {
+                                    settingKey: "searchEngine"
                                     label: "Web search"
                                     description: "Type ? in Find"
                                     model: [{key: "duckduckgo", text: "DuckDuckGo"}, {key: "google", text: "Google"}, {key: "brave", text: "Brave"}]
@@ -752,6 +761,7 @@ FocusScope {
                                 C.ChoiceRow {
                                     readonly property string chosen: ShellState.setting("terminal", "auto")
                                     readonly property var installed: Backend.capabilities.terminals || []
+                                    settingKey: "terminal"
                                     label: "Terminal"
                                     description: "For commands run with > in Find"
                                     model: [{key: "auto", text: "Auto", hint: "$TERMINAL or the first one installed"}]
@@ -801,6 +811,7 @@ FocusScope {
                                 }
                                 C.ChoiceRow {
                                     readonly property var hours: ShellState.setting("quietHours", [])
+                                    settingKey: "quietHours"
                                     label: "Quiet hours"
                                     description: hours.length === 2 ? "Popups wait, as with Do not disturb; urgent ones still show" : "Every night, without turning Do not disturb on"
                                     model: [{key: "off", text: "Off"}, {key: "22-7", text: "22–07"}, {key: "23-8", text: "23–08"}, {key: "0-9", text: "00–09"}]
@@ -808,6 +819,7 @@ FocusScope {
                                     onActivated: key => ShellState.setSetting("quietHours", key === "off" ? [] : key.split("-").map(Number))
                                 }
                                 C.ChoiceRow {
+                                    settingKey: "focusMinutes"
                                     label: "Focus length"
                                     description: "Notifications wait until a focus session ends"
                                     model: [25, 50, 90].map(minutes => ({key: minutes, text: minutes + " min"}))
@@ -907,6 +919,7 @@ FocusScope {
                             spacing: 8
                             C.Group {
                                 C.ChoiceRow {
+                                    settingKey: "recordAudio"
                                     label: "Recording sound"
                                     description: "What a screen recording hears"
                                     model: [{key: "none", text: "None"}, {key: "system", text: "System"}, {key: "microphone", text: "Microphone"}]
@@ -914,6 +927,7 @@ FocusScope {
                                     onActivated: key => ShellState.setSetting("recordAudio", key)
                                 }
                                 C.ChoiceRow {
+                                    settingKey: "captureDelay"
                                     label: "Screenshot delay"
                                     description: "Time to set the screen up first"
                                     model: [0, 3, 5, 10].map(seconds => ({key: seconds, text: seconds ? seconds + " s" : "None"}))
@@ -954,6 +968,7 @@ FocusScope {
                                     onClicked: ShellState.setSetting("activityTracking", selected ? "off" : "on")
                                 }
                                 C.ChoiceRow {
+                                    settingKey: "activityKeep"
                                     label: "Keep for"
                                     description: ShellState.setting("activityKeep", 0) ? "Older days are forgotten once a day" : "Until you clear it"
                                     model: [{key: 30, text: "1 month"}, {key: 90, text: "3 months"}, {key: 365, text: "1 year"}, {key: 0, text: "Always"}]
@@ -1072,6 +1087,7 @@ FocusScope {
                             C.SectionHeader { text: "System monitor" }
                             C.Group {
                                 C.ChoiceRow {
+                                    settingKey: "systemWindow"
                                     label: "System monitor graphs"
                                     description: "How far back the graphs reach"
                                     model: [{key: 60, text: "1 min"}, {key: 300, text: "5 min"}]

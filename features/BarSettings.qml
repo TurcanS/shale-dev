@@ -59,6 +59,7 @@ ColumnLayout {
     component SettingToggle: C.Toggle {
         property string key: ""
         property bool fallback: false
+        settingKey: key
         flat: true
         Layout.fillWidth: true
         selected: ShellState.setting(key, fallback)
@@ -318,6 +319,7 @@ ColumnLayout {
     }
     C.Group {
         C.ChoiceRow {
+            settingKey: "barStyle"
             label: "Style"
             description: "Floating keeps 8 px from the screen edges"
             model: [{key: "floating", text: "Floating"}, {key: "edge", text: "Edge to edge"}]
@@ -325,6 +327,7 @@ ColumnLayout {
             onActivated: key => ShellState.setSetting("barStyle", key)
         }
         C.ChoiceRow {
+            settingKey: "clockFormat"
             label: "Clock"
             description: "What the clock shows beside the time"
             model: [{key: "time", text: "Time"}, {key: "day-time", text: "Day"}, {key: "date-time", text: "Date"}]
@@ -337,6 +340,7 @@ ColumnLayout {
             key: "clockSeconds"
         }
         C.ChoiceRow {
+            settingKey: "workspaceStyle"
             label: "Pages"
             description: "How the pages on a screen are drawn"
             model: [{key: "numbers", text: "Numbers"}, {key: "dots", text: "Dots"}]
@@ -344,6 +348,7 @@ ColumnLayout {
             onActivated: key => ShellState.setSetting("workspaceStyle", key)
         }
         C.ChoiceRow {
+            settingKey: "workspaceSlots"
             label: "Empty pages"
             description: "Keep the first ones on the bar even without windows"
             model: [{key: 0, text: "Hide"}, {key: 5, text: "1–5"}, {key: 10, text: "1–10"}]
@@ -351,6 +356,7 @@ ColumnLayout {
             onActivated: key => ShellState.setSetting("workspaceSlots", key)
         }
         C.ChoiceRow {
+            settingKey: "trayIcons"
             label: "Tray icons"
             description: "The rest open from the tray button"
             model: [{key: -1, text: "Auto", hint: "More on wider screens"}, {key: 0, text: "0"}, {key: 1, text: "1"}, {key: 2, text: "2"}, {key: 3, text: "3"}, {key: 5, text: "5"}]
@@ -358,6 +364,7 @@ ColumnLayout {
             onActivated: key => ShellState.setSetting("trayIcons", key)
         }
         C.ChoiceRow {
+            settingKey: "batteryPercent"
             label: "Battery percentage"
             description: "Low battery always shows it"
             model: [{key: "auto", text: "Auto", hint: "Hidden on narrow screens"}, {key: "always", text: "Always"}, {key: "never", text: "Never"}]

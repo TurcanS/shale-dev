@@ -55,6 +55,7 @@ ColumnLayout {
             onClicked: ShellState.setSetting("widgets", !root.enabledWidgets)
         }
         C.ChoiceRow {
+            settingKey: "widgetCorner"
             label: "Corner"
             description: "Where the cards sit; at the top they stay under the bar"
             stacked: true

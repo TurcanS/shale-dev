@@ -171,6 +171,7 @@ ColumnLayout {
             }
         }
         C.ChoiceRow {
+            settingKey: "surfaceTone"
             label: "Surface"
             description: "The tone of every panel"
             model: root.tones.map(tone => ({key: tone.key, text: tone.name}))
