@@ -506,7 +506,7 @@ Item {
             leftPadding: 8
             rightPadding: wide ? 12 : 8
             implicitWidth: Math.min(implicitContentWidth + leftPadding + rightPadding, wide ? 300 : 36)
-            hint: "Media controls"
+            hint: "Player"
             Accessible.name: player ? "Player, " + (player.trackTitle || player.identity) + (artist ? " by " + artist : "") : "Media controls"
             selected: bar.controlActive("media")
             onClicked: bar.toggleControl("media")

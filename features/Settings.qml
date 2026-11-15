@@ -150,6 +150,8 @@ FocusScope {
         const found = categories.find(item => item.name.toLowerCase() === wanted || (item.aliases || []).indexOf(wanted) >= 0);
         if (found)
             category = found.name;
+        else if (wanted !== "")
+            ShellState.message("Settings has no page called " + name, "error");
     }
     Component.onCompleted: showPage(ShellState.detail)
     Connections {
@@ -175,18 +177,25 @@ FocusScope {
         const children = item.children;
         for (let i = 0; i < children.length; i++) {
             const child = children[i];
+            // A row hidden on this computer (the lock style while hyprlock locks) can't be opened.
+            if (child.visible === false)
+                continue;
             // Hold-to-reset buttons have a description too; they aren't settings.
             if (child.description !== undefined && child.triggered === undefined) {
                 const label = child.label !== undefined ? child.label : child.text;
+                // A choice is found by its options too: "midnight", "brave".
+                const options = Array.isArray(child.model) ? child.model.map(option => option && option.text ? option.text : "").join(" ") : "";
                 if (typeof label === "string" && label !== "")
-                    out.push({label: label, description: String(child.description || ""), item: child});
+                    out.push({label: label, description: String(child.description || ""), options: options, item: child});
             }
             collect(child, out);
         }
     }
     function search(text) {
-        const words = text.toLowerCase().split(/\s+/).filter(word => word !== "");
-        const fits = haystack => words.every(word => haystack.indexOf(word) >= 0);
+        // Either spelling finds a row: the pages say colour and grey.
+        const plain = value => value.toLowerCase().replace(/color/g, "colour").replace(/gray/g, "grey");
+        const words = plain(text).split(/\s+/).filter(word => word !== "");
+        const fits = haystack => words.every(word => plain(haystack).indexOf(word) >= 0);
         // Names that start with what was typed first, then names that hold it, then the rest.
         const rank = label => label.toLowerCase().startsWith(words[0]) ? 0 : label.toLowerCase().indexOf(words[0]) >= 0 ? 1 : 2;
         const found = [];
@@ -209,7 +218,7 @@ FocusScope {
             const rows = [];
             collect(page, rows);
             for (const row of rows) {
-                if (fits((row.label + " " + row.description + " " + page.objectName).toLowerCase()))
+                if (fits(row.label + " " + row.description + " " + row.options + " " + page.objectName))
                     add(page.objectName, row.label, row.description, row.item);
             }
         }

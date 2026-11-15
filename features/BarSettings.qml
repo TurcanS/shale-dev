@@ -405,6 +405,11 @@ ColumnLayout {
                 selected: ShellState.setting("hiddenOutputs", []).indexOf(modelData.name) < 0
                 onClicked: {
                     const hidden = ShellState.setting("hiddenOutputs", []);
+                    // The last bar stays: without one there is no way back here but a shortcut.
+                    if (hidden.indexOf(modelData.name) < 0 && Quickshell.screens.every(screen => screen.name === modelData.name || hidden.indexOf(screen.name) >= 0)) {
+                        ShellState.message("One screen keeps its bar", "info");
+                        return;
+                    }
                     ShellState.setSetting("hiddenOutputs", hidden.indexOf(modelData.name) < 0 ? hidden.concat([modelData.name]) : hidden.filter(n => n !== modelData.name));
                 }
             }

@@ -38,6 +38,8 @@ ColumnLayout {
             save(shownCards.filter(other => other !== id));
         else if (shownCards.length < maxCards)
             save(shownCards.concat([id]));
+        else
+            ShellState.message("The desktop holds " + maxCards + " cards. Hide one to show another.", "info");
     }
     function useLayout(key) {
         const layout = Parts.layouts.find(item => item.id === key);

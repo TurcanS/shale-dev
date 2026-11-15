@@ -258,7 +258,7 @@ def check_setting(key, value):
     if key == "surfaceTone" and value not in ("charcoal", "midnight", "warm"):
         raise BackendError("invalid", "Choose a supported surface tone.")
     if key in ("accentColor", "accentManual") and ((luminance := accent_luminance(value)) is None or luminance < 0.28):
-        raise BackendError("invalid", "Choose a brighter six-digit hex color.")
+        raise BackendError("invalid", "Choose a brighter six-digit hex colour.")
     if key in ("screenshotDirectory", "recordingDirectory", "wallpaperDirectory") and (
             not (value.startswith("~/") or value.startswith("/")) or re.search(r"[\0\r\n]", value) or len(value) > 4096):
         raise BackendError("invalid", "Folders must be absolute paths or start with ~/.")
@@ -312,15 +312,15 @@ def check_setting(key, value):
             raise BackendError("invalid", "Incorrect bar layout.")
         check_ids(list(value.values()), BAR_ITEMS, "bar layout")
         if set(value.get("hidden", [])) & set(BAR_REQUIRED):
-            raise BackendError("invalid", "The recording, privacy and control center items can't be hidden.")
+            raise BackendError("invalid", "The recording, privacy and Control items can't be hidden.")
     if key == "controlLayout":
         if not set(value) <= {"tiles", "hiddenTiles", "sections", "footer", "hiddenFooter"}:
-            raise BackendError("invalid", "Incorrect control center layout.")
-        check_ids([value.get("tiles", []), value.get("hiddenTiles", [])], CONTROL_TILES, "control center tiles")
-        check_ids([value.get("footer", []), value.get("hiddenFooter", [])], CONTROL_FOOTER, "control center buttons")
+            raise BackendError("invalid", "Incorrect Control layout.")
+        check_ids([value.get("tiles", []), value.get("hiddenTiles", [])], CONTROL_TILES, "Control tiles")
+        check_ids([value.get("footer", []), value.get("hiddenFooter", [])], CONTROL_FOOTER, "Control buttons")
         sections = value.get("sections", {})
         if not isinstance(sections, dict) or not set(sections) <= set(CONTROL_SECTIONS) or not all(type(v) is bool for v in sections.values()):
-            raise BackendError("invalid", "Incorrect control center sections.")
+            raise BackendError("invalid", "Incorrect Control sections.")
         if "settings" in value.get("hiddenFooter", []):
             raise BackendError("invalid", "The Settings button can't be hidden.")
     if key in ("widgetCards", "widgetSaved") and (len(value) > MAX_WIDGET_CARDS or not all(isinstance(card, str) and card in WIDGET_CARDS for card in value)
@@ -333,7 +333,7 @@ def check_setting(key, value):
     if key == "workspaceStyle" and value not in ("numbers", "dots"):
         raise BackendError("invalid", "Choose numbers or dots.")
     if key == "workspaceSlots" and value not in (0, 5, 10):
-        raise BackendError("invalid", "Choose how many workspaces to show.")
+        raise BackendError("invalid", "Choose how many pages to show.")
     if key == "trayIcons" and not -1 <= value <= 5:
         raise BackendError("invalid", "Choose up to five tray icons.")
     if key == "batteryPercent" and value not in ("auto", "always", "never"):
