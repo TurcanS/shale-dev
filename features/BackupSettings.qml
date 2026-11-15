@@ -13,6 +13,8 @@ ColumnLayout {
     // When the file in the field was exported, and when the settings from before a reset or import were kept.
     property string exported: ""
     property string previous: ""
+    // Saved profiles, newest first: [{name, saved}].
+    property var profiles: []
     function when(stamp) {
         const date = new Date(stamp);
         return stamp && !isNaN(date.getTime()) ? Qt.formatDateTime(date, "d MMM yyyy, " + (ShellState.setting("clock24h", true) ? "HH:mm" : "h:mm AP")) : "";
@@ -23,7 +25,16 @@ ColumnLayout {
             previous = e ? "" : when(r.previous);
         });
     }
-    Component.onCompleted: refresh()
+    function refreshProfiles() {
+        Backend.request("settings.profiles", {}, (r, e) => {
+            if (!e)
+                root.profiles = r.profiles;
+        });
+    }
+    Component.onCompleted: {
+        refresh();
+        refreshProfiles();
+    }
     Connections {
         target: ShellState
         // A reset on another page, or its Undo, changes what there is to put back.
@@ -36,14 +47,21 @@ ColumnLayout {
         interval: 400
         onTriggered: root.refresh()
     }
-    function transfer(method) {
+    // Export, import, or a profile saved or loaded (`params` names it); the result shows under the rows.
+    function transfer(method, params) {
         busy = true;
         result = "";
-        Backend.request(method, {path: pathField.text.trim()}, (r, e) => {
+        Backend.request(method, params || {path: pathField.text.trim()}, (r, e) => {
             busy = false;
             failed = !!e;
             if (e) {
                 result = e.message;
+                return;
+            }
+            if (method === "settings.profile.save") {
+                result = "Saved the profile " + params.name + (r.count ? " with " + r.count + " setting" + (r.count === 1 ? "" : "s") + "." : ". Everything is at its default.");
+                root.profiles = r.profiles;
+                profileName.text = "";
                 return;
             }
             if (method === "settings.export") {
@@ -124,6 +142,63 @@ ColumnLayout {
             }
         }
     }
+    C.SectionHeader {
+        text: "Profiles"
+        Layout.topMargin: Theme.gapXs
+    }
+    C.Group {
+        C.SettingRow {
+            label: "Save as a profile"
+            description: "This setup under a name, to come back to: Work, Evening, a projector"
+            C.Field {
+                id: profileName
+                Layout.preferredWidth: 180
+                implicitHeight: 32
+                font.pixelSize: Theme.label
+                placeholderText: "Name"
+                maximumLength: 40
+                Accessible.name: "Profile name"
+                onAccepted: if (text.trim() !== "") root.transfer("settings.profile.save", {name: text.trim()})
+            }
+            C.Button {
+                text: root.profiles.some(profile => profile.name === profileName.text.trim()) ? "Replace" : "Save"
+                glyph: "plus"
+                implicitHeight: 32
+                enabled: !root.busy && Backend.ready && profileName.text.trim() !== ""
+                onClicked: root.transfer("settings.profile.save", {name: profileName.text.trim()})
+            }
+        }
+        Repeater {
+            model: root.profiles
+            C.SettingRow {
+                id: profileRow
+                required property var modelData
+                label: modelData.name
+                description: "Saved " + root.when(modelData.saved)
+                C.Button {
+                    text: "Load"
+                    glyph: "check"
+                    implicitHeight: 32
+                    enabled: !root.busy && Backend.ready
+                    onClicked: root.transfer("settings.profile.load", {name: profileRow.modelData.name})
+                }
+                C.Button {
+                    glyph: "trash"
+                    flat: true
+                    hint: "Delete " + profileRow.modelData.name
+                    implicitWidth: 32
+                    implicitHeight: 32
+                    enabled: !root.busy && Backend.ready
+                    onClicked: Backend.request("settings.profile.delete", {name: profileRow.modelData.name}, (r, e) => {
+                        if (e)
+                            ShellState.message(e.message, "error");
+                        else
+                            root.profiles = r.profiles;
+                    })
+                }
+            }
+        }
+    }
     C.Label {
         visible: root.result !== ""
         text: root.result
@@ -133,7 +208,7 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     C.Label {
-        text: "Importing replaces the settings the file has and keeps the rest. Shortcuts come along when their keys are free on this computer. Exporting replaces an earlier export of the same name, never another file. Putting back swaps today's settings with the ones from before, so doing it twice returns you here; shortcuts stay as they are."
+        text: "Importing replaces the settings the file has and keeps the rest. Shortcuts come along when their keys are free on this computer. Exporting replaces an earlier export of the same name, never another file. Putting back swaps today's settings with the ones from before, so doing it twice returns you here; shortcuts stay as they are. Loading a profile is an import: Put back undoes it."
         color: Theme.textDim
         font.pixelSize: Theme.small
         wrapMode: Text.WordWrap

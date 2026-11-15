@@ -400,6 +400,23 @@ def read_settings():
     return {**DEFAULTS, **value}
 
 PREVIOUS = CONFIG.with_suffix(".previous.json")
+# Named copies of the settings (Settings → Backup → Profiles): exports kept next to the settings, under a name.
+PROFILES = CONFIG.parent / "profiles"
+PROFILE_NAME = re.compile(r"[\w][\w .'-]{0,39}")
+
+def profile_path(name):
+    """The file of a profile, or an "invalid" error for a name that can't be one."""
+    if not isinstance(name, str) or not PROFILE_NAME.fullmatch(name.strip()) or name.strip() in (".", ".."):
+        raise BackendError("invalid", "Name the profile with up to 40 letters, digits, spaces, dots or dashes.")
+    return PROFILES / (name.strip() + ".json")
+
+def profiles():
+    """The saved profiles, newest first: [{name, saved}]."""
+    found = []
+    for path in PROFILES.glob("*.json"):
+        if PROFILE_NAME.fullmatch(path.stem):
+            found.append({"name": path.stem, "saved": stamp(path)})
+    return {"profiles": sorted(found, key=lambda item: item["saved"], reverse=True)}
 
 def save_settings(changes, rejected=None, keep_previous=False):
     """Saves the known keys of `changes` after validating them; returns every setting.
@@ -1880,6 +1897,21 @@ class Backend:
             return current
         if method == "settings.export":
             return export_settings(p.get("path"))
+        if method == "settings.profiles":
+            return profiles()
+        if method == "settings.profile.save":
+            path = profile_path(p.get("name"))
+            PROFILES.mkdir(parents=True, exist_ok=True, mode=0o700)
+            return {**export_settings(str(path)), **profiles()}
+        if method == "settings.profile.delete":
+            profile_path(p.get("name")).unlink(missing_ok=True)
+            return profiles()
+        if method == "settings.profile.load":
+            # A profile is an export; loading it is an import, shortcuts included, with Undo through restore.
+            path = profile_path(p.get("name"))
+            if not path.exists():
+                raise BackendError("invalid", "That profile is gone.")
+            return await self.dispatch("settings.import", {"path": str(path)})
         if method == "settings.import":
             before = settings()
             result = import_settings(p.get("path"))
