@@ -260,11 +260,21 @@ never replaces a file that isn't a Shale export. `activityTracking` and `hiddenO
 introspection for look-alike objects, quick requests (`settings.*`, `note.*`, `notifications.*`) skip the 32-request
 queue, clipboard pins carry `sha` and are matched by contents. `Backend.request` takes `{owner, silent}` (owner is
 not used by any page yet and is unverified); a callback's error is logged as the caller's. `Services.failed(message)`
-replaces `lastError`. `core/format.js` (`bytes`, `known`, `clock`, `span`) is used by System, the System card and the
-Player; move the other copies there (Power, Activity, Focus, Updates, the battery time span). IPC `shell` gained
-`open(panel)` (`shale open PANEL`) and `status` reports `detail` and `screen`. `wifi.list` networks carry `band` and,
-connected, `speed`; the forecast carries `wind`, `windFrom`, `humidity`. Still to do from that plan: a keyed model for
-Wi-Fi rows, the tray menu's height cap, a `Weather` service, `PanelHeader`, the file splits (Control's Wi-Fi and home,
-Activity, Launcher, BarContent, Toasts, Settings' inline pages) and the helper's modules, the shared control recipes
-(`Theme.wash`, one focus ring, row heights), per-row reset and changed markers, the sidebar's arrow keys, drag
-auto-scroll, a Power page, wallpaper Fill / Fit, disk kind, Caps Lock OSD, Activity "Keep for", snippets.
+replaces `lastError`. `core/format.js` (`bytes`, `known`, `clock`, `span`, `shortSpan`) holds sizes and times; Power, Activity, Focus and
+Updates still keep their own. IPC `shell` gained `open(panel)` (`shale open PANEL`) and `status` reports `detail` and
+`screen`. `wifi.list` networks carry `band` and, connected, `speed`; `wifi.hidden {ssid, password}` joins a hidden
+network; the forecast carries `wind`, `windFrom`, `humidity`. New settings: `wallpaperFit` (hyprpaper's cover,
+contain, fill, tile; awww/swww only fit with contain), `activityKeep` (0, 30, 90, 365 days; trimmed once a day by
+`ActivityStore.trim`), `quietHours` ([from, to] hours; `ShellState.quietNow` holds popups like Do not disturb).
+Settings has a Power page; each page is its own `*Settings.qml`; rows take `settingKey` and show a `RowReset` key
+while the setting differs from `settings.defaults`; `SettingToggle`, `FolderField`, `OpenRow`, `ValueRow` are
+components; the sidebar takes Home/End/arrows and Right/Enter into the page. Backup has profiles
+(`settings.profile.save/load/delete`, files in `~/.config/shale/profiles/`). The helper reports Caps Lock from the
+keyboards' lights (`capslock` event, read 2.5 times a second) for an OSD; unverified with a real key press here.
+`services/Weather.qml` keeps the one forecast. Split into files: `ControlWifi.qml`, the toast windows (`Toast*.qml`),
+the bar items (`Bar*.qml` with `required property var bar`, passed as `bar: content`: `bar: bar` would bind to the
+item's own property). Theme has `keyWash()`, `rowWash()` and `rowPressScale`. Still to do: `PanelHeader`, the splits
+of Control's home view, Activity and Launcher and the helper's modules, one focus ring and row heights across
+controls, a keyed model for Wi-Fi rows (rows are only rebuilt when the list changes), snippets (the design's are
+typed into apps, which Shale doesn't do), calendar events, widget blur. The `Services.qml` "Unable to assign
+[undefined]" warning shows only while the shell reloads, from the copy being torn down.
