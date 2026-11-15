@@ -28,3 +28,10 @@ function span(seconds) {
     const days = Math.floor(seconds / 86400), hours = Math.floor(seconds % 86400 / 3600), minutes = Math.floor(seconds % 3600 / 60);
     return days > 0 ? days + " d " + hours + " h" : hours > 0 ? hours + " h " + minutes + " min" : minutes + " min";
 }
+
+// Battery time left, short enough for a chip: "2 h 15", "40 min"; "" while it isn't known.
+function shortSpan(seconds) {
+    if (!(seconds > 0))
+        return "";
+    return seconds >= 3600 ? Math.floor(seconds / 3600) + " h " + Math.floor(seconds % 3600 / 60) : Math.max(1, Math.floor(seconds / 60)) + " min";
+}

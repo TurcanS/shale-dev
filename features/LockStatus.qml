@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import "../core"
 import "../services"
 import "../components" as C
+import "../core/format.js" as Format
 
 // The glance chips under the clock: today's weather, the battery and how many notifications wait. Only counts are
 // shown for notifications; their contents stay private. Nothing here can be pressed.
@@ -24,7 +25,7 @@ RowLayout {
         }
         if (Services.batteryAvailable) {
             const seconds = Services.batterySeconds;
-            const span = seconds <= 0 ? "" : seconds >= 3600 ? Math.floor(seconds / 3600) + " h " + Math.floor(seconds % 3600 / 60) : Math.max(1, Math.floor(seconds / 60)) + " min";
+            const span = Format.shortSpan(seconds);
             list.push({glyph: Services.batteryCharging ? "bolt" : "battery",
                        text: Math.round(Services.batteryPercent) + "%" + (Services.batteryCharging ? (span ? " · full in " + span : " · charging") : span ? " · " + span + " left" : ""),
                        tone: !Services.batteryCharging && Services.batteryPercent <= 15 ? "danger" : ""});

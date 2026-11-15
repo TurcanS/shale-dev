@@ -10,6 +10,7 @@ import "../core/paths.js" as Paths
 import "../core/controlItems.js" as ControlItems
 import "../services"
 import "../components" as C
+import "../core/format.js" as Format
 
 FocusScope {
     id: root
@@ -22,7 +23,7 @@ FocusScope {
         if (!Services.batteryAvailable)
             return mode || "Power modes";
         const seconds = Services.batterySeconds;
-        const span = seconds <= 0 ? "" : seconds >= 3600 ? Math.floor(seconds / 3600) + " h " + Math.floor(seconds % 3600 / 60) : Math.max(1, Math.floor(seconds / 60)) + " min";
+        const span = Format.shortSpan(seconds);
         return "Battery " + Math.round(Services.batteryPercent) + "%" + (Services.batteryCharging ? (span ? " · full in " + span : " · charging") : span ? " · " + span + " left" : "");
     }
     readonly property string noteHint: "Battery and power modes"

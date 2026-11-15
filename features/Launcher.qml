@@ -9,6 +9,7 @@ import "../components" as C
 import "../core/paths.js" as Paths
 import "../core/search.js" as Search
 import "../core/parts.js" as Parts
+import "../core/format.js" as Format
 
 // Find: one field for apps, open windows, actions, sums and conversions, timers, lines for the desktop note, and the
 // prefixed searches (: emoji, / files, ? web, > commands). Results come in groups; chips narrow everything to one kind.
@@ -465,7 +466,7 @@ FocusScope {
             items.push({glyph: current.icon || "cloud", text: current.temperature + "° " + String(current.label || "").toLowerCase()});
         if (Services.batteryAvailable) {
             const seconds = Services.batterySeconds;
-            const span = seconds <= 0 ? "" : seconds >= 3600 ? Math.floor(seconds / 3600) + " h " + Math.floor(seconds % 3600 / 60) : Math.max(1, Math.floor(seconds / 60)) + " min";
+            const span = Format.shortSpan(seconds);
             items.push({glyph: Services.batteryCharging ? "bolt" : "battery",
                         text: Math.round(Services.batteryPercent) + "%" + (Services.batteryCharging ? " · charging" : span ? " · " + span + " left" : "")});
         }

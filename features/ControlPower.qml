@@ -5,6 +5,7 @@ import "../core"
 import "../core/paths.js" as Paths
 import "../services"
 import "../components" as C
+import "../core/format.js" as Format
 
 // Control → Power: the power modes and the battery.
 ColumnLayout {
@@ -20,7 +21,7 @@ ColumnLayout {
         subtitle: {
             const state = Services.batteryCharging ? "Charging" : Services.onBattery ? "On battery" : "Plugged in";
             const seconds = Services.batterySeconds;
-            return state + (seconds > 0 ? " · " + (seconds >= 3600 ? Math.floor(seconds / 3600) + "h " : "") + Math.floor(seconds % 3600 / 60) + "m " + (Services.batteryCharging ? "until full" : "remaining") : "");
+            return state + (seconds > 0 ? " · " + Format.span(seconds) + (Services.batteryCharging ? " until full" : " remaining") : "");
         }
         level: Services.batteryAvailable ? Services.batteryPercent / 100 : -1
         positive: Services.batteryCharging
