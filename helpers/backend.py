@@ -70,7 +70,7 @@ DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
             "workspaceSlots": 0, "trayIcons": -1, "batteryPercent": "auto", "barStyle": "floating", "weekStart": "locale", "terminal": "auto", "shortcuts": {},
             "screenshotDirectory": user_dir("PICTURES", "~/Pictures") + "/Screenshots",
             "recordingDirectory": user_dir("VIDEOS", "~/Videos") + "/Recordings",
-            "wallpaperDirectory": user_dir("PICTURES", "~/Pictures") + "/Wallpapers", "wallpaperFit": "cover", "activityKeep": 0}
+            "wallpaperDirectory": user_dir("PICTURES", "~/Pictures") + "/Wallpapers", "wallpaperFit": "cover", "activityKeep": 0, "quietHours": []}
 CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))) / "shale/config.json"
 RUNTIME = runtime_base() / "shale"
 STATE = Path(os.environ.get("XDG_STATE_HOME", str(Path.home() / ".local/state"))) / "shale"
@@ -266,6 +266,10 @@ def check_setting(key, value):
         raise BackendError("invalid", "Folders must be absolute paths or start with ~/.")
     if key == "wallpaperFit" and value not in wallpaper.FITS:
         raise BackendError("invalid", "Choose how the wallpaper fits the screen.")
+    # [from, to] in whole hours; [] when off. 22 to 7 runs over midnight.
+    if key == "quietHours" and value and not (len(value) == 2 and all(type(hour) is int and 0 <= hour <= 23 for hour in value)
+                                               and value[0] != value[1]):
+        raise BackendError("invalid", "Choose when quiet hours start and end.")
     if key == "activityKeep" and value not in ACTIVITY_KEEP:
         raise BackendError("invalid", "Choose how long to keep activity.")
     if key == "systemWindow" and value not in (60, 300):

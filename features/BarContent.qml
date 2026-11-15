@@ -989,7 +989,7 @@ Item {
         BarKey {
             id: bell
             readonly property int count: Services.notifications.length
-            readonly property bool dnd: ShellState.setting("dnd", false)
+            readonly property bool dnd: ShellState.setting("dnd", false) || ShellState.quietNow
             implicitWidth: 32
             // Do not disturb swaps the bell so suppressed popups are never a surprise.
             glyph: dnd ? "bell-off" : "bell"

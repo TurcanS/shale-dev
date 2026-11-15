@@ -106,7 +106,8 @@ FocusScope {
         C.ListRow {
             id: dndRow
             text: "Do not disturb"
-            subtitle: page.dnd ? "On · only urgent ones pop up" : Focus.active ? "Off · focus is holding new ones" : "Off · urgent ones always pop up"
+            subtitle: page.dnd ? "On · only urgent ones pop up" : Focus.active ? "Off · focus is holding new ones"
+                : ShellState.quietNow ? "Off · quiet hours until " + String(ShellState.quietHours[1]).padStart(2, "0") + ":00" : "Off · urgent ones always pop up"
             glyph: "moon"
             selected: page.dnd
             checkmark: false

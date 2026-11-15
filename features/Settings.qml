@@ -122,7 +122,7 @@ FocusScope {
         {name: "Desktop", icon: "widgets", aliases: ["widgets"], description: "Widgets on the desktop: which cards, their order and their corner."},
         {name: "Shortcuts", icon: "keyboard", description: "Keyboard shortcuts and what they open."},
         {name: "General", icon: "settings", description: "Time, units, search, the terminal and updates."},
-        {name: "Notifications", icon: "bell", description: "History and focus sessions."},
+        {name: "Notifications", icon: "bell", description: "History, quiet hours and focus sessions."},
         {name: "Sound", icon: "volume", aliases: ["audio"], description: "Volume limits and the player."},
         {name: "Power", icon: "power", aliases: ["battery", "lid"], description: "Power modes, the lid and refresh rate."},
         {name: "Capture", icon: "camera", description: "Screenshots and recordings, and where they go."},
@@ -139,7 +139,7 @@ FocusScope {
             Control: ["controlLayout"],
             Desktop: ["widgets", "widgetCards", "widgetCorner"],
             General: ["clock24h", "weekStart", "weatherUnits", "searchEngine", "terminal", "updateCheck"],
-            Notifications: ["persistNotifications", "focusMinutes"],
+            Notifications: ["persistNotifications", "focusMinutes", "quietHours"],
             Sound: ["amplification", "mediaRemaining"],
             Power: ["saverRefresh"],
             Capture: ["screenshotDirectory", "recordingDirectory", "recordAudio", "captureDelay"],
@@ -798,6 +798,14 @@ FocusScope {
                                     text: "Keep notification history across restarts"
                                     description: "Up to 200 notifications for seven days. Contents stay hidden on the lock screen."
                                     key: "persistNotifications"
+                                }
+                                C.ChoiceRow {
+                                    readonly property var hours: ShellState.setting("quietHours", [])
+                                    label: "Quiet hours"
+                                    description: hours.length === 2 ? "Popups wait, as with Do not disturb; urgent ones still show" : "Every night, without turning Do not disturb on"
+                                    model: [{key: "off", text: "Off"}, {key: "22-7", text: "22–07"}, {key: "23-8", text: "23–08"}, {key: "0-9", text: "00–09"}]
+                                    current: hours.length === 2 ? hours.join("-") : "off"
+                                    onActivated: key => ShellState.setSetting("quietHours", key === "off" ? [] : key.split("-").map(Number))
                                 }
                                 C.ChoiceRow {
                                     label: "Focus length"

@@ -42,8 +42,8 @@ ShellRoot {
         });
     }
     Component.onCompleted: {
-        // A focus session holds popups too, without changing the user's own Do not disturb.
-        Services.dnd = Qt.binding(() => ShellState.setting("dnd", false) || Focus.active);
+        // A focus session and quiet hours hold popups too, without changing the user's own Do not disturb.
+        Services.dnd = Qt.binding(() => ShellState.setting("dnd", false) || Focus.active || ShellState.quietNow);
         Services.locked = Qt.binding(() => ShellState.locked);
         Services.amplification = Qt.binding(() => ShellState.setting("amplification", false));
         // App streams are bound while Control shows them: per-app levels on its main page and the mixer.
