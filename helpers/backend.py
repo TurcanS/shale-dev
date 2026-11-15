@@ -70,7 +70,7 @@ DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
             "workspaceSlots": 0, "trayIcons": -1, "batteryPercent": "auto", "barStyle": "floating", "weekStart": "locale", "terminal": "auto", "shortcuts": {},
             "screenshotDirectory": user_dir("PICTURES", "~/Pictures") + "/Screenshots",
             "recordingDirectory": user_dir("VIDEOS", "~/Videos") + "/Recordings",
-            "wallpaperDirectory": user_dir("PICTURES", "~/Pictures") + "/Wallpapers"}
+            "wallpaperDirectory": user_dir("PICTURES", "~/Pictures") + "/Wallpapers", "wallpaperFit": "cover"}
 CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))) / "shale/config.json"
 RUNTIME = runtime_base() / "shale"
 STATE = Path(os.environ.get("XDG_STATE_HOME", str(Path.home() / ".local/state"))) / "shale"
@@ -262,6 +262,8 @@ def check_setting(key, value):
     if key in ("screenshotDirectory", "recordingDirectory", "wallpaperDirectory") and (
             not (value.startswith("~/") or value.startswith("/")) or re.search(r"[\0\r\n]", value) or len(value) > 4096):
         raise BackendError("invalid", "Folders must be absolute paths or start with ~/.")
+    if key == "wallpaperFit" and value not in wallpaper.FITS:
+        raise BackendError("invalid", "Choose how the wallpaper fits the screen.")
     if key == "systemWindow" and value not in (60, 300):
         raise BackendError("invalid", "Choose one minute or five for the system monitor.")
     if key == "hiddenOutputs" and not check_names(value, 16, 64):
@@ -1014,6 +1016,17 @@ class Backend:
         if reply.message_type == MessageType.ERROR:
             raise BackendError("unavailable", (reply.body or [reply.error_name])[0])
         return reply.body
+
+    async def refit_wallpapers(self, fit):
+        """Shows each screen's wallpaper again in a new fit; a screen that fails keeps the old one."""
+        try:
+            daemon = await self.wallpaper_daemon()
+            async with self.wallpaper_lock:
+                for monitor, path in (await wallpaper.active(run, daemon)).items():
+                    if path and Path(path).is_file():
+                        await wallpaper.apply(run, path, monitor, BackendError, daemon, fit)
+        except BackendError as error:
+            print(f"Wallpaper fit: {error.message}", file=sys.stderr, flush=True)
 
     async def wallpaper_daemon(self):
         """hyprpaper, awww or swww, started if none runs yet; an "unavailable" error otherwise."""
@@ -1789,7 +1802,8 @@ class Backend:
             if not isinstance(changes, dict):
                 raise BackendError("invalid", "Settings must be an object.")
             # The shell echoes every setting back; shortcuts change only through shortcuts.set, which binds them.
-            before = settings()["bluetoothAutoConnect"]
+            before_settings = settings()
+            before = before_settings["bluetoothAutoConnect"]
             # A value the shell can't use is reported and left as it was; the others are saved.
             rejected = []
             current = save_settings({key: value for key, value in changes.items() if key != "shortcuts"}, rejected)
@@ -1800,6 +1814,8 @@ class Backend:
                 self.bluetooth.trigger("auto-connect turned on")
             if current["activityTracking"] != "on":
                 self.close_activity()
+            if current["wallpaperFit"] != before_settings["wallpaperFit"]:
+                await self.refit_wallpapers(current["wallpaperFit"])
             return {**current, "rejected": rejected} if rejected else current
         if method == "settings.restore":
             before = settings()
@@ -1907,7 +1923,8 @@ class Backend:
                 return {"active": {}}
         if method == "wallpaper.apply":
             async with self.wallpaper_lock:
-                result = await wallpaper.apply(run, p.get("path", ""), p.get("monitor", ""), BackendError, await self.wallpaper_daemon())
+                result = await wallpaper.apply(run, p.get("path", ""), p.get("monitor", ""), BackendError, await self.wallpaper_daemon(),
+                                               settings()["wallpaperFit"])
                 state_file = STATE / "wallpapers.json"
                 try:
                     saved = json.loads(state_file.read_text())
@@ -1947,7 +1964,7 @@ class Backend:
                     if not isinstance(path, str) or not Path(path).is_file() or shown.get(name) == path:
                         continue
                     try:
-                        await wallpaper.apply(run, path, name, BackendError, daemon)
+                        await wallpaper.apply(run, path, name, BackendError, daemon, settings()["wallpaperFit"])
                         restored.append(name)
                     except BackendError as error:
                         failed[name] = error.message

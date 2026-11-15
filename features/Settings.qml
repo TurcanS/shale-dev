@@ -131,7 +131,7 @@ FocusScope {
     ]
     // The settings each page owns, for its reset button.
     readonly property var resetKeys: ({
-            Appearance: ["fontSize", "panelSize", "accentColor", "accentManual", "accentFromWallpaper", "surfaceTone", "visualizer", "wallpaperDirectory", "lockScreen", "lockStyle",
+            Appearance: ["fontSize", "panelSize", "accentColor", "accentManual", "accentFromWallpaper", "surfaceTone", "visualizer", "wallpaperDirectory", "wallpaperFit", "lockScreen", "lockStyle",
                          "reducedMotion", "batterySaving", "windowPreviews"],
             Bar: ["hideFullscreen", "barMedia", "trackChangeCard", "hiddenOutputs", "barLayout", "barStyle", "clockFormat", "clockSeconds",
                   "workspaceStyle", "workspaceSlots", "trayIcons", "batteryPercent"],
@@ -600,6 +600,16 @@ FocusScope {
                                     note: "Where Wallpapers looks for pictures"
                                     key: "wallpaperDirectory"
                                     fallback: "~/Pictures/Wallpapers"
+                                }
+                                C.ChoiceRow {
+                                    // hyprpaper has all four; awww and swww only crop or fit.
+                                    readonly property bool hyprpaper: !Backend.has("awww", false) && !Backend.has("swww", false)
+                                    label: "Wallpaper fit"
+                                    description: "When a picture's shape isn't the screen's"
+                                    model: [{key: "cover", text: "Fill", hint: "Crops the edges"}, {key: "contain", text: "Fit", hint: "Shows all of it, with bars"}]
+                                        .concat(hyprpaper ? [{key: "fill", text: "Stretch", hint: "Pulls it to the screen's shape"}, {key: "tile", text: "Tile", hint: "Repeats it"}] : [])
+                                    current: ShellState.setting("wallpaperFit", "cover")
+                                    onActivated: key => ShellState.setSetting("wallpaperFit", key)
                                 }
                                 OpenRow {
                                     label: "Wallpaper"
