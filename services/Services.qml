@@ -36,7 +36,8 @@ QtObject {
     readonly property var captureLinks: Pipewire.linkGroups.values.filter(g => !!g.source && !!g.target && g.target.isStream && !g.source.isStream && !g.source.isSink)
     // Only these few nodes are bound, for their application names and device API.
     property PwObjectTracker captureTracker: PwObjectTracker {
-        objects: root.captureLinks.reduce((nodes, g) => nodes.concat([g.source, g.target]), [])
+        // A node can go between the link list's update and this one; a missing one would void the whole list.
+        objects: root.captureLinks.reduce((nodes, g) => nodes.concat([g.source, g.target]), []).filter(node => !!node)
     }
     function captureApps(links) {
         const names = links.map(g => g.target.properties["application.name"] || g.target.description || g.target.name);
