@@ -25,7 +25,7 @@ AbstractButton {
     // Label and glyph share one colour so state reads the same on both. Controls built on Button may set their own.
     property color foreground: !enabled ? Theme.textFaint : danger || tone === "danger" ? Theme.dangerText : tone === "warning" ? Theme.warning : accent ? Theme.accentInk : selected ? Theme.accentText : Theme.text
     // Hover and press tints for keys without a fill of their own; translucent so they work on any surface.
-    readonly property color wash: Qt.rgba(1, 1, 1, down ? 0.1 : 0.06)
+    readonly property color wash: Theme.keyWash(down)
     // implicitContentWidth is the control's own measure of its content item: it follows a custom content item and
     // text measured late (the bundled fonts load after the first layout), where a binding through contentItem doesn't.
     implicitWidth: iconOnly ? Math.max(implicitHeight, implicitContentWidth + leftPadding + rightPadding)

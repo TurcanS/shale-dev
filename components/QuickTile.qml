@@ -32,7 +32,7 @@ Button {
             anchors.fill: parent
             radius: parent.radius
             visible: root.selected
-            color: Qt.rgba(1, 1, 1, root.down ? 0.08 : 0.05)
+            color: Theme.keyWash(root.down)
             opacity: root.bodyActive ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: Theme.fast } }
         }

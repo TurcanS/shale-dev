@@ -908,7 +908,7 @@ FocusScope {
                         anchors.fill: parent
                         anchors.margins: 2
                         radius: Theme.radiusCard
-                        color: cell.GridView.isCurrentItem ? Theme.accentSoft : cell.down || cell.hovered ? Qt.rgba(1, 1, 1, cell.down ? 0.1 : 0.06) : "transparent"
+                        color: cell.GridView.isCurrentItem ? Theme.accentSoft : cell.down || cell.hovered ? Theme.keyWash(cell.down) : "transparent"
                         border.width: cell.GridView.isCurrentItem ? 1 : 0
                         border.color: Theme.accentLine
                     }

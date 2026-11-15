@@ -122,7 +122,7 @@ Rectangle {
                 onClicked: root.activated(modelData.key)
                 background: Rectangle {
                     radius: segment.cornerRadius
-                    color: Qt.rgba(1, 1, 1, segment.down ? 0.06 : 0.035)
+                    color: Theme.rowWash(segment.down)
                     opacity: !segment.selected && (segment.hovered || segment.down) ? 1 : 0
                     Behavior on opacity { NumberAnimation { duration: Theme.fast } }
                 }

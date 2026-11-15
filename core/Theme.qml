@@ -138,6 +138,16 @@ QtObject {
     readonly property int slide: reduced ? 0 : (lowPower ? 100 : 160)
     readonly property int press: reduced || lowPower ? 0 : 80
     readonly property real pressScale: 0.97
+    // A whole row (a setting, a list entry) gives only a little under the pointer; a key gives more.
+    readonly property real rowPressScale: 0.99
+    // Hover and press tints for keys and rows without a fill of their own, translucent so they work on any surface.
+    // Keys take the stronger one; whole rows the lighter, so a long list doesn't flash.
+    function keyWash(down) {
+        return Qt.rgba(1, 1, 1, down ? 0.1 : 0.06);
+    }
+    function rowWash(down) {
+        return Qt.rgba(1, 1, 1, down ? 0.06 : 0.035);
+    }
     // cubic-bezier(.2, .8, .2, 1) for Easing.BezierSpline.
     readonly property var easeOut: [0.2, 0.8, 0.2, 1, 1, 1]
     function luminance(color) {
