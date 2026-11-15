@@ -29,6 +29,10 @@ QtObject {
     readonly property int firstDayOfWeek: ({monday: 1, sunday: 0, saturday: 6})[setting("weekStart", "locale")] ?? Qt.locale().firstDayOfWeek % 7
     // Where the bar ends (its height plus its gap from the screen edge); panels and popups open below it.
     readonly property int barBottom: setting("barStyle", "floating") === "edge" ? 38 : 46
+    // The same for one screen: a screen whose bar is turned off in Settings → Bar has none to leave room for.
+    function barBottomOn(output) {
+        return setting("hiddenOutputs", []).indexOf(output) >= 0 ? 0 : barBottom;
+    }
     property bool lidAwake: false
     property bool lidBusy: false
     function toggleLidAwake() {

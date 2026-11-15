@@ -108,7 +108,7 @@ PanelWindow {
         // Panels opened from the bar's right end line up with it, 8 px in from the screen edge.
         // On whole pixels: a case that starts between two has blurred hairlines.
         x: Math.round(["control", "notifications"].indexOf(panel) >= 0 ? parent.width - width * host.zoom - 8 : (parent.width - width * host.zoom) / 2)
-        y: Math.round(["control", "notifications", "calendar"].indexOf(panel) >= 0 ? ShellState.barBottom + 8 : Math.max(ShellState.barBottom + 11, (parent.height - height * host.zoom) * 0.38))
+        y: Math.round(["control", "notifications", "calendar"].indexOf(panel) >= 0 ? ShellState.barBottomOn(host.outputName) + 8 : Math.max(ShellState.barBottomOn(host.outputName) + 11, (parent.height - height * host.zoom) * 0.38))
         entering: host.progress < 1
         transform: Translate {
             y: (1 - host.progress) * Theme.panelRise
