@@ -216,7 +216,7 @@ effects trimmed) while it is on screen. The Focus page is Control's detail `focu
 opened from the Focus module's name); PanelContent gained `headerChip` ({text, on}) for its state chip.
 `services/Focus.qml` gained pause and resume (`pause()`, `unpause()`, `paused`, and `paused` / `pausedFor` in
 `focusSession`; the `focus` IPC target has `pause`): a paused session stays active, so notifications stay held exactly
-as before. `shale page` and `scripts/shale` don't know `focus` or pause yet. Not built for lack of data: the Clock
+as before. `shale page focus` and `shale focus pause` exist (`scripts/shale`). Not built for lack of data: the Clock
 card's next event (no calendar events). Not built: the blur behind the cards, which needs a Hyprland layer rule for
 `shale-widgets` in `integration/shale.lua` (left out because the Lua field names couldn't be checked here). For
 stage 12: check clicks between and around the cards reach the desktop, the top corners sit under the bar, and the

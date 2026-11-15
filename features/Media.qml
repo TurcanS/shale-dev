@@ -7,6 +7,7 @@ import Quickshell.Widgets
 import "../core"
 import "../services"
 import "../components" as C
+import "../core/format.js" as Format
 
 // The Player: the cover with a live level strip on the left; source, title, seek and transport on the right. The
 // equalizer lives in Control → Sound; "on <output>" goes there.
@@ -19,9 +20,7 @@ ColumnLayout {
     readonly property bool visualizerOn: ShellState.setting("visualizer", true)
     readonly property bool seekable: !!player && player.lengthSupported && player.positionSupported && player.length > 0
     function timeLabel(seconds) {
-        if (!isFinite(seconds) || seconds < 0)
-            return "0:00";
-        return Math.floor(seconds / 60) + ":" + String(Math.floor(seconds % 60)).padStart(2, "0");
+        return Format.clock(seconds);
     }
     function cycleLoop() {
         const order = [MprisLoopState.None, MprisLoopState.Playlist, MprisLoopState.Track];

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import "../core"
 import "../components" as C
+import "../core/format.js" as Format
 
 // The System card: processor, memory and temperature as rings. It asks the helper's system sampler every 5 s (10 s
 // when effects are trimmed), only while it is on screen, and never for nvidia-smi or processes, so no sleeping GPU
@@ -16,16 +17,10 @@ WidgetsCard {
     panel: "system"
     padding: 16
     function known(value) {
-        return value !== null && value !== undefined;
+        return Format.known(value);
     }
     function bytes(value) {
-        const units = ["B", "KB", "MB", "GB", "TB"];
-        let amount = Math.max(0, value || 0), unit = 0;
-        while (amount >= 1024 && unit < units.length - 1) {
-            amount /= 1024;
-            unit++;
-        }
-        return (unit === 0 ? Math.round(amount) : amount.toFixed(amount >= 100 ? 0 : 1)) + " " + units[unit];
+        return Format.bytes(value);
     }
     function poll() {
         if (waiting || !Backend.ready)

@@ -4,6 +4,7 @@ import Quickshell
 import "../core"
 import "../services"
 import "../components" as C
+import "../core/format.js" as Format
 
 // A small Player that opens while the pointer rests on the bar's now-playing button: cover, source, title, a
 // position line and the transport. Clicking the button still opens the full Player.
@@ -55,9 +56,7 @@ PopupWindow {
         onTriggered: root.player.positionChanged()
     }
     function time(seconds) {
-        if (!isFinite(seconds) || seconds < 0)
-            return "0:00";
-        return Math.floor(seconds / 60) + ":" + String(Math.floor(seconds % 60)).padStart(2, "0");
+        return Format.clock(seconds);
     }
     anchor.window: bar
     anchor.item: button

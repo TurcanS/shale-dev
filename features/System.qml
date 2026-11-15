@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import "../core"
 import "../components" as C
+import "../core/format.js" as Format
 
 // Live system usage: CPU, memory, disks, network and GPUs on the left, the chosen device's graph and figures on the
 // right, and the busiest processes under them. The helper is sampled once a second (every two in power saver) while
@@ -135,13 +136,7 @@ FocusScope {
     }
 
     function bytes(value) {
-        const units = ["B", "KB", "MB", "GB", "TB"];
-        let amount = Math.max(0, value || 0), unit = 0;
-        while (amount >= 1024 && unit < units.length - 1) {
-            amount /= 1024;
-            unit++;
-        }
-        return (unit === 0 ? Math.round(amount) : amount.toFixed(amount >= 100 ? 0 : 1)) + " " + units[unit];
+        return Format.bytes(value);
     }
     // "6.3 / 15.3 GB" when both share a unit.
     function bytesOf(part, whole) {
@@ -152,7 +147,7 @@ FocusScope {
         return bytes(value) + "/s";
     }
     function known(value) {
-        return value !== null && value !== undefined;
+        return Format.known(value);
     }
     function percent(value) {
         return known(value) ? Math.round(value) + "%" : "–";
@@ -161,8 +156,7 @@ FocusScope {
         return known(value) ? Math.round(value) + " °C" : "–";
     }
     function duration(seconds) {
-        const days = Math.floor(seconds / 86400), hours = Math.floor(seconds % 86400 / 3600), minutes = Math.floor(seconds % 3600 / 60);
-        return days > 0 ? days + " d " + hours + " h" : hours > 0 ? hours + " h " + minutes + " min" : minutes + " min";
+        return Format.span(seconds);
     }
     // "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz" → "Intel Core i5-11400H", and its base clock.
     function cpuName(model) {
