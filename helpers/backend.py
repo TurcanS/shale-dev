@@ -1568,6 +1568,36 @@ class Backend:
             if (await device_props.call_get(name + ".Device", "State")).value == 100:
                 await device.call_disconnect()
             return {"done": True}
+        if action == "hidden":
+            # A network that doesn't announce its name: NetworkManager looks for it by name ("hidden"), with a
+            # password for WPA2/WPA3 Personal or none for an open one. A profile that never connects is removed again.
+            ssid = p.get("ssid")
+            password = p.get("password") or ""
+            if not isinstance(ssid, str) or not 0 < len(ssid.encode()) <= 32 or "\n" in ssid:
+                raise BackendError("invalid", "Enter the network's name, up to 32 characters.")
+            if not isinstance(password, str) or (password and not 8 <= len(password) <= 63):
+                raise BackendError("invalid", "Wi-Fi passwords are 8 to 63 characters; leave it empty for an open network.")
+            config = {"connection": {"id": Variant("s", ssid), "type": Variant("s", "802-11-wireless")},
+                      "802-11-wireless": {"ssid": Variant("ay", ssid.encode()), "hidden": Variant("b", True)}}
+            if password:
+                config["802-11-wireless-security"] = {"key-mgmt": Variant("s", "wpa-psk"), "psk": Variant("s", password)}
+            profile, active_path = await manager.call_add_and_activate_connection(config, device_path, "/")
+            active_props = await self.interface(name, active_path, "org.freedesktop.DBus.Properties")
+            for _ in range(60):
+                try:
+                    state = (await active_props.call_get(name + ".Connection.Active", "State")).value
+                except Exception:
+                    state = 4  # the attempt is gone: it failed
+                if state == 2:
+                    return {"done": True}
+                if state == 4:
+                    break
+                await asyncio.sleep(0.5)
+            try:
+                await (await self.interface(name, profile, name + ".Settings.Connection")).call_delete()
+            except Exception:
+                pass
+            raise BackendError("failed", f"Couldn't join {ssid}. Check its name and password.")
 
         settings = await self.interface(name, "/org/freedesktop/NetworkManager/Settings", name + ".Settings")
         profiles = {}
@@ -2017,7 +2047,7 @@ class Backend:
             return calculate(p.get("expression", ""))
         if method.startswith("wifi."):
             action = method.split(".")[1]
-            if action == "connect":
+            if action in ("connect", "hidden"):
                 if self.wifi_lock.locked():
                     raise BackendError("busy", "A Wi-Fi connection is already in progress.")
                 async with self.wifi_lock:

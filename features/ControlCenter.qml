@@ -133,6 +133,8 @@ FocusScope {
     property var selectedNetwork: null
     // Kept outside the network rows: refreshes recreate them while you type.
     property string passwordDraft: ""
+    // The form for a network that doesn't announce its name.
+    property bool hiddenOpen: false
     TrayMenu {
         id: trayMenu
     }
@@ -882,7 +884,7 @@ FocusScope {
                                             Layout.fillWidth: true
                                         }
                                         C.Label {
-                                            text: wifiModule.current ? [Math.round(wifiModule.current.signal) + "%", wifiModule.current.band, wifiModule.current.speed ? wifiModule.current.speed + " Mbit/s" : ""].filter(part => !!part).join(" · ") : ""
+                                            text: wifiModule.current ? [Math.round(wifiModule.current.signal) + "%", wifiModule.current.band, wifiModule.current.speed ? (wifiModule.current.speed >= 1000 ? (wifiModule.current.speed / 1000).toFixed(1) + " Gb/s" : wifiModule.current.speed + " Mb/s") : ""].filter(part => !!part).join(" · ") : ""
                                             color: Theme.mix(Theme.textSecondary, Theme.text, 0.4)
                                             font.pixelSize: 12
                                             Layout.fillWidth: true
@@ -1062,6 +1064,79 @@ FocusScope {
                             wrapMode: Text.WordWrap
                             Layout.fillWidth: true
                             Layout.leftMargin: 2
+                        }
+                        // A network that doesn't announce its name: typed in, with its password or none.
+                        ControlSmallKey {
+                            visible: ShellState.wifi.powered && !root.hiddenOpen
+                            text: "Join a hidden network"
+                            glyph: "plus"
+                            Layout.topMargin: 2
+                            onClicked: {
+                                root.hiddenOpen = true;
+                                hiddenName.forceActiveFocus();
+                            }
+                        }
+                        ColumnLayout {
+                            visible: root.hiddenOpen
+                            Layout.fillWidth: true
+                            Layout.topMargin: 2
+                            spacing: 6
+                            function join() {
+                                if (root.busy || hiddenName.text.trim() === "")
+                                    return;
+                                root.perform("wifi.hidden", {ssid: hiddenName.text.trim(), password: hiddenPassword.text}, () => {
+                                    hiddenName.text = "";
+                                    hiddenPassword.text = "";
+                                    root.hiddenOpen = false;
+                                    root.refresh();
+                                });
+                            }
+                            C.Field {
+                                id: hiddenName
+                                Layout.fillWidth: true
+                                implicitHeight: 34
+                                font.pixelSize: 14
+                                placeholderText: "Network name"
+                                Accessible.name: "Hidden network name"
+                                onAccepted: hiddenPassword.forceActiveFocus()
+                                Keys.onEscapePressed: event => {
+                                    root.hiddenOpen = false;
+                                    event.accepted = true;
+                                }
+                            }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+                                C.Field {
+                                    id: hiddenPassword
+                                    Layout.fillWidth: true
+                                    implicitHeight: 34
+                                    font.pixelSize: 14
+                                    placeholderText: "Password, or empty if open"
+                                    Accessible.name: "Hidden network password"
+                                    echoMode: TextInput.Password
+                                    onAccepted: parent.parent.join()
+                                    Keys.onEscapePressed: event => {
+                                        root.hiddenOpen = false;
+                                        event.accepted = true;
+                                    }
+                                }
+                                ControlSmallKey {
+                                    text: "Cancel"
+                                    implicitHeight: 34
+                                    enabled: !root.busy
+                                    onClicked: root.hiddenOpen = false
+                                }
+                                C.Button {
+                                    accent: true
+                                    text: root.busy && root.pendingMethod === "wifi.hidden" ? "Joining…" : "Join"
+                                    implicitHeight: 34
+                                    cornerRadius: 9
+                                    labelSize: 13
+                                    enabled: !root.busy && hiddenName.text.trim() !== ""
+                                    onClicked: parent.parent.join()
+                                }
+                            }
                         }
                         // NetworkManager's VPN and WireGuard profiles; new ones are made in nm-connection-editor or nmcli.
                         Flow {
