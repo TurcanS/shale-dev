@@ -257,6 +257,8 @@ FocusScope {
                      note: s.memory.swapTotal > 0 ? "of " + bytes(s.memory.swapTotal) : ""}];
         if (c.kind === "disk")
             return [{label: "Active time", value: percent(c.item.busy)},
+                    {label: "Kind", value: ({nvme: "NVMe SSD", ssd: "SSD", hdd: "Hard disk", removable: "Removable"})[c.item.kind] || "Disk",
+                     note: c.item.size ? bytes(c.item.size) : ""},
                     {label: "Read", value: rate(c.item.read)},
                     {label: "Write", value: rate(c.item.write)},
                     {label: "Temperature", value: temperature(c.item.temperature)}]

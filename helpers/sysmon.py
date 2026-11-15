@@ -333,6 +333,15 @@ class Sampler:
             counters[name] = (int(fields[5]) * 512, int(fields[9]) * 512, int(fields[12]))
         return counters
 
+    def disk_kind(self, name):
+        """What a disk is and holds, from sysfs without waking it: {kind: nvme | ssd | hdd | removable, size in bytes}."""
+        base = self.sys / "block" / name
+        removable = read(base / "removable") == "1"
+        kind = ("removable" if removable else "nvme" if name.startswith("nvme")
+                else "hdd" if read(base / "queue/rotational") == "1" else "ssd")
+        # The size file counts 512-byte sectors, whatever the device's own sector size.
+        return {"kind": kind, "size": int(number(base / "size", 0) or 0) * 512}
+
     def disk_of(self, device, depth=0):
         """The whole disk a block device (partition, or a device-mapper/RAID layer) lives on."""
         name = os.path.basename(os.path.realpath(device)) if device.startswith("/") else device
@@ -378,7 +387,7 @@ class Sampler:
                 self.names[name] = " ".join(read(self.sys / "block" / name / "device/model").split()) or name
             device = os.path.realpath(self.sys / "block" / name / "device")
             disks.append({"name": name, "model": self.names[name], "read": max(0, rate(0)), "write": max(0, rate(1)), "busy": max(0.0, busy),
-                          "temperature": sensors["devices"].get(device), "mounts": mounts.get(name, [])})
+                          "temperature": sensors["devices"].get(device), "mounts": mounts.get(name, []), **self.disk_kind(name)})
         return disks
 
     # Network
