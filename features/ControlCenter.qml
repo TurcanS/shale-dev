@@ -882,7 +882,7 @@ FocusScope {
                                             Layout.fillWidth: true
                                         }
                                         C.Label {
-                                            text: wifiModule.current ? "Connected · " + Math.round(wifiModule.current.signal) + "% signal" : ""
+                                            text: wifiModule.current ? ["Connected", Math.round(wifiModule.current.signal) + "% signal", wifiModule.current.band, wifiModule.current.speed ? wifiModule.current.speed + " Mbit/s" : ""].filter(part => !!part).join(" · ") : ""
                                             color: Theme.mix(Theme.textSecondary, Theme.text, 0.4)
                                             font.pixelSize: 12
                                             Layout.fillWidth: true
@@ -985,7 +985,7 @@ FocusScope {
                                                 Layout.fillWidth: true
                                             }
                                             C.Label {
-                                                text: (networkRow.modelData.saved ? "saved" : networkRow.secured ? "" : "open")
+                                                text: [networkRow.modelData.saved ? "saved" : networkRow.secured ? "" : "open", networkRow.modelData.band || ""].filter(part => !!part).join(" · ")
                                                 visible: text !== ""
                                                 color: Theme.textDim
                                                 font.pixelSize: 12

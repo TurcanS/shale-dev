@@ -134,6 +134,14 @@ case "$1" in
   launcher|clipboard|control|notifications|overview|capture|power|calendar|wallpaper|activity|system)
     exec quickshell ipc -p "$config" call shell toggle "$1"
     ;;
-  help|-h|--help) echo 'Usage: shale {start|stop|restart|logs|close|lock|launcher|clipboard|control|notifications|overview|settings [PAGE]|capture|power|calendar|wallpaper|activity|system|screenshot [region|output]|page PAGE|focus [MINUTES|toggle|pause|end]|timer DURATION [LABEL]|color|dnd [on|off]|stop-recording|status|--version}' ;;
-  *) echo 'Usage: shale {start|stop|restart|logs|close|lock|launcher|clipboard|control|notifications|overview|settings [PAGE]|capture|power|calendar|wallpaper|activity|system|screenshot [region|output]|page PAGE|focus [MINUTES|toggle|pause|end]|timer DURATION [LABEL]|color|dnd [on|off]|stop-recording|status|--version}' >&2; exit 2 ;;
+  open)
+    # Opens a panel, or leaves it open: a script can ask twice without closing it.
+    case "${2:-}" in
+      launcher|clipboard|control|notifications|overview|capture|power|calendar|wallpaper|activity|system|settings)
+        exec quickshell ipc -p "$config" call shell open "$2" ;;
+      *) echo 'Usage: shale open PANEL' >&2; exit 2 ;;
+    esac
+    ;;
+  help|-h|--help) echo 'Usage: shale {start|stop|restart|logs|close|lock|launcher|clipboard|control|notifications|overview|settings [PAGE]|capture|power|calendar|wallpaper|activity|system|screenshot [region|output]|open PANEL|page PAGE|focus [MINUTES|toggle|pause|end]|timer DURATION [LABEL]|color|dnd [on|off]|stop-recording|status|--version}' ;;
+  *) echo 'Usage: shale {start|stop|restart|logs|close|lock|launcher|clipboard|control|notifications|overview|settings [PAGE]|capture|power|calendar|wallpaper|activity|system|screenshot [region|output]|open PANEL|page PAGE|focus [MINUTES|toggle|pause|end]|timer DURATION [LABEL]|color|dnd [on|off]|stop-recording|status|--version}' >&2; exit 2 ;;
 esac

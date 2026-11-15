@@ -309,7 +309,12 @@ Rectangle {
                         const place = root.place ? root.place.name : "";
                         if (!root.weather)
                             return place;
-                        return "Feels " + root.degrees(root.weather.current.feelsLike) + " · " + place;
+                        const now = root.weather.current;
+                        const known = value => value !== null && value !== undefined;
+                        // Wind as people say it: its speed and the side it blows from.
+                        const from = known(now.windFrom) ? " " + ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(now.windFrom / 45) % 8] : "";
+                        const wind = known(now.wind) ? " · Wind " + now.wind + (root.weather.units === "imperial" ? " mph" : " km/h") + from : "";
+                        return "Feels " + root.degrees(now.feelsLike) + wind + (known(now.humidity) ? " · " + now.humidity + "% humid" : "") + " · " + place;
                     }
                     color: Theme.textDim
                     font.pixelSize: 12

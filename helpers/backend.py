@@ -1581,9 +1581,18 @@ class Backend:
             owe = bool(flags & 0x1800) and not flags & 0x700
             kind = "8021x" if flags & 0x200 else "open" if owe or not (ap["Flags"].value & 1 or flags) else "secured"
             connected = path == active_ap and state == 100
+            frequency = ap["Frequency"].value if "Frequency" in ap else 0
             network = {"path": path, "name": ssid.decode("utf-8", "replace"), "type": kind, "owe": owe,
                        "connected": connected, "saved": (ssid, kind) in profiles,
-                       "signal": ap["Strength"].value}
+                       "signal": ap["Strength"].value,
+                       # MHz to the band people know it by; "" when the access point doesn't say.
+                       "band": "" if not frequency else "2.4 GHz" if frequency < 3000 else "5 GHz" if frequency < 5925 else "6 GHz"}
+            if connected:
+                try:
+                    # The speed of the link as it is now, in Mbit/s (NetworkManager counts in kbit/s).
+                    network["speed"] = round((await device_props.call_get(name + ".Device.Wireless", "Bitrate")).value / 1000)
+                except Exception:
+                    pass  # an older NetworkManager, or the link just dropped
             key = (ssid, kind)
             if key not in networks or connected or (not networks[key]["connected"] and network["signal"] > networks[key]["signal"]):
                 networks[key] = network

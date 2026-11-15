@@ -249,3 +249,22 @@ the transport's position line. Left/Right step, Up/Down jump five, Home/End, whe
 online sources load the next page within four of the end. The thumbnail caching, sources, search and the
 `wallpaper-picker` IPC are unchanged. Not drawn any more: the per-tile accent dots and the "Add wallpapers" tile (the
 folder key in the transport opens the folder).
+
+Carry-over from the improvement pass (settings safety, helper, fixes, features): `ShellState.setSetting` sends only the
+keys changed here (`unsaved`) and keeps them across a helper restart; `settings.set` saves what it can and returns
+`rejected: [{key, message}]`, which the shell toasts and puts back. `config.previous.json` is written only before a
+reset or an import; `settings.restore` swaps it with today's settings (`ShellState.restoreSettings()`, the Undo on a
+page reset, Backup's "Put back"); `settings.backup {path}` tells the Backup page when both were written. An export
+never replaces a file that isn't a Shale export. `activityTracking` and `hiddenOutputs` are private keys. Helper:
+`hypr_json()` for `hyprctl -j`, `probe()` for disk checks that may hang, `interface(..., alike=)` reuses one
+introspection for look-alike objects, quick requests (`settings.*`, `note.*`, `notifications.*`) skip the 32-request
+queue, clipboard pins carry `sha` and are matched by contents. `Backend.request` takes `{owner, silent}` (owner is
+not used by any page yet and is unverified); a callback's error is logged as the caller's. `Services.failed(message)`
+replaces `lastError`. `core/format.js` (`bytes`, `known`, `clock`, `span`) is used by System, the System card and the
+Player; move the other copies there (Power, Activity, Focus, Updates, the battery time span). IPC `shell` gained
+`open(panel)` (`shale open PANEL`) and `status` reports `detail` and `screen`. `wifi.list` networks carry `band` and,
+connected, `speed`; the forecast carries `wind`, `windFrom`, `humidity`. Still to do from that plan: a keyed model for
+Wi-Fi rows, the tray menu's height cap, a `Weather` service, `PanelHeader`, the file splits (Control's Wi-Fi and home,
+Activity, Launcher, BarContent, Toasts, Settings' inline pages) and the helper's modules, the shared control recipes
+(`Theme.wash`, one focus ring, row heights), per-row reset and changed markers, the sidebar's arrow keys, drag
+auto-scroll, a Power page, wallpaper Fill / Fit, disk kind, Caps Lock OSD, Activity "Keep for", snippets.
