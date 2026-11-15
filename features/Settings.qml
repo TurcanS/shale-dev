@@ -36,84 +36,6 @@ FocusScope {
         easing.type: Easing.BezierSpline
         easing.bezierCurve: Theme.easeOut
     }
-    // A folder setting with its own error and a short confirmation once saved.
-    component FolderField: C.SettingRow {
-        id: folder
-        property string key: ""
-        property string fallback: ""
-        property string note: ""
-        property string error: ""
-        property bool saved: false
-        function save(value) {
-            const path = value.trim();
-            if (!(path.startsWith("~/") || path.startsWith("/")) || /[\r\n]/.test(path)) {
-                error = "Enter an absolute folder path or a path beginning with ~/";
-                return;
-            }
-            error = "";
-            if (path === ShellState.setting(key, fallback))
-                return;
-            ShellState.setSetting(key, path);
-            saved = true;
-            savedTimer.restart();
-        }
-        settingKey: key
-        description: error || (saved ? "Saved" : note)
-        descriptionColor: error ? Theme.dangerText : saved ? Theme.success : Theme.textDim
-        C.Field {
-            Layout.preferredWidth: 280
-            implicitHeight: 36
-            font.pixelSize: Theme.label
-            Accessible.name: folder.label
-            text: ShellState.setting(folder.key, folder.fallback)
-            onTextEdited: folder.saved = false
-            onEditingFinished: folder.save(text)
-        }
-        Timer {
-            id: savedTimer
-            interval: 2500
-            onTriggered: folder.saved = false
-        }
-    }
-    // A plain on/off preference on a group.
-    component SettingToggle: C.Toggle {
-        property string key: ""
-        property bool fallback: false
-        settingKey: key
-        flat: true
-        Layout.fillWidth: true
-        selected: ShellState.setting(key, fallback)
-        onClicked: ShellState.setSetting(key, !ShellState.setting(key, fallback))
-    }
-    // A row whose control is one button that opens something.
-    component OpenRow: C.SettingRow {
-        id: openRow
-        property string action: "Open"
-        property string glyph: ""
-        signal opened()
-        C.Button {
-            text: openRow.action
-            glyph: openRow.glyph
-            implicitHeight: 32
-            onClicked: openRow.opened()
-        }
-    }
-    // A value shown at the right of a row, for facts rather than choices.
-    component ValueRow: C.SettingRow {
-        id: valueRow
-        property string value: ""
-        property color valueColor: Theme.textSecondary
-        property bool mono: false
-        C.Label {
-            text: valueRow.value
-            color: valueRow.valueColor
-            font.family: valueRow.mono ? Theme.mono : Theme.font
-            font.pixelSize: valueRow.mono ? Theme.small : Theme.label
-            horizontalAlignment: Text.AlignRight
-            wrapMode: Text.WordWrap
-            Layout.maximumWidth: 320
-        }
-    }
     // Aliases keep older names working: `shale settings control-center`, Find's "settings:Control center", and the
     // Motion and Audio pages, now part of Appearance and Sound.
     readonly property var categories: [
@@ -616,23 +538,23 @@ FocusScope {
                             }
                             C.SectionHeader { text: "Behaviour" }
                             C.Group {
-                                SettingToggle {
+                                C.SettingToggle {
                                     text: "Reduce motion"
                                     description: "Panels and controls change without animating"
                                     key: "reducedMotion"
                                 }
-                                SettingToggle {
+                                C.SettingToggle {
                                     text: "Reduce effects in every mode"
                                     description: "No visualizers, blur, shadows or live window previews"
                                     key: "batterySaving"
                                 }
-                                SettingToggle {
+                                C.SettingToggle {
                                     text: "Window preview snapshots"
                                     description: "Pictures of windows in Pages"
                                     key: "windowPreviews"
                                     fallback: true
                                 }
-                                SettingToggle {
+                                C.SettingToggle {
                                     text: "Music visualizer"
                                     description: "In the bar and on the Player"
                                     key: "visualizer"
@@ -641,7 +563,7 @@ FocusScope {
                             }
                             C.SectionHeader { text: "Wallpaper" }
                             C.Group {
-                                FolderField {
+                                C.FolderField {
                                     label: "Wallpaper folder"
                                     note: "Where Wallpapers looks for pictures"
                                     key: "wallpaperDirectory"
@@ -658,7 +580,7 @@ FocusScope {
                                     current: ShellState.setting("wallpaperFit", "cover")
                                     onActivated: key => ShellState.setSetting("wallpaperFit", key)
                                 }
-                                OpenRow {
+                                C.OpenRow {
                                     label: "Wallpaper"
                                     description: "Pick from the folder or find new ones"
                                     action: "Choose wallpaper"
@@ -725,7 +647,7 @@ FocusScope {
                             spacing: 8
                             C.SectionHeader { text: "Time and units" }
                             C.Group {
-                                SettingToggle {
+                                C.SettingToggle {
                                     text: "24-hour clock"
                                     description: "Everywhere Shale shows the time"
                                     key: "clock24h"
@@ -774,7 +696,7 @@ FocusScope {
                             }
                             C.SectionHeader { text: "Updates" }
                             C.Group {
-                                SettingToggle {
+                                C.SettingToggle {
                                     text: "Check for updates"
                                     description: "Asks GitHub every 12 hours. Control shows what a new version changes."
                                     key: "updateCheck"
@@ -783,7 +705,7 @@ FocusScope {
                             }
                             C.SectionHeader { text: "History" }
                             C.Group {
-                                OpenRow {
+                                C.OpenRow {
                                     id: findHistory
                                     // What Find remembers: how often apps and emoji were picked, and commands run with >.
                                     readonly property int count: Object.keys(ShellState.setting("appUsage", {})).length + Object.keys(ShellState.setting("emojiUsage", {})).length + ShellState.setting("runHistory", []).length
@@ -804,7 +726,7 @@ FocusScope {
                             Layout.fillWidth: true
                             spacing: 8
                             C.Group {
-                                SettingToggle {
+                                C.SettingToggle {
                                     text: "Keep notification history across restarts"
                                     description: "Up to 200 notifications for seven days. Contents stay hidden on the lock screen."
                                     key: "persistNotifications"
@@ -836,17 +758,17 @@ FocusScope {
                             Layout.fillWidth: true
                             spacing: 8
                             C.Group {
-                                SettingToggle {
+                                C.SettingToggle {
                                     text: "Allow volume amplification up to 150%"
                                     description: "Volume sliders go past 100%"
                                     key: "amplification"
                                 }
-                                SettingToggle {
+                                C.SettingToggle {
                                     text: "Show time left instead of track length"
                                     description: "On the Player"
                                     key: "mediaRemaining"
                                 }
-                                OpenRow {
+                                C.OpenRow {
                                     label: "Equalizer"
                                     description: "Curves for the output, in Control → Sound"
                                     action: "Open the equalizer"
@@ -891,14 +813,14 @@ FocusScope {
                                     enabled: !ShellState.lidBusy
                                     onClicked: ShellState.toggleLidAwake()
                                 }
-                                SettingToggle {
+                                C.SettingToggle {
                                     visible: Backend.capabilities.builtinPanel !== false
                                     text: "Lower refresh rate in power saver"
                                     description: "The built-in screen drops to its lowest refresh rate"
                                     key: "saverRefresh"
                                     fallback: true
                                 }
-                                OpenRow {
+                                C.OpenRow {
                                     label: "Battery"
                                     description: "Charge, time left and the power modes in Control"
                                     action: "Open"
@@ -937,13 +859,13 @@ FocusScope {
                             }
                             C.SectionHeader { text: "Folders" }
                             C.Group {
-                                FolderField {
+                                C.FolderField {
                                     label: "Screenshot folder"
                                     note: "Saved screenshots go here"
                                     key: "screenshotDirectory"
                                     fallback: "~/Pictures/Screenshots"
                                 }
-                                FolderField {
+                                C.FolderField {
                                     label: "Recording folder"
                                     note: "Screen recordings go here"
                                     key: "recordingDirectory"
@@ -975,7 +897,7 @@ FocusScope {
                                     current: ShellState.setting("activityKeep", 0)
                                     onActivated: key => ShellState.setSetting("activityKeep", key)
                                 }
-                                OpenRow {
+                                C.OpenRow {
                                     label: "Activity"
                                     description: "Your day, the year and the apps you use most"
                                     action: "Open activity"
@@ -1035,13 +957,13 @@ FocusScope {
                                         }
                                     }
                                 }
-                                ValueRow {
+                                C.ValueRow {
                                     label: "Version"
                                     description: "The commit the installer put in place"
                                     value: root.version ? "Shale " + root.version : "Shale · version unknown"
                                     mono: true
                                 }
-                                ValueRow {
+                                C.ValueRow {
                                     label: "D-Bus adapter"
                                     description: "For Wi-Fi and power controls"
                                     value: Backend.capabilities.dbus ? "Available" : "Install python-dbus-next"
@@ -1094,7 +1016,7 @@ FocusScope {
                                     current: ShellState.setting("systemWindow", 60)
                                     onActivated: key => ShellState.setSetting("systemWindow", key)
                                 }
-                                OpenRow {
+                                C.OpenRow {
                                     label: "System monitor"
                                     description: "Processor, memory, disks, network and graphics, live"
                                     action: "Open system monitor"

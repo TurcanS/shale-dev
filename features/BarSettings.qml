@@ -55,16 +55,6 @@ ColumnLayout {
         }
         return result;
     }
-    // A plain on/off preference on a group.
-    component SettingToggle: C.Toggle {
-        property string key: ""
-        property bool fallback: false
-        settingKey: key
-        flat: true
-        Layout.fillWidth: true
-        selected: ShellState.setting(key, fallback)
-        onClicked: ShellState.setSetting(key, !ShellState.setting(key, fallback))
-    }
     // One item on the small bar, drawn like the bar draws it at about two thirds of its size.
     component PreviewItem: Item {
         id: part
@@ -334,7 +324,7 @@ ColumnLayout {
             current: ShellState.setting("clockFormat", "date-time")
             onActivated: key => ShellState.setSetting("clockFormat", key)
         }
-        SettingToggle {
+        C.SettingToggle {
             text: "Show seconds"
             description: "On the bar's clock"
             key: "clockSeconds"
@@ -377,19 +367,19 @@ ColumnLayout {
         Layout.topMargin: 2
     }
     C.Group {
-        SettingToggle {
+        C.SettingToggle {
             text: "Hide bar over fullscreen windows"
             description: "It comes back when the window leaves fullscreen"
             key: "hideFullscreen"
             fallback: true
         }
-        SettingToggle {
+        C.SettingToggle {
             text: "Show what's playing in the bar"
             description: "Cover and title, on bars wider than 1100 px"
             key: "barMedia"
             fallback: true
         }
-        SettingToggle {
+        C.SettingToggle {
             text: "Show a card when the track changes"
             description: "Title and artist for a moment"
             key: "trackChangeCard"
