@@ -68,8 +68,10 @@ keeps a counter and ignores late replies (see `requestGeneration` in `ControlCen
    type, `check_setting` validates a value. A new setting starts here.
 2. `ShellState.setting(key, fallback)` reads; `ShellState.setSetting(key, value)` writes and saves 350 ms later
    (`settings.set`). Bindings on `setting(…)` update everywhere at once.
-3. The Settings panel shows a row for it: `features/Settings.qml` holds the categories and their pages
-   (`*Settings.qml` for the long ones). Rows are `SettingRow` (or `Toggle`, `ChoiceRow`) inside a `Group`.
+3. The Settings panel shows a row for it: `features/Settings.qml` holds the categories and places their pages, one
+   `*Settings.qml` file each (`GeneralSettings.qml`, `PowerSettings.qml`, …). Rows are `SettingRow`, `ChoiceRow`,
+   `SettingToggle`, `FolderField`, `OpenRow` or `ValueRow` inside a `Group`; give a row `settingKey` (the toggles
+   and folder rows take it from `key`) and it gets a reset key while the setting differs from its default.
 4. Find a setting finds any row with a `description` and a `label` or `text`, under the page whose `objectName` is
    its category name; nothing else to register.
 
