@@ -298,7 +298,14 @@ QtObject {
     function close() {
         panel = "";
     }
+    // Messages that came while one with an action (Undo) was showing: they wait so the action stays reachable.
+    property var waitingMessages: []
     function message(text, kind, action) {
+        const withAction = !!(action && action.label && action.run);
+        if (toast !== "" && toastAction && !withAction) {
+            waitingMessages = waitingMessages.concat([{text: text, kind: kind, action: action}]).slice(-3);
+            return;
+        }
         toastKind = kind || "info";
         toastAction = action && action.label && action.run ? action : null;
         toast = text;
@@ -540,6 +547,19 @@ QtObject {
             } else
                 root.message("Done", "success");
         })
+    }
+    // The next waiting message follows a moment after the last one went, so the two don't read as one.
+    onToastChanged: if (toast === "" && waitingMessages.length)
+        nextMessage.restart()
+    property Timer nextMessage: Timer {
+        interval: 250
+        onTriggered: {
+            if (root.toast !== "" || !root.waitingMessages.length)
+                return;
+            const next = root.waitingMessages[0];
+            root.waitingMessages = root.waitingMessages.slice(1);
+            root.message(next.text, next.kind, next.action);
+        }
     }
     property Timer messageTimer: Timer {
         interval: 6000
