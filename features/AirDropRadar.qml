@@ -4,13 +4,15 @@ import "../core"
 import "../components" as C
 
 // The AirDrop glyph on a round tile; while `live` (looking for devices, or visible to them) accent rings widen out
-// from it and fade, one after another. Still rings stand in for them with reduced motion or effects trimmed.
+// from it and fade, one after another. Still rings stand in for them with reduced motion or effects trimmed. Without
+// `rings` (a header, where they would spill over the title) only the tile shows that it is live.
 Item {
     id: root
     property bool live: false
+    property bool rings: true
     property int size: 32
     property color color: Theme.accent
-    readonly property bool moving: live && visible && !Theme.reduced && !Theme.lowPower
+    readonly property bool moving: live && rings && visible && !Theme.reduced && !Theme.lowPower
     implicitWidth: size
     implicitHeight: size
     Repeater {
@@ -26,7 +28,7 @@ Item {
             color: "transparent"
             border.width: 1.5
             border.color: root.color
-            visible: root.live
+            visible: root.live && root.rings
             // Still: two faint rings at fixed steps.
             opacity: root.moving ? 0.55 * (1 - phase) : ring.index < 2 ? 0.22 - ring.index * 0.1 : 0
             Component.onCompleted: if (!root.moving)

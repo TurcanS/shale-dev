@@ -145,7 +145,8 @@ AbstractButton {
                 trackColor: root.moving || root.phase === "done" ? Theme.key : "transparent"
                 color: Theme.accent
                 property real shown: root.fraction
-                value: root.phase === "asking" ? 0 : shown
+                // Only a send that runs or ran fills it; an idle device shows no ring.
+                value: root.phase === "sending" || root.phase === "done" ? shown : 0
                 Behavior on shown {
                     enabled: root.phase === "sending" || root.phase === "done"
                     NumberAnimation {

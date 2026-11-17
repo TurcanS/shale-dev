@@ -100,11 +100,11 @@ FocusScope {
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
+            // "Up", not an arrow: the panel's header already has Back (out of choosing).
             C.Button {
-                glyph: "back"
+                text: "Up"
                 flat: true
-                hint: "Up · Backspace"
-                implicitWidth: 32
+                hint: "The folder above · Backspace"
                 implicitHeight: 32
                 enabled: root.folder !== "/"
                 onClicked: root.up()

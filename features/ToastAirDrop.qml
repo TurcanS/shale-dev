@@ -271,7 +271,8 @@ PanelWindow {
                         Image {
                             id: preview
                             anchors.fill: parent
-                            source: card.icon
+                            // Qt reads no JPEG 2000 (what iPhones send): not loading it spares an error per request.
+                            source: /\.jp2$/i.test(card.icon) ? "" : card.icon
                             fillMode: Image.PreserveAspectCrop
                             asynchronous: true
                             sourceSize: Qt.size(104, 104)
