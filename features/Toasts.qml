@@ -79,4 +79,9 @@ Scope {
         screen: root.screen
         target: root.target
     }
+    // AirDrop requests: who sends what, Accept and Decline, then the files arriving.
+    ToastAirDrop {
+        screen: root.screen
+        target: root.target
+    }
 }

@@ -79,6 +79,7 @@ Uninstall puts back the files Shale replaced, removes the ones it added and take
 | **Capture** | Screenshots, screen recording with system audio or microphone, color picker. |
 | **System monitor** | Live CPU, memory, disks, network, GPUs, temperatures and fans (Ctrl+Shift+Esc), with the last five minutes already graphed when it opens. A sleeping laptop GPU is left asleep. |
 | **Activity** | Opt-in, local-only app usage history with a yearly heatmap. |
+| **AirDrop** | With the optional [AirDrop for Linux](#airdrop) `airdrop` command: send files or links to iPhones, iPads and Macs nearby (drop them on the panel or the bar key, or `shale airdrop send FILE…`), and receive Visible for 10 minutes or in the Background. Requests come as a card with Accept, Decline and Always, also on the lock screen. |
 | **Make it yours** | Move, reorder or hide what the bar shows; pick its clock, workspace dots, tray icons and an edge-to-edge style. Arrange the control center's tiles and buttons, change any shortcut by pressing the new keys, and back up your settings to bring them to another computer. |
 
 ## Shortcuts
@@ -95,6 +96,19 @@ Uninstall puts back the files Shale replaced, removes the ones it added and take
 To change one, open Settings → Shortcuts, choose Change and press the new keys; it works right away. Keys your Hyprland config already uses are refused, so nothing gets bound twice. The calendar, color picker, do not disturb, focus and closing a panel can get a shortcut there too. Volume, brightness and media keys come from Hyprland's example config; Shale shows an OSD for them.
 
 Everything is also a command: `shale launcher`, `shale system`, `shale screenshot region`, `shale page wifi`, `shale settings shortcuts`, `shale focus 50`, `shale dnd`, `shale lock`, `shale status`, `shale --version`. Run `shale help` for the list.
+
+## AirDrop
+Shale drives the `airdrop` command (AirDrop for Linux) through its `--json` interface; without it, AirDrop doesn't
+show anywhere. Shale looks for it on your PATH and in `~/.local/bin`. Settings → AirDrop sets how it receives, where
+files go, this computer's name and the senders let straight in, and checks what the Wi-Fi card needs.
+
+- **Off**: nobody nearby sees this computer. **Visible**: like an iPhone's "Everyone for 10 Minutes"; Wi-Fi pauses
+  meanwhile unless it already is on AirDrop's channel. **Background**: Wi-Fi stays on and Bluetooth listens; when an
+  iPhone nearby opens AirDrop, this computer appears in its list for the transfer.
+- Sending looks for devices only once something is chosen (it takes the radio too), and receiving waits meanwhile.
+- `shale airdrop visible|background|off|toggle`, `shale airdrop send FILE…`, and `shale airdrop accept|decline` for
+  the oldest request; the last two and the panel can get shortcuts in Settings → Shortcuts.
+- Each session needs the airdrop helper's permission; install its polkit rule to stop being asked every time.
 
 ## Files
 

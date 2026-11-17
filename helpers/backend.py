@@ -38,6 +38,55 @@ import units
 import shortcuts
 import update
 
+def airdrop_command():
+    """The `airdrop` CLI (AirDrop for Linux) as an absolute path, or "" when it isn't installed. ~/.local/bin is often
+    missing from a compositor's PATH, so it is looked in as well."""
+    found = shutil.which("airdrop")
+    if found:
+        return found
+    local = Path.home() / ".local/bin/airdrop"
+    return str(local) if os.access(local, os.X_OK) else ""
+
+
+# What a file is, for an icon: by its extension, as AirDrop's own sheet does.
+FILE_KINDS = {"image": ("jpg", "jpeg", "png", "gif", "webp", "heic", "heif", "avif", "bmp", "tif", "tiff", "svg", "raw", "dng"),
+              "video": ("mp4", "mov", "m4v", "mkv", "webm", "avi", "hevc"),
+              "audio": ("mp3", "m4a", "aac", "flac", "wav", "ogg", "opus"),
+              "pdf": ("pdf",),
+              "archive": ("zip", "tar", "gz", "xz", "zst", "7z", "rar", "bz2"),
+              "text": ("txt", "md", "rtf", "doc", "docx", "odt", "pages", "csv", "json", "log")}
+
+
+def file_kind(path):
+    if path.is_dir():
+        return "folder"
+    ext = path.suffix.lower().lstrip(".")
+    return next((kind for kind, exts in FILE_KINDS.items() if ext in exts), "file")
+
+
+def staged_item(text):
+    """One file or folder picked for AirDrop: its name, size (a folder's files, counted up to 20000 of them) and kind.
+    None when it is not an existing absolute path."""
+    if not isinstance(text, str) or not text.startswith("/") or "\0" in text or len(text) > 4096:
+        return None
+    path = Path(text)
+    try:
+        if not path.exists():
+            return None
+        size = 0
+        if path.is_dir():
+            for count, child in enumerate(path.rglob("*")):
+                if count >= 20000:
+                    break
+                if child.is_file() and not child.is_symlink():
+                    size += child.stat().st_size
+        else:
+            size = path.stat().st_size
+    except OSError:
+        return None
+    return {"path": str(path), "name": path.name or str(path), "size": size, "dir": path.is_dir(), "kind": file_kind(path)}
+
+
 def user_dir(name, fallback, home=None):
     """An XDG user directory such as PICTURES from user-dirs.dirs (localized, e.g. ~/Bilder), as ~/path."""
     home = home or Path.home()
@@ -70,7 +119,9 @@ DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
             "workspaceSlots": 0, "trayIcons": -1, "batteryPercent": "auto", "barStyle": "floating", "weekStart": "locale", "terminal": "auto", "shortcuts": {},
             "screenshotDirectory": user_dir("PICTURES", "~/Pictures") + "/Screenshots",
             "recordingDirectory": user_dir("VIDEOS", "~/Videos") + "/Recordings",
-            "wallpaperDirectory": user_dir("PICTURES", "~/Pictures") + "/Wallpapers", "wallpaperFit": "cover", "activityKeep": 0, "quietHours": []}
+            "wallpaperDirectory": user_dir("PICTURES", "~/Pictures") + "/Wallpapers", "wallpaperFit": "cover", "activityKeep": 0, "quietHours": [],
+            "airdropMode": "off", "airdropAsk": "ask", "airdropTimeout": 60,
+            "airdropFolder": user_dir("DOWNLOAD", "~/Downloads") + "/AirDrop"}
 CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))) / "shale/config.json"
 RUNTIME = runtime_base() / "shale"
 STATE = Path(os.environ.get("XDG_STATE_HOME", str(Path.home() / ".local/state"))) / "shale"
@@ -90,12 +141,12 @@ RECORD_AUDIO = {"none": None, "system": "@DEFAULT_MONITOR@", "microphone": "@DEF
 # Bar items and control center parts, as core/barItems.js and core/controlItems.js name them. A layout lists
 # only what the user arranged; the shell puts anything it doesn't mention in its default place.
 BAR_ITEMS = ("workspaces", "windowTitle", "clock", "media", "tray", "recording", "privacy", "focus", "timer",
-             "stayAwake", "keyboard", "vpn", "wifi", "audio", "battery", "notifications", "control",
+             "stayAwake", "airdrop", "keyboard", "vpn", "wifi", "audio", "battery", "notifications", "control",
              # No longer on the bar, but layouts saved before may still list them; the shell skips them.
              "launcher", "wallpapers", "lock")
 # Never hidden: what is recording or listening stays visible, and the control center leads back to Settings.
 BAR_REQUIRED = ("recording", "privacy", "control")
-CONTROL_TILES = ("wifi", "bluetooth", "dnd", "awake", "grayscale", "lid")
+CONTROL_TILES = ("wifi", "bluetooth", "airdrop", "dnd", "awake", "grayscale", "lid")
 CONTROL_SECTIONS = ("focus", "levels", "media")
 CONTROL_FOOTER = ("capture", "settings", "lock", "session")
 # Desktop widget cards, as core/parts.js names them, and the corners they can sit in.
@@ -106,7 +157,7 @@ MAX_WIDGET_CARDS = 6
 # import ignores them, so a file from elsewhere can't redirect where screenshots, recordings or downloads are saved,
 # hide a bar here, or turn activity recording on without the question the Activity panel asks.
 PRIVATE_KEYS = ("appUsage", "emojiUsage", "runHistory", "pinnedApps", "focusSession", "timers", "weatherLocation",
-                "screenshotDirectory", "recordingDirectory", "wallpaperDirectory", "bluetoothAutoConnect",
+                "screenshotDirectory", "recordingDirectory", "wallpaperDirectory", "airdropFolder", "bluetoothAutoConnect",
                 "activityTracking", "hiddenOutputs")
 # What a restore of the settings from before leaves as it is now: shortcuts are bound in the compositor, and a
 # session or timer from then would be stale.
@@ -117,6 +168,11 @@ TERMINALS = (("xdg-terminal-exec",), ("foot",), ("kitty",), ("alacritty", "-e"),
 ACTIVITY_TRACKING = ("ask", "on", "off")
 # Days of activity kept; 0 keeps everything until it is cleared.
 ACTIVITY_KEEP = (0, 30, 90, 365)
+# AirDrop (the optional `airdrop` command): what runs when the shell starts (Visible is never restored, it is for ten
+# minutes at a time), whether to ask before saving, and how long a question waits before it declines.
+AIRDROP_MODES = ("off", "background")
+AIRDROP_ASK = ("ask", "all")
+AIRDROP_TIMEOUTS = (30, 60, 120, 300)
 
 def keyboard_state(devices):
     """The layouts of the main keyboard from `hyprctl devices -j`: {layouts: [{code, variant}], index, name}."""
@@ -261,7 +317,13 @@ def check_setting(key, value):
         raise BackendError("invalid", "Choose a supported surface tone.")
     if key in ("accentColor", "accentManual") and ((luminance := accent_luminance(value)) is None or luminance < 0.28):
         raise BackendError("invalid", "Choose a brighter six-digit hex colour.")
-    if key in ("screenshotDirectory", "recordingDirectory", "wallpaperDirectory") and (
+    if key == "airdropMode" and value not in AIRDROP_MODES:
+        raise BackendError("invalid", "Choose Off or Background for AirDrop.")
+    if key == "airdropAsk" and value not in AIRDROP_ASK:
+        raise BackendError("invalid", "Choose whether AirDrop asks first.")
+    if key == "airdropTimeout" and value not in AIRDROP_TIMEOUTS:
+        raise BackendError("invalid", "Choose how long AirDrop waits for an answer.")
+    if key in ("screenshotDirectory", "recordingDirectory", "wallpaperDirectory", "airdropFolder") and (
             not (value.startswith("~/") or value.startswith("/")) or re.search(r"[\0\r\n]", value) or len(value) > 4096):
         raise BackendError("invalid", "Folders must be absolute paths or start with ~/.")
     if key == "wallpaperFit" and value not in wallpaper.FITS:
@@ -1157,7 +1219,7 @@ class Backend:
                 "lid": any(Path("/proc/acpi/button/lid").glob("*")),
                 "terminal": self.terminal(),
                 "terminals": [prefix[0] for prefix in self.TERMINALS if shutil.which(prefix[0])],
-                "builtinPanel": builtin_panel, "version": 1}
+                "builtinPanel": builtin_panel, "airdrop": airdrop_command(), "version": 1}
 
     async def hypr_eval(self, code):
         """Runs Lua in Hyprland; False when it reports an error."""
@@ -2255,6 +2317,13 @@ class Backend:
             allowed = ("id", "summary", "body", "appName", "appIcon", "urgency", "timestamp")
             atomic_json(path, [{k: x[k] for k in allowed if k in x} for x in entries[:200] if isinstance(x, dict) and x.get("timestamp", 0) > cutoff])
             return {"done": True}
+        # Files dropped or picked for AirDrop: which exist, and their sizes for the share card.
+        if method == "airdrop.stat":
+            paths = p.get("paths")
+            if not isinstance(paths, list) or len(paths) > 200:
+                raise BackendError("invalid", "Expected up to 200 paths.")
+            items = await asyncio.to_thread(lambda: [staged_item(path) for path in paths])
+            return {"items": [item for item in items if item]}
         if method == "note.get":
             return {"lines": note_lines()}
         if method == "note.set":

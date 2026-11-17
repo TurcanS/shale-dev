@@ -25,7 +25,7 @@ Item {
     readonly property var layout: BarItems.layout(ShellState.setting("barLayout", {}))
     readonly property var items: ({
             workspaces: workspacesItem, windowTitle: windowTitleItem, clock: clockItem, media: mediaItem,
-            tray: trayItem, recording: recordingItem, privacy: privacyItem, focus: focusItem, timer: timerItem, stayAwake: stayAwakeItem,
+            tray: trayItem, recording: recordingItem, privacy: privacyItem, focus: focusItem, timer: timerItem, stayAwake: stayAwakeItem, airdrop: airdropItem,
             keyboard: keyboardItem, vpn: vpnItem, wifi: wifiItem, audio: audioItem, battery: batteryItem, notifications: notificationsItem,
             control: controlItem
         })
@@ -189,6 +189,12 @@ Item {
     Component {
         id: timerItem
         BarTimer {
+            bar: content
+        }
+    }
+    Component {
+        id: airdropItem
+        BarAirDrop {
             bar: content
         }
     }

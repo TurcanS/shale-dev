@@ -134,14 +134,32 @@ case "$1" in
   launcher|clipboard|control|notifications|overview|capture|power|calendar|wallpaper|activity|system)
     exec quickshell ipc -p "$config" call shell toggle "$1"
     ;;
+  airdrop)
+    # Without more: the AirDrop panel. `shale airdrop visible|background|off|toggle` picks how it receives,
+    # `send FILE...` opens the panel with them, `accept` and `decline` answer the oldest request (for key bindings).
+    case "${2:-}" in
+      '') exec quickshell ipc -p "$config" call shell toggle airdrop ;;
+      visible|background|off|toggle) exec quickshell ipc -p "$config" call airdrop mode "$2" ;;
+      accept|decline) exec quickshell ipc -p "$config" call airdrop "$2" ;;
+      status) exec quickshell ipc -p "$config" call airdrop status ;;
+      send)
+        shift 2
+        [ $# -gt 0 ] || { echo 'Usage: shale airdrop send FILE...' >&2; exit 2; }
+        paths=""
+        for f in "$@"; do paths="$paths$(realpath -- "$f")
+"; done
+        exec quickshell ipc -p "$config" call airdrop send "$paths" ;;
+      *) echo 'Usage: shale airdrop [visible|background|off|toggle|send FILE...|accept|decline|status]' >&2; exit 2 ;;
+    esac
+    ;;
   open)
     # Opens a panel, or leaves it open: a script can ask twice without closing it.
     case "${2:-}" in
-      launcher|clipboard|control|notifications|overview|capture|power|calendar|wallpaper|activity|system|settings)
+      launcher|clipboard|control|notifications|overview|capture|power|calendar|wallpaper|activity|system|settings|airdrop)
         exec quickshell ipc -p "$config" call shell open "$2" ;;
       *) echo 'Usage: shale open PANEL' >&2; exit 2 ;;
     esac
     ;;
-  help|-h|--help) echo 'Usage: shale {start|stop|restart|logs|close|lock|launcher|clipboard|control|notifications|overview|settings [PAGE]|capture|power|calendar|wallpaper|activity|system|screenshot [region|output]|open PANEL|page PAGE|focus [MINUTES|toggle|pause|end]|timer DURATION [LABEL]|color|dnd [on|off]|stop-recording|status|--version}' ;;
-  *) echo 'Usage: shale {start|stop|restart|logs|close|lock|launcher|clipboard|control|notifications|overview|settings [PAGE]|capture|power|calendar|wallpaper|activity|system|screenshot [region|output]|open PANEL|page PAGE|focus [MINUTES|toggle|pause|end]|timer DURATION [LABEL]|color|dnd [on|off]|stop-recording|status|--version}' >&2; exit 2 ;;
+  help|-h|--help) echo 'Usage: shale {start|stop|restart|logs|close|lock|launcher|clipboard|control|notifications|overview|settings [PAGE]|capture|power|calendar|wallpaper|activity|system|airdrop [visible|background|off|send FILE...|accept|decline]|screenshot [region|output]|open PANEL|page PAGE|focus [MINUTES|toggle|pause|end]|timer DURATION [LABEL]|color|dnd [on|off]|stop-recording|status|--version}' ;;
+  *) echo 'Usage: shale {start|stop|restart|logs|close|lock|launcher|clipboard|control|notifications|overview|settings [PAGE]|capture|power|calendar|wallpaper|activity|system|airdrop [visible|background|off|send FILE...|accept|decline]|screenshot [region|output]|open PANEL|page PAGE|focus [MINUTES|toggle|pause|end]|timer DURATION [LABEL]|color|dnd [on|off]|stop-recording|status|--version}' >&2; exit 2 ;;
 esac

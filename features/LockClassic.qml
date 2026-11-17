@@ -94,6 +94,13 @@ Item {
         }
         LockKeyboard {}
     }
+    // Top right: AirDrop requests, answered without unlocking.
+    LockAirDrop {
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.rightMargin: 32
+        anchors.topMargin: 28
+    }
     LockPower {
         anchors.right: parent.right
         anchors.bottom: parent.bottom

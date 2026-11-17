@@ -50,6 +50,7 @@ FocusScope {
         {name: "Sound", icon: "volume", aliases: ["audio"], description: "Volume limits and the player."},
         {name: "Power", icon: "power", aliases: ["battery", "lid"], description: "Power modes, the lid and refresh rate."},
         {name: "Capture", icon: "camera", description: "Screenshots and recordings, and where they go."},
+        {name: "AirDrop", icon: "airdrop", description: "Receiving from iPhones and Macs, and where files go."},
         {name: "Activity", icon: "pulse", description: "Your private desktop history."},
         {name: "Backup", icon: "folder", description: "Keep a copy of your settings or move them."},
         {name: "Diagnostics", icon: "info", description: "The services behind your desktop."}
@@ -67,6 +68,7 @@ FocusScope {
             Sound: ["amplification", "mediaRemaining"],
             Power: ["saverRefresh"],
             Capture: ["screenshotDirectory", "recordingDirectory", "recordAudio", "captureDelay"],
+            AirDrop: ["airdropMode", "airdropAsk", "airdropTimeout", "airdropFolder"],
             Activity: ["activityKeep"],
             Diagnostics: ["systemWindow"]
         })
@@ -571,6 +573,13 @@ FocusScope {
                         // Capture: recording sound, delay and folders.
                         CaptureSettings {
                             objectName: "Capture"
+                            visible: root.category === objectName
+                            Layout.fillWidth: true
+                        }
+
+                        // AirDrop: how it receives, this computer's name and the senders let in, and a check.
+                        AirDropSettings {
+                            objectName: "AirDrop"
                             visible: root.category === objectName
                             Layout.fillWidth: true
                         }

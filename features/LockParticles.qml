@@ -793,6 +793,14 @@ Item {
         }
         LockKeyboard {}
     }
+    // Top right: AirDrop requests, answered without unlocking. They stay clear while the rest fades when idle.
+    LockAirDrop {
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.rightMargin: 32
+        anchors.topMargin: 28
+        opacity: root.chrome
+    }
     LockPower {
         anchors.right: parent.right
         anchors.bottom: parent.bottom

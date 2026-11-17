@@ -17,5 +17,9 @@
     {"action": "color", "title": "Colour picker", "keys": ""},
     {"action": "dnd", "title": "Do not disturb", "keys": ""},
     {"action": "focus toggle", "title": "Start or end focus", "keys": ""},
+    {"action": "airdrop", "title": "AirDrop", "keys": ""},
+    {"action": "airdrop toggle", "title": "AirDrop visible for 10 minutes", "keys": ""},
+    {"action": "airdrop accept", "title": "Accept an AirDrop", "keys": ""},
+    {"action": "airdrop decline", "title": "Decline an AirDrop", "keys": ""},
     {"action": "close", "title": "Close panel", "keys": ""}
 ]

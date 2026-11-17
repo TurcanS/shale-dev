@@ -186,7 +186,8 @@ Rectangle {
                     power: "Power.qml",
                     wallpaper: "Wallpaper.qml",
                     activity: "Activity.qml",
-                    system: "System.qml"
+                    system: "System.qml",
+                    airdrop: "AirDropPanel.qml"
                 })[root.panel] || "Launcher.qml"
             onLoaded: {
                 if (root.entering) {

@@ -34,7 +34,8 @@ FocusScope {
     // Settings → Control center orders the tiles and buttons and turns parts off.
     readonly property var arrangement: ControlItems.layout(ShellState.setting("controlLayout", {}))
     readonly property var shownTiles: arrangement.tiles.filter(tile => tile.shown && (tile.id !== "wifi" || ShellState.wifiAvailable)
-                                                                        && (tile.id !== "lid" || Backend.capabilities.lid !== false)).map(tile => tile.id)
+                                                                        && (tile.id !== "lid" || Backend.capabilities.lid !== false)
+                                                                        && (tile.id !== "airdrop" || AirDrop.available)).map(tile => tile.id)
     // What a tile shows. Wi-Fi and Bluetooth also open their page; the others are plain switches.
     function tile(id) {
         if (id === "wifi") {
@@ -53,6 +54,14 @@ FocusScope {
                     hint: Services.bluetoothEnabled ? "Turn Bluetooth off" : "Turn Bluetooth on", detail: "bluetooth", detailHint: "Bluetooth devices",
                     enabled: Services.bluetoothAvailable};
         }
+        // Visible to devices nearby for ten minutes; the arrow opens the AirDrop panel.
+        if (id === "airdrop") {
+            const visible = AirDrop.mode === "visible";
+            return {text: "AirDrop", glyph: "airdrop", selected: visible,
+                    subtitle: AirDrop.countPending > 0 ? "Request waiting" : AirDrop.progress >= 0 ? Math.round(AirDrop.progress * 100) + "%"
+                            : visible ? "Visible · " + Math.ceil(AirDrop.visibleLeft / 60) + " min" : AirDrop.mode === "background" ? "Background" : "Off",
+                    hint: visible ? "Stop being visible" : "Be visible for 10 minutes", detail: "airdrop", detailHint: "AirDrop", enabled: true};
+        }
         const toggle = ({
                 dnd: {text: "Do not disturb", glyph: "bell-off", on: ShellState.setting("dnd", false), subtitle: "Popups hidden", busy: false},
                 awake: {text: "Stay awake", glyph: "moon", on: ShellState.presentation, subtitle: "Screen stays on", busy: false},
@@ -67,6 +76,8 @@ FocusScope {
             root.perform("wifi.power", {powered: !ShellState.wifi.powered}, () => ShellState.refreshWifi());
         else if (id === "bluetooth")
             Services.bluetoothPower(!Services.bluetoothEnabled);
+        else if (id === "airdrop")
+            AirDrop.toggleVisible();
         else if (id === "dnd")
             ShellState.setSetting("dnd", !ShellState.setting("dnd", false));
         else if (id === "awake")
@@ -622,7 +633,7 @@ FocusScope {
                                 Accessible.checkable: !!info.switch
                                 Accessible.checked: !!info.switch && selected
                                 onClicked: root.activateTile(modelData)
-                                onDetailRequested: ShellState.detail = quickTile.info.detail
+                                onDetailRequested: quickTile.info.detail === "airdrop" ? ShellState.open("airdrop") : ShellState.detail = quickTile.info.detail
                             }
                         }
                     }

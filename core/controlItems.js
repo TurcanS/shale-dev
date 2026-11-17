@@ -4,6 +4,7 @@
 const tiles = [
     {id: "wifi", title: "Wi-Fi", icon: "wifi", description: "Opens networks from its arrow"},
     {id: "bluetooth", title: "Bluetooth", icon: "bluetooth", description: "Opens devices from its arrow"},
+    {id: "airdrop", title: "AirDrop", icon: "airdrop", description: "Visible for 10 minutes; opens AirDrop from its arrow"},
     {id: "dnd", title: "Do not disturb", icon: "bell-off"},
     {id: "awake", title: "Stay awake", icon: "moon"},
     {id: "grayscale", title: "Greyscale", icon: "palette"},

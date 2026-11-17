@@ -13,6 +13,7 @@ const items = [
     {id: "focus", title: "Focus", icon: "focus", zone: "right", description: "During a focus session"},
     {id: "timer", title: "Timers", icon: "timer", zone: "right", description: "While a timer runs"},
     {id: "stayAwake", title: "Stay awake", icon: "moon", zone: "right", description: "While the screen is kept on"},
+    {id: "airdrop", title: "AirDrop", icon: "airdrop", zone: "right", description: "While visible, listening or sending"},
     {id: "keyboard", title: "Keyboard layout", icon: "keyboard", zone: "right", description: "With two or more layouts"},
     {id: "vpn", title: "VPN", icon: "shield", zone: "right", description: "While a VPN is connected"},
     {id: "wifi", title: "Wi-Fi", icon: "wifi", zone: "right"},
