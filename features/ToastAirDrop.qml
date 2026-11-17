@@ -236,7 +236,10 @@ PanelWindow {
                         C.Label {
                             text: {
                                 if (card.phase === "receiving")
-                                    return Format.bytes(card.done) + " of " + Format.bytes(card.total) + (card.rate > 0 ? " · " + Format.bytes(card.rate) + "/s" : "");
+                                    return [Format.bytes(card.done) + " of " + Format.bytes(card.total), card.rate > 0 ? Format.bytes(card.rate) + "/s" : "",
+                                            Words.left(card.done, card.total, card.rate)].filter(part => part).join(" · ");
+                                if (card.phase === "cancelled" && card.message)
+                                    return card.message;
                                 if (card.phase === "link")
                                     return card.saved[0] || card.urls[0] || "";
                                 if (card.phase === "failed" && card.message)
@@ -245,6 +248,8 @@ PanelWindow {
                                     return (card.urls.length ? card.urls[0] : Words.names(card.files) + (card.total > 0 ? " · " + Format.bytes(card.total) : ""));
                                 if (card.phase === "done")
                                     return Format.bytes(card.done || card.total) + " · in " + AirDrop.folder;
+                                if (card.phase === "missed")
+                                    return Words.capital(card.what) + " from " + card.who;
                                 return card.urls.length ? card.urls[0] : Words.names(card.files);
                             }
                             color: card.phase === "failed" ? Theme.dangerText : Theme.textDim

@@ -5,7 +5,9 @@ import "../services"
 import "../components" as C
 
 // AirDrop while it does something: a quiet key while listening in the background, an accent chip while visible
-// (with the minutes left), looking for devices, asking or moving files (with a small ring for the share done).
+// (with the minutes left), looking for devices, asking or moving files (with a small ring for the share done). When
+// something went wrong (receiving in the background couldn't start, Wi-Fi was left paused) the key shows an alert
+// until the panel's message is dismissed or dealt with.
 // Opens the AirDrop panel; a file dragged over it for a moment opens the panel too, so the drop lands there.
 BarLiveChip {
     id: chip
@@ -24,16 +26,20 @@ BarLiveChip {
             return Math.ceil(AirDrop.visibleLeft / 60) + " min";
         return "";
     }
-    shown: AirDrop.available && AirDrop.active
+    readonly property bool trouble: !!AirDrop.error && !live
+    shown: AirDrop.available && (AirDrop.active || !!AirDrop.error)
     rest: live ? Theme.accentSoft : "transparent"
-    foreground: live ? Theme.accentText : Theme.text
+    foreground: live ? Theme.accentText : trouble ? Theme.dangerText : Theme.text
     leftPadding: label ? 9 : 0
     rightPadding: label ? 10 : 0
     implicitWidth: label ? implicitContentWidth + leftPadding + rightPadding : 28
     selected: ShellState.panel === "airdrop" && ShellState.screenName === bar.outputName
-    hint: AirDrop.countPending > 0 ? "AirDrop request waiting"
+    hint: (AirDrop.countPending > 0 ? "AirDrop request waiting"
+        : AirDrop.sending && AirDrop.sending.phase === "sending" ? "AirDrop · sending to " + AirDrop.sending.name
+        : AirDrop.incomingNow ? "AirDrop · receiving from " + (AirDrop.incomingNow.sender || "a device nearby")
         : AirDrop.mode === "visible" ? "AirDrop · visible for " + Math.ceil(AirDrop.visibleLeft / 60) + " more min"
-        : AirDrop.mode === "background" ? "AirDrop · listening in the background" : "AirDrop"
+        : AirDrop.mode === "background" ? "AirDrop · listening in the background" : "AirDrop")
+        + (AirDrop.wifiPaused ? " · Wi-Fi paused" : "") + (AirDrop.error ? " · " + AirDrop.error.message : "")
     tooltip: bar.tooltip
     onClicked: ShellState.toggle("airdrop", bar.outputName)
     contentItem: RowLayout {
@@ -56,7 +62,7 @@ BarLiveChip {
                 id: glyph
                 anchors.centerIn: parent
                 visible: AirDrop.progress < 0
-                name: "airdrop"
+                name: chip.trouble ? "alert" : "airdrop"
                 size: 14
                 color: chip.foreground
                 // Visible to others: the glyph breathes slowly.

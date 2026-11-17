@@ -7,6 +7,7 @@ import Quickshell
 import "../core"
 import "../services"
 import "../core/format.js" as Format
+import "../core/airdrop.js" as Words
 import "../components" as C
 
 // AirDrop: how this computer receives beside the title (Off, Visible for ten minutes, Background), then what to send
@@ -45,7 +46,11 @@ FocusScope {
             root.lookIfReady();
         }
     }
-    Component.onCompleted: lookIfReady()
+    // What an earlier search left goes; something already chosen starts a new one.
+    Component.onCompleted: {
+        AirDrop.clearPeers();
+        lookIfReady();
+    }
     Component.onDestruction: AirDrop.endSearch()
     Keys.onPressed: event => {
         if (event.modifiers & Qt.ControlModifier && event.key === Qt.Key_V) {
@@ -67,6 +72,8 @@ FocusScope {
     readonly property string statusText: {
         if (!AirDrop.available)
             return "";
+        if (AirDrop.recovering)
+            return "Giving Wi-Fi back…";
         if (AirDrop.looking && AirDrop.resumeMode && AirDrop.resumeMode !== "off")
             return "Receiving waits while you send, and comes back after.";
         if (AirDrop.mode === "visible")
@@ -203,19 +210,34 @@ FocusScope {
                         elide: Text.ElideNone
                         Layout.fillWidth: true
                     }
-                    RowLayout {
+                    // The one thing most likely to help first: Try again, or Wi-Fi back when that is what is wrong.
+                    Flow {
                         spacing: 8
                         Layout.topMargin: 4
+                        Layout.fillWidth: true
                         C.Button {
-                            text: "Check this computer"
+                            visible: AirDrop.canRetry
+                            text: "Try again"
+                            glyph: "refresh"
+                            accent: true
                             implicitHeight: 28
-                            onClicked: ShellState.openSettings("AirDrop")
+                            onClicked: AirDrop.retry()
                         }
                         C.Button {
-                            visible: AirDrop.error && ["link", "exit"].indexOf(AirDrop.error.code) >= 0
-                            text: "Give Wi-Fi back"
+                            visible: !!AirDrop.error && ["link", "exit", "wifi"].indexOf(AirDrop.error.code) >= 0
+                            text: AirDrop.recovering ? "Giving Wi-Fi back…" : "Give Wi-Fi back"
+                            glyph: "wifi"
+                            accent: !!AirDrop.error && AirDrop.error.code === "wifi"
+                            enabled: !AirDrop.recovering && !AirDrop.looking
                             implicitHeight: 28
                             onClicked: AirDrop.recover()
+                        }
+                        C.Button {
+                            visible: !!AirDrop.error && AirDrop.error.code !== "wifi"
+                            text: "Check this computer"
+                            flat: AirDrop.canRetry
+                            implicitHeight: 28
+                            onClicked: ShellState.openSettings("AirDrop")
                         }
                     }
                 }
@@ -256,12 +278,16 @@ FocusScope {
                 id: drop
                 anchors.fill: parent
                 keys: ["text/uri-list"]
+                // Files, or a link dragged from a browser.
                 onDropped: event => {
-                    const paths = (event.urls || []).map(url => String(url)).filter(url => url.startsWith("file://"));
-                    if (paths.length) {
+                    const urls = (event.urls || []).map(url => String(url));
+                    const paths = urls.filter(url => url.startsWith("file://"));
+                    const links = urls.filter(url => /^https?:\/\//i.test(url));
+                    if (paths.length)
                         AirDrop.stage(paths);
-                        event.acceptProposedAction();
-                    }
+                    else if (!links.length || !AirDrop.stageUrl(links[0]))
+                        return;
+                    event.acceptProposedAction();
                 }
             }
             ColumnLayout {
@@ -293,7 +319,7 @@ FocusScope {
                         }
                     }
                     C.Label {
-                        text: drop.containsDrag ? "Drop to share" : "Drop files here to share them"
+                        text: drop.containsDrag ? "Drop to share" : "Drop files or a link here to share them"
                         font.pixelSize: 14
                         font.weight: Font.DemiBold
                         color: drop.containsDrag ? Theme.accentText : Theme.text
@@ -456,10 +482,19 @@ FocusScope {
                         font.weight: Font.DemiBold
                     }
                     C.Label {
-                        text: AirDrop.sendState === "starting" ? "Starting…"
-                            : AirDrop.sendState === "searching" ? (AirDrop.senderWifi ? "Looking · Wi-Fi paused meanwhile" : "Looking…") : ""
-                        color: Theme.textDim
+                        readonly property var s: AirDrop.sending
+                        text: {
+                            if (s && s.phase === "asking")
+                                return "Waiting for " + s.name + " to accept";
+                            if (s && s.phase === "sending")
+                                return [Format.bytes(s.done) + " of " + Format.bytes(s.total), s.rate > 0 ? Format.bytes(s.rate) + "/s" : "",
+                                        Words.left(s.done, s.total, s.rate)].filter(part => part).join(" · ");
+                            return AirDrop.sendState === "starting" ? "Starting…"
+                                 : AirDrop.sendState === "searching" ? (AirDrop.senderWifi ? "Looking · Wi-Fi paused meanwhile" : "Looking…") : "";
+                        }
+                        color: s && s.phase === "sending" ? Theme.accentText : Theme.textDim
                         font.pixelSize: 12
+                        font.features: ({"tnum": 1})
                         Layout.fillWidth: true
                     }
                     C.Button {
@@ -467,6 +502,7 @@ FocusScope {
                         text: AirDrop.sendState === "ended" ? "Look again" : "Look for devices"
                         glyph: "search"
                         accent: AirDrop.hasStaged
+                        enabled: !AirDrop.recovering
                         implicitHeight: 28
                         onClicked: AirDrop.search()
                     }
@@ -495,14 +531,16 @@ FocusScope {
                     }
                     C.Label {
                         text: AirDrop.looking ? "Looking for iPhones, iPads and Macs"
-                            : AirDrop.sendState === "ended" ? "No one answered" : AirDrop.hasStaged ? "Ready to look" : "Choose something to send"
+                            : AirDrop.sendState === "ended" ? (AirDrop.lastFound > 0 ? "Stopped looking" : "No one answered")
+                            : AirDrop.hasStaged ? "Ready to look" : "Choose something to send"
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
                         Layout.alignment: Qt.AlignHCenter
                     }
                     C.Label {
-                        text: AirDrop.sendState === "ended" && AirDrop.searchHint ? AirDrop.searchHint
-                            : "On the other device: Control Center → AirDrop → Everyone for 10 Minutes, with its screen on."
+                        text: AirDrop.sendState === "ended" && AirDrop.lastFound > 0 ? "Nothing was picked for a minute and a half, so Wi-Fi got the radio back. Look again to send."
+                            : AirDrop.sendState === "ended" && AirDrop.searchHint ? AirDrop.searchHint
+                            : "On the other device: Control Center → AirDrop → Everyone for 10 Minutes, with its screen on and unlocked."
                         color: Theme.textDim
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap
@@ -593,7 +631,8 @@ FocusScope {
                             C.Label {
                                 readonly property var m: entry.modelData
                                 text: [m.who ? (m.dir === "out" ? "to " : "from ") + m.who : "",
-                                       m.phase === "done" ? (m.bytes ? Format.bytes(m.bytes) : "") : ({declined: "declined", failed: "didn't send", cancelled: "cancelled"})[m.phase] || "",
+                                       m.phase === "done" ? (m.bytes ? Format.bytes(m.bytes) : "")
+                                       : ({declined: "declined", failed: m.dir === "in" ? "didn't arrive" : "didn't send", cancelled: "cancelled"})[m.phase] || "",
                                        m.time ? root.ago(m.time) : ""].filter(part => part).join(" · ")
                                 color: m.phase === "done" ? Theme.textDim : Theme.dangerText
                                 font.pixelSize: 12

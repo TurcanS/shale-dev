@@ -59,6 +59,7 @@ FocusScope {
             const visible = AirDrop.mode === "visible";
             return {text: "AirDrop", glyph: "airdrop", selected: visible,
                     subtitle: AirDrop.countPending > 0 ? "Request waiting" : AirDrop.progress >= 0 ? Math.round(AirDrop.progress * 100) + "%"
+                            : AirDrop.error ? "Needs attention"
                             : visible ? "Visible · " + Math.ceil(AirDrop.visibleLeft / 60) + " min" : AirDrop.mode === "background" ? "Background" : "Off",
                     hint: visible ? "Stop being visible" : "Be visible for 10 minutes", detail: "airdrop", detailHint: "AirDrop", enabled: true};
         }

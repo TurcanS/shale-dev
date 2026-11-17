@@ -45,6 +45,25 @@ function deviceGlyph(kind) {
     return ({iphone: "phone", ipad: "tablet", mac: "laptop"})[kind] || "airdrop";
 }
 
+// "2 photos" → "2 photos", "a video" → "A video": a summary at the start of a line.
+function capital(text) {
+    const s = String(text || "");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// Time still to go at the current rate, rounded the way a person would say it: "a few seconds left", "40 s left",
+// "about 3 min left"; "" until the rate is known.
+function left(done, total, rate) {
+    if (!(rate > 0) || !(total > done))
+        return "";
+    const seconds = (total - done) / rate;
+    if (seconds < 5)
+        return "a few seconds left";
+    if (seconds < 60)
+        return Math.ceil(seconds / 5) * 5 + " s left";
+    return "about " + Math.round(seconds / 60) + " min left";
+}
+
 // The first names, shortened: "IMG_0412.HEIC, IMG_0413.HEIC and 1 more".
 function names(files, most) {
     const shown = (files || []).slice(0, most || 2).map(file => file.name + (file.dir ? "/" : ""));

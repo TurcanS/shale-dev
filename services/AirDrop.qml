@@ -72,7 +72,9 @@ Singleton {
     property string searchHint: ""
 
     // ---- what went wrong ------------------------------------------------------------------------------------------
-    // {code, message, hint}; code is the command's (auth, helper, busy, link, bluetooth, config, start, input) or exit.
+    // {code, message, hint, from}; code is the command's (auth, helper, busy, link, bluetooth, config, start) or exit
+    // (it stopped by itself) or wifi (a session ended with Wi-Fi still paused); from is rx (receiving), tx (sending)
+    // or "", for Try again.
     property var error: null
     readonly property var hints: ({
         auth: "Shale wasn't given permission to use the Wi-Fi card. To stop being asked, install the polkit rule from the airdrop source folder: packaging/50-airdrop-background.rules.example.",
@@ -80,13 +82,27 @@ Singleton {
         busy: "Another AirDrop session is running, perhaps in a terminal. Stop it and try again.",
         bluetooth: "Bluetooth is off or missing. Background needs it to hear an iPhone open AirDrop.",
         link: "The Wi-Fi card couldn't start AirDrop. Settings → AirDrop → Check this computer may say why.",
-        config: "The airdrop command's settings file can't be read.",
-        start: "AirDrop couldn't start receiving.",
-        input: ""
+        config: "The airdrop command's settings file (~/.config/airdrop/config.toml) can't be read. Fix or remove it, then check again.",
+        start: "AirDrop couldn't start. Check this computer may say why.",
+        wifi: "Give Wi-Fi back reconnects the network AirDrop paused (airdrop recover).",
+        exit: ""
     })
-    function fail(code, message) {
-        error = {code: code, message: message || "AirDrop stopped", hint: hints[code] || ""};
+    function fail(code, message, from) {
+        const text = String(message || "AirDrop stopped");
+        error = {code: code, message: text.charAt(0).toUpperCase() + text.slice(1), hint: hints[code] || "", from: from || ""};
     }
+    // Try again what failed: the way of receiving that stopped, or the search.
+    property string failedMode: ""
+    function retry() {
+        const from = error ? error.from : "";
+        error = null;
+        if (from === "rx" && failedMode)
+            setMode(failedMode, false);
+        else if (from === "tx")
+            search();
+    }
+    readonly property bool canRetry: !!error && (error.from === "rx" && failedMode !== "" || error.from === "tx")
+                                     && ["config", "helper", "wifi"].indexOf(error.code) < 0
 
     // ---- what the bar and the panel read ---------------------------------------------------------------------------
     readonly property bool receiving: receiver.running
@@ -146,13 +162,12 @@ Singleton {
         return args;
     }
     function startReceiver() {
-        if (mode === "off" || receiver.running || sender.running)
+        if (mode === "off" || receiver.running || sender.running || recovering)
             return;
         generation++;
         startMode = mode;
         receiverState = "starting";
-        receiver.command = receiverCommand(mode === "visible" ? "receive" : "listen");
-        receiver.running = true;
+        receiver.begin(receiverCommand(mode === "visible" ? "receive" : "listen"));
     }
     property Timer visibleClock: Timer {
         interval: 1000
@@ -177,8 +192,15 @@ Singleton {
             return;
         // The lock screen never says Always: a sender named there is not someone the owner looked at.
         const choice = decision === "always" && ShellState.locked ? "accept" : decision;
-        if (receiver.running && row.generation === generation)
-            receiver.write(JSON.stringify({answer: choice, id: row.rid}) + "\n");
+        // The process that asked is gone: nobody can take the answer, so the card mustn't wait for files.
+        if (!receiver.running || receiver.stopping || row.generation !== generation) {
+            incoming.setProperty(i, "phase", "cancelled");
+            incoming.setProperty(i, "message", "AirDrop stopped receiving before the answer");
+            incoming.setProperty(i, "finished", Date.now());
+            countAsking();
+            return;
+        }
+        receiver.write(JSON.stringify({answer: choice, id: row.rid}) + "\n");
         incoming.setProperty(i, "phase", choice === "decline" ? "declined" : "accepted");
         incoming.setProperty(i, "decision", choice);
         countAsking();
@@ -210,13 +232,28 @@ Singleton {
         if (/^https?:\/\//i.test(url) && !ShellState.locked)
             ShellState.openUrl(url);
     }
-    // Undo a session that ended badly (Wi-Fi still paused): the command's own recovery, with a password if asked.
+    // Undo a session that ended badly (Wi-Fi still paused): the command's own recovery, with a password if asked. A
+    // receiver that runs is stopped first and comes back after; a send has to finish.
+    property bool recovering: false
     function recover() {
-        if (receiver.running || sender.running)
+        if (sender.running || recovering || !command)
             return;
+        recovering = true;
         error = null;
-        run(["recover"], null, code => ShellState.message(code === 0 ? "Wi-Fi is back" : "Couldn't give Wi-Fi back; run airdrop recover in a terminal",
-                                                           code === 0 ? "success" : "error"));
+        if (receiver.running)
+            stopProcess(receiver); // its end goes on with runRecover()
+        else
+            runRecover();
+    }
+    function runRecover() {
+        run(["recover"], null, code => {
+            root.recovering = false;
+            if (code === 0)
+                ShellState.message("Wi-Fi is back", "success");
+            else
+                root.fail("wifi", "Couldn't give Wi-Fi back. Run airdrop recover in a terminal to see why.");
+            root.startReceiver();
+        });
     }
     function forget(sender) {
         run(["config", "known", "rm", sender], null, () => refreshConfig());
@@ -228,6 +265,9 @@ Singleton {
                 if (code !== 0)
                     ShellState.message("Couldn't rename this computer for AirDrop", "error");
                 refreshConfig();
+                // The receiver reads the name when it starts: an idle one starts again to show the new one.
+                if (code === 0 && receiver.running && !receiver.stopping && countPending === 0 && !incomingNow)
+                    restartReceiver();
             });
     }
 
@@ -273,7 +313,7 @@ Singleton {
     }
     // Look for devices: the radio comes up (in borrow mode Wi-Fi pauses for the search), so only when asked.
     function search() {
-        if (!available || sender.running)
+        if (!available || sender.running || recovering)
             return;
         error = null;
         searchHint = "";
@@ -292,11 +332,22 @@ Singleton {
             if (peers.get(i).lost || ["", "done", "declined", "failed", "cancelled"].indexOf(peers.get(i).phase) >= 0)
                 peers.remove(i);
         sendState = "starting";
+        lastFound = 0;
         const args = [command, "--json", "send", "-t", "90"];
         if (devPeer)
             args.push("--peer", devPeer);
-        sender.command = args;
-        sender.running = true;
+        sender.begin(args);
+    }
+    // Devices the last search found; the list itself empties when the search ends.
+    property int lastFound: 0
+    // The panel opens again: what an earlier search left (its outcomes) goes.
+    function clearPeers() {
+        if (sender.running)
+            return;
+        peers.clear();
+        if (sendState === "ended")
+            sendState = "";
+        searchHint = "";
     }
     // The panel closed: stop looking unless something is on its way.
     function endSearch() {
@@ -318,7 +369,7 @@ Singleton {
         peers.setProperty(i, "done", 0);
         peers.setProperty(i, "total", stagedBytes);
         peers.setProperty(i, "message", "");
-        sending = {peerId: peerId, name: row.name, phase: "asking", done: 0, total: stagedBytes, title: stagedTitle()};
+        sending = {peerId: peerId, name: row.name, phase: "asking", done: 0, total: stagedBytes, rate: 0, title: stagedTitle()};
     }
     function cancel(peerId) {
         const i = indexOf(peers, "peerId", peerId);
@@ -343,34 +394,47 @@ Singleton {
         }
         if (ev.event === "error") {
             // A pick the command couldn't take: the device row says so.
-            if (ev.code === "input" || ev.code === "busy" && from === "tx") {
+            if (from === "tx" && (ev.code === "input" || ev.code === "busy")) {
                 if (sending) {
-                    setPeer(sending.peerId, {phase: "failed", message: ev.message});
+                    const text = String(ev.message || "");
+                    setPeer(sending.peerId, {phase: "failed", message: text.charAt(0).toUpperCase() + text.slice(1)});
                     sending = null;
                 }
                 return;
             }
-            fail(ev.code, ev.message);
+            // A line the receiver couldn't read is Shale's mistake, not something to show.
+            if (ev.code === "input") {
+                console.warn("AirDrop: " + ev.message);
+                return;
+            }
+            fail(ev.code, ev.message, from);
         } else if (ev.event === "session") {
+            const wasPaused = from === "rx" ? receiverWifi : senderWifi;
             const paused = ev.phase === "up" && !!ev.wifi_paused;
             if (from === "rx")
                 receiverWifi = paused;
             else
                 senderWifi = paused;
+            if (ev.phase === "down" && wasPaused && ev.wifi_restored === false)
+                fail("wifi", "Wi-Fi didn't reconnect after AirDrop", from);
             if (ev.phase === "starting" && from === "rx" && startMode === "background")
                 receiverState = "waking";
         } else if (ev.event === "visible" && from === "rx") {
             receiverState = "ready";
-            error = null;
-        } else if (ev.event === "listen") {
-            receiverState = ev.state === "triggered" ? "waking" : "listening";
-            if (ev.state === "idle")
+            // Receiving works now: an earlier failure to start it is over (a Wi-Fi warning stays until dismissed).
+            if (error && error.from === "rx" && error.code !== "wifi")
                 error = null;
+        } else if (ev.event === "listen") {
+            // An iPhone that woke it and couldn't be served leaves its error up: idle follows the error at once.
+            receiverState = ev.state === "triggered" ? "waking" : "listening";
         } else if (ev.event === "searching") {
             sendState = "searching";
+            if (error && error.from === "tx" && error.code !== "wifi")
+                error = null;
         } else if (ev.event === "search_end") {
             sendState = "ended";
-            searchHint = ev.found ? "" : ev.hint || "";
+            lastFound = ev.found || 0;
+            searchHint = ev.found ? "" : String(ev.hint || "").trim();
         } else if (ev.event === "peer") {
             const fields = {name: ev.name || ev.model || "Unknown device", model: ev.model || "", kind: ev.kind || "other",
                             available: !!ev.available, lost: false};
@@ -405,9 +469,12 @@ Singleton {
             if (from === "rx") {
                 updateIncoming(ev.id, row => ({done: ev.done, total: ev.total || row.total, rate: ev.rate || 0}));
                 if (incomingNow && incomingNow.key === generation + ":" + ev.id)
-                    incomingNow = Object.assign({}, incomingNow, {done: ev.done, total: ev.total || incomingNow.total});
-            } else
+                    incomingNow = Object.assign({}, incomingNow, {done: ev.done, total: ev.total || incomingNow.total, rate: ev.rate || 0});
+            } else {
                 setTransfer(ev.id, {done: ev.done, total: ev.total || 0});
+                if (sending)
+                    sending = Object.assign({}, sending, {rate: ev.rate || 0});
+            }
         } else if (ev.event === "transfer") {
             if (ev.dir === "in")
                 incomingTransfer(ev);
@@ -420,20 +487,25 @@ Singleton {
         const row = i >= 0 ? incoming.get(i) : null;
         if (ev.phase === "receiving") {
             updateIncoming(ev.id, row => ({phase: "receiving", total: ev.total || row.total}));
-            incomingNow = {key: generation + ":" + ev.id, sender: ev.sender || (row ? row.sender : ""), done: 0, total: ev.total || (row ? row.total : 0)};
+            incomingNow = {key: generation + ":" + ev.id, sender: ev.sender || (row ? row.sender : ""), done: 0, total: ev.total || (row ? row.total : 0), rate: 0};
             return;
         }
         if (incomingNow && incomingNow.key === generation + ":" + ev.id)
             incomingNow = null;
+        const what = row ? Words.summary(JSON.parse(row.filesJson), JSON.parse(row.urlsJson)) : "";
+        const who = ev.sender || (row ? row.sender : "");
         if (ev.phase === "done") {
             const saved = ev.saved || [];
             updateIncoming(ev.id, () => ({phase: "done", savedJson: JSON.stringify(saved), done: ev.bytes || 0, finished: Date.now()}));
-            const what = row ? Words.summary(JSON.parse(row.filesJson), []) : saved.length + " items";
-            remember({dir: "in", who: ev.sender || (row ? row.sender : ""), paths: saved, bytes: ev.bytes || 0, phase: "done",
-                      title: saved.length === 1 ? ShellState.fileName(saved[0]) : what.charAt(0).toUpperCase() + what.slice(1)});
+            remember({dir: "in", who: who, paths: saved, bytes: ev.bytes || 0, phase: "done",
+                      title: saved.length === 1 ? ShellState.fileName(saved[0]) : Words.capital(what || saved.length + " items")});
         } else if (ev.phase === "failed" || ev.phase === "cancelled") {
+            // Only files that started to arrive belong in Recent; a request the sender dropped before that doesn't.
+            const started = row && (row.phase === "receiving" || row.done > 0);
             updateIncoming(ev.id, () => ({phase: ev.phase, message: ev.message || "", finished: Date.now()}));
             countAsking();
+            if (started || ev.phase === "failed")
+                remember({dir: "in", who: who, title: Words.capital(what || "a transfer"), phase: ev.phase, message: ev.message || ""});
         }
     }
     function outgoingTransfer(ev) {
@@ -441,7 +513,7 @@ Singleton {
         const name = i >= 0 ? peers.get(i).name : "";
         if (ev.phase === "asking" || ev.phase === "sending") {
             setPeer(ev.peer, {phase: ev.phase, transferId: ev.id, total: ev.total || 0});
-            sending = {peerId: ev.peer, name: name, phase: ev.phase, done: 0, total: ev.total || 0, title: sending ? sending.title : stagedTitle()};
+            sending = {peerId: ev.peer, name: name, phase: ev.phase, done: 0, total: ev.total || 0, rate: 0, title: sending ? sending.title : stagedTitle()};
             return;
         }
         setPeer(ev.peer, {phase: ev.phase, message: ev.message || "", done: ev.phase === "done" && i >= 0 ? peers.get(i).total : 0});
@@ -492,7 +564,8 @@ Singleton {
     }
 
     // ---- processes ------------------------------------------------------------------------------------------------
-    // `done` ends a session cleanly (the command gives Wi-Fi back first); a terminate signal does the same, later.
+    // `done` ends a session cleanly (the command gives Wi-Fi back first). One that doesn't end gets a terminate
+    // signal, then a kill: its root helper undoes the radio by itself once the command is gone.
     function stopProcess(proc) {
         if (!proc.running)
             return;
@@ -500,15 +573,51 @@ Singleton {
         proc.stopping = true;
         proc.escalate.restart();
     }
+    // Requests still open when a receiver ends: nobody can answer them or finish them any more.
+    function closeOpenRequests(gen, message) {
+        for (let i = 0; i < incoming.count; i++) {
+            const row = incoming.get(i);
+            if (row.generation === gen && ["asking", "accepted", "receiving"].indexOf(row.phase) >= 0) {
+                incoming.setProperty(i, "phase", "cancelled");
+                incoming.setProperty(i, "message", message);
+                incoming.setProperty(i, "finished", Date.now());
+            }
+        }
+        countAsking();
+    }
     component Session: Process {
         id: session
         property bool stopping: false
+        // The command ran (`started`): a session that ends without having started couldn't be run at all.
+        property bool began: false
+        // The terminate signal went; the next step is a kill.
+        property bool forced: false
         // The command's last line on stderr, said when it stops without an error event.
         property string lastLine: ""
+        // Quickshell reports a command that can't be run (missing, not executable) only by `running` going false.
+        signal failedToStart()
+        function begin(args) {
+            began = false;
+            stopping = false;
+            forced = false;
+            lastLine = "";
+            command = args;
+            running = true;
+        }
+        onStarted: began = true
+        onRunningChanged: if (!running && !began)
+            failedToStart()
         property Timer escalate: Timer {
-            interval: 30000
-            onTriggered: if (session.running)
-                session.signal(15)
+            interval: 20000
+            onTriggered: {
+                if (!session.running)
+                    return;
+                session.signal(session.forced ? 9 : 15);
+                if (!session.forced) {
+                    session.forced = true;
+                    session.escalate.restart();
+                }
+            }
         }
         stdinEnabled: true
         stderr: SplitParser {
@@ -522,59 +631,93 @@ Singleton {
         stdout: SplitParser {
             onRead: data => root.handle("rx", data)
         }
-        onExited: code => {
-            const asked = stopping;
-            stopping = false;
-            escalate.stop();
-            root.receiverWifi = false;
-            root.receiverState = "";
-            root.incomingNow = null;
-            // Questions of this process can't be answered any more.
-            for (let i = 0; i < root.incoming.count; i++) {
-                const row = root.incoming.get(i);
-                if (row.generation === root.generation && ["asking", "accepted", "receiving"].indexOf(row.phase) >= 0) {
-                    root.incoming.setProperty(i, "phase", "cancelled");
-                    root.incoming.setProperty(i, "finished", Date.now());
-                }
-            }
-            root.countAsking();
-            if (!asked && root.mode !== "off" && root.startMode === root.mode) {
-                if (!root.error)
-                    root.fail("exit", lastLine || "AirDrop stopped (code " + code + ")");
-                root.mode = "off";
-            }
-            if (root.pendingSearch)
-                root.startSender();
-            else
-                root.startReceiver();
+        onExited: code => root.receiverEnded(code)
+        onFailedToStart: root.receiverEnded(-1)
+    }
+    function receiverEnded(code) {
+        const asked = receiver.stopping;
+        receiver.stopping = false;
+        receiver.escalate.stop();
+        // Gone without saying Wi-Fi came back (killed, crashed): it may still be paused.
+        if (receiverWifi)
+            fail("wifi", "AirDrop stopped while Wi-Fi was paused", "rx");
+        receiverWifi = false;
+        receiverState = "";
+        incomingNow = null;
+        closeOpenRequests(generation, "AirDrop stopped receiving");
+        if (!asked && mode !== "off" && startMode === mode) {
+            if (code < 0)
+                fail("start", "Couldn't run " + command, "rx");
+            else if (!error)
+                fail("exit", receiver.lastLine || "AirDrop stopped (code " + code + ")", "rx");
+            failedMode = mode;
+            mode = "off";
         }
+        if (recovering)
+            runRecover(); // starts the receiver again once Wi-Fi is back
+        else if (pendingSearch)
+            startSender();
+        else
+            startReceiver();
     }
     property Session sender: Session {
         stdout: SplitParser {
             onRead: data => root.handle("tx", data)
         }
-        onExited: code => {
-            const asked = stopping;
-            stopping = false;
-            escalate.stop();
-            root.senderWifi = false;
-            if (root.sending) {
-                root.setPeer(root.sending.peerId, {phase: "cancelled"});
-                root.sending = null;
+        onExited: code => root.senderEnded(code)
+        onFailedToStart: root.senderEnded(-1)
+    }
+    function senderEnded(code) {
+        const asked = sender.stopping;
+        sender.stopping = false;
+        sender.escalate.stop();
+        if (senderWifi)
+            fail("wifi", "AirDrop stopped while Wi-Fi was paused", "tx");
+        senderWifi = false;
+        if (sending) {
+            setPeer(sending.peerId, {phase: "cancelled"});
+            sending = null;
+        }
+        // Devices of a search that ended can't be sent to any more; the ones with an outcome stay to show it.
+        for (let i = peers.count - 1; i >= 0; i--)
+            if (peers.get(i).phase === "")
+                peers.remove(i);
+        if (sendState !== "ended")
+            sendState = asked || code === 0 ? "" : "ended";
+        if (code < 0)
+            fail("start", "Couldn't run " + command, "tx");
+        else if (!asked && code !== 0 && code !== 4 && !error)
+            fail("exit", sender.lastLine || "AirDrop stopped (code " + code + ")", "tx");
+        if (resumeMode) {
+            mode = resumeMode;
+            resumeMode = "";
+        }
+        startReceiver();
+    }
+    // A request the command forgot without a word: it drops an accepted one after three minutes with no files, and a
+    // question is declined at its timeout. A card still open well past either closes here.
+    property Timer sweep: Timer {
+        interval: 5000
+        repeat: true
+        running: root.incoming.count > 0
+        onTriggered: {
+            const now = Date.now();
+            for (let i = 0; i < root.incoming.count; i++) {
+                const row = root.incoming.get(i);
+                const stale = row.phase === "accepted" && now - row.created > 190000
+                              || row.phase === "asking" && row.timeout > 0 && now > row.deadline + 15000;
+                if (!stale)
+                    continue;
+                root.incoming.setProperty(i, "message", row.phase === "asking" ? "" : (row.sender || "The sender") + " didn't send anything");
+                root.incoming.setProperty(i, "phase", row.phase === "asking" ? "missed" : "cancelled");
+                root.incoming.setProperty(i, "finished", now);
             }
-            if (root.sendState !== "ended")
-                root.sendState = asked || code === 0 ? "" : "ended";
-            if (!asked && code !== 0 && code !== 4 && !root.error)
-                root.fail("exit", lastLine || "AirDrop stopped (code " + code + ")");
-            if (root.resumeMode) {
-                root.mode = root.resumeMode;
-                root.resumeMode = "";
-            }
-            root.startReceiver();
+            root.countAsking();
         }
     }
 
-    // One-off commands (config, doctor), one at a time.
+    // One-off commands (config, doctor, recover), one at a time. One that hangs is stopped after two minutes, so the
+    // ones after it still run.
     property var queue: []
     property var current: null
     function run(args, onEvent, onDone) {
@@ -588,10 +731,29 @@ Singleton {
             return;
         current = queue[0];
         queue = queue.slice(1);
+        tool.began = false;
         tool.command = [command].concat(current.args);
         tool.running = true;
+        toolLimit.restart();
+    }
+    function toolEnded(code) {
+        toolLimit.stop();
+        const done = current;
+        current = null;
+        if (done && done.onDone)
+            done.onDone(code);
+        next();
+    }
+    property Timer toolLimit: Timer {
+        interval: 120000
+        onTriggered: if (root.tool.running)
+            root.tool.signal(15)
     }
     property Process tool: Process {
+        property bool began: false
+        onStarted: began = true
+        onRunningChanged: if (!running && !began && root.current)
+            root.toolEnded(-1)
         stdout: SplitParser {
             onRead: data => {
                 try {
@@ -601,13 +763,7 @@ Singleton {
                 } catch (e) {}
             }
         }
-        onExited: code => {
-            const done = root.current;
-            root.current = null;
-            if (done && done.onDone)
-                done.onDone(code);
-            root.next();
-        }
+        onExited: code => root.toolEnded(code)
     }
     function probe() {
         supported = false;
@@ -615,11 +771,17 @@ Singleton {
             return;
         refreshConfig();
     }
+    // A command that answers with JSON speaks --json, even when what it says is that its settings file is broken.
     function refreshConfig() {
         run(["--json", "config", "show"], ev => {
             if (ev.event === "config") {
                 root.config = ev;
                 root.supported = true;
+                if (root.error && root.error.code === "config")
+                    root.error = null;
+            } else if (ev.event === "error") {
+                root.supported = true;
+                root.fail(ev.code, ev.message);
             }
         }, () => root.startup());
     }
@@ -651,8 +813,9 @@ Singleton {
         target: "airdrop"
         function status(): string {
             return JSON.stringify({available: root.available, command: root.command, supported: root.supported, mode: root.mode, visibleLeft: root.visibleLeft,
-                                   receiving: root.receiverState, searching: root.sendState, pending: root.countPending,
-                                   wifiPaused: root.wifiPaused, error: root.error ? root.error.message : ""});
+                                   receiving: root.receiverState, searching: root.sendState, peers: root.peers.count, pending: root.countPending,
+                                   sending: root.sending ? root.sending.phase : "", wifiPaused: root.wifiPaused, recovering: root.recovering,
+                                   error: root.error ? root.error.message : ""});
         }
         function mode(name: string): void {
             if (name === "toggle")
@@ -662,8 +825,10 @@ Singleton {
         }
         // Paths one per line: they are staged and the panel opens, ready to pick a device.
         function send(paths: string): void {
-            if (!root.available)
+            if (!root.available) {
+                ShellState.message(root.command ? "This airdrop command is too old for Shale" : "AirDrop needs the airdrop command", "error");
                 return;
+            }
             root.stage(paths.split("\n").filter(path => path));
             ShellState.open("airdrop");
         }

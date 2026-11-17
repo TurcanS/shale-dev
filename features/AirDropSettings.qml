@@ -75,7 +75,13 @@ ColumnLayout {
                 placeholderText: "This computer's name"
                 implicitWidth: 240
                 implicitHeight: 36
-                onEditingFinished: AirDrop.rename(text)
+                // An empty name isn't taken: the field shows the one in use again.
+                onEditingFinished: {
+                    if (text.trim() === "")
+                        text = AirDrop.deviceName;
+                    else
+                        AirDrop.rename(text);
+                }
             }
         }
         // Senders let in with Always: their requests go straight in.
@@ -115,6 +121,17 @@ ColumnLayout {
                 implicitHeight: 32
                 enabled: !AirDrop.checking
                 onClicked: AirDrop.checkComputer()
+            }
+        }
+        // For a session that ended badly and left the network paused.
+        C.SettingRow {
+            label: "Wi-Fi stays off after AirDrop"
+            description: AirDrop.looking ? "Wait for the send to finish first" : "Reconnects the network AirDrop paused (airdrop recover); asks for your password"
+            C.Button {
+                text: AirDrop.recovering ? "Giving it back…" : "Give Wi-Fi back"
+                implicitHeight: 32
+                enabled: !AirDrop.recovering && !AirDrop.looking
+                onClicked: AirDrop.recover()
             }
         }
         Repeater {
