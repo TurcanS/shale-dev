@@ -336,3 +336,15 @@ to Liquid Glass; the material is now reeded glass (`assets/shaders/reeds.frag`; 
 0 to 1, and nothing else per surface). FrostSource keeps one quarter-size heavy blur. The running shell keeps a
 shader by its file name across reloads, so a changed shader needs a new file name (or a restart) to show; and copy
 shader files before the QML that uses them, as each copied file can reload the shell.
+
+Carry-over from pass 2: the bar's current page is one pill (`BarWorkspaces.qml`, an Item in the strip's contentItem
+under the delegates) whose edges follow the current delegate separately, the leading one on springSnappy and the
+trailing one on springGentle (timed 200 / 260 ms when springs are off); its glow moved onto it. Bar slots are an Item
+that clips a Loader of the item's own width and grows with `presence` (Theme.enter, easeInOut), fading and scaling
+0.9 to 1, its gap closing with a negative right margin; items still read `parent.zone` and `parent.run` from the
+Loader. The window title, app letter and track roll (`RollText`, `titleRoom` keeps the title in the key); the
+bell's badge is a `Pop` with a `RollNumber`, swells and sends one ring out on a new notification; privacy icons
+are Pops; live chips breathe three times when they appear, then rest; the bar drops in on start. Not done: the tray
+(its model is a fresh array each change, and tray ids can repeat, so a keyed model needs care), tray menus growing
+from their icon, and easing the page strip's scroll when it overflows. QML gotcha: Item's `left`, `right`, `top`
+and `bottom` are FINAL anchor lines, so they can't be property names.
