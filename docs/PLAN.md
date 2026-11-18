@@ -348,3 +348,7 @@ are Pops; live chips breathe three times when they appear, then rest; the bar dr
 (its model is a fresh array each change, and tray ids can repeat, so a keyed model needs care), tray menus growing
 from their icon, and easing the page strip's scroll when it overflows. QML gotcha: Item's `left`, `right`, `top`
 and `bottom` are FINAL anchor lines, so they can't be property names.
+
+Carry-over from the glass polish, second round: the reeds read as stray lines on the panels (most when hovering or
+opening one), so the glass is plain etched glass now (`assets/shaders/etched.frag`; Frost takes `glint`, the
+strength of the soft light under the pointer, and nothing else per surface).
