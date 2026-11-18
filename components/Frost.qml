@@ -2,11 +2,10 @@ import QtQuick
 import "../core"
 import "." as C
 
-// A glass case (assets/shaders/reeds.frag): reeded glass over the blurred wallpaper, with a chamfered 1 px edge;
-// with lively motion the reeds near the pointer catch its light. It needs a FrostSource in the same window and
-// `area`: where it lies on the screen, in pixels, as drawn. Until the picture is ready, a plain case in `color` with
-// a hairline edge. `ring` draws a coloured edge over the glass (urgent, error, asking). The bar turns the reeds and
-// their glint down.
+// A glass case (assets/shaders/etched.frag): etched glass over the blurred wallpaper, with a chamfered 1 px edge;
+// with lively motion a soft light gathers under the pointer. It needs a FrostSource in the same window and `area`:
+// where it lies on the screen, in pixels, as drawn. Until the picture is ready, a plain case in `color` with a
+// hairline edge. `ring` draws a coloured edge over the glass (urgent, error, asking). The bar turns the light down.
 Item {
     id: root
     property C.FrostSource source: null
@@ -14,7 +13,6 @@ Item {
     property real radius: Theme.radiusCase
     property color color: Theme.caseColor
     property color ring: "transparent"
-    property real reeds: 1
     property real glint: 1
     readonly property bool frosted: !!source && source.ready
     // Where the pointer is on the glass, kept where it left so the light fades out in place.
@@ -57,9 +55,8 @@ Item {
         property real ceiling: Theme.glassCeiling
         property point pointer: root.pointer
         property real glow: root.glow
-        property real reeds: root.reeds
         property real glint: root.glint
-        fragmentShader: "../assets/shaders/reeds.frag.qsb"
+        fragmentShader: "../assets/shaders/etched.frag.qsb"
     }
     Rectangle {
         anchors.fill: parent

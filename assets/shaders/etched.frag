@@ -1,10 +1,9 @@
 #version 440
-// Shale's case glass (components/Frost.qml): reeded glass. The wallpaper, blurred, shows through vertical reeds
-// 16 px apart under the case colour; each reed is lighter over its crown and carries a thin glint, and the reeds
-// near the pointer catch more light, as reeded glass does under a lamp. A fine grain gives the etched finish; the
-// 1 px edge is a chamfer catching light at the top, with a dark line just inside it at the bottom. One pass per
-// case, clipped to its rounded corners. Rebuild the .qsb after a change:
-//   /usr/lib/qt6/bin/qsb --qt6 -o reeds.frag.qsb reeds.frag
+// Shale's case glass (components/Frost.qml): etched glass. The wallpaper, blurred, shows through under the case
+// colour; a fine grain gives the etched finish and keeps the blur from banding, and a soft light gathers where the
+// pointer is. The 1 px edge is a chamfer catching light at the top, with a dark line just inside it at the bottom.
+// One pass per case, clipped to its rounded corners. Rebuild the .qsb after a change:
+//   /usr/lib/qt6/bin/qsb --qt6 -o etched.frag.qsb etched.frag
 // The running shell keeps a shader by its file name across reloads: rename the file to see a change without a restart.
 layout(location = 0) in vec2 qt_TexCoord0;
 layout(location = 0) out vec4 fragColor;
@@ -22,11 +21,9 @@ layout(std140, binding = 0) uniform buf {
     // contrast on a bright picture.
     float vibrance;
     float ceiling;
-    // The pointer in case pixels and how present it is (0 away, 1 over the case).
+    // The pointer in case pixels, how present it is (0 away, 1 over the case), and how strong its light is here.
     vec2 pointer;
     float glow;
-    // Per surface, 0 to 1: how strong the reeds are and how much they catch the pointer's light.
-    float reeds;
     float glint;
 };
 layout(binding = 1) uniform sampler2D frosted;
@@ -50,19 +47,12 @@ void main() {
     float depth = -roundedBox(p - box * 0.5, box * 0.5, corner);
     float inside = clamp(0.5 + depth, 0.0, 1.0);
 
-    // Across one reed, -1 at its left side to 1 at its right; each reed shifts what it shows a little.
-    float s = fract(p.x / 16.0) * 2.0 - 1.0;
-    vec3 body = texture(frosted, uvAt(vec2(p.x - s * 16.0 * 0.8 * reeds, p.y))).rgb;
+    vec3 body = texture(frosted, uvAt(p)).rgb;
     vec3 color = mix(capped(vivid(body, vibrance), ceiling), tint.rgb, cover);
     color *= 1.0 - 0.05 * qt_TexCoord0.y;
-
-    // The reed: lighter over its crown, a soft crease where two meet, and a glint left of the crown.
-    float crown = sqrt(max(0.0, 1.0 - s * s));
-    color *= 1.0 + reeds * (0.055 * crown - 0.035 - 0.035 * smoothstep(0.8, 1.0, abs(s)));
-    float near = glow * exp(-length(p - pointer) / 170.0);
-    float streak = exp(-pow((s + 0.38) / 0.16, 2.0));
-    color += vec3(1.0) * streak * reeds * (0.012 + 0.08 * glint * near);
-
+    // A soft light under the pointer, wide and faint, as if a lamp were near the glass.
+    float near = glow * exp(-pow(length(p - pointer) / 220.0, 2.0));
+    color += vec3(1.0) * near * 0.035 * glint;
     color += grain(floor(p)) * 0.018;
 
     float hairline = clamp(1.0 - abs(depth - 0.75) / 0.75, 0.0, 1.0);

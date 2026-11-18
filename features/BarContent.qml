@@ -71,8 +71,7 @@ Item {
         visible: Theme.glass
         source: frostSource
         radius: bar.edge ? 0 : 12
-        // Always on screen: quieter reeds that catch less light.
-        reeds: 0.6
+        // Always on screen: a fainter light under the pointer.
         glint: 0.6
         area: Qt.rect(bar.window && bar.window.margins ? bar.window.margins.left : 0, bar.window && bar.window.margins ? bar.window.margins.top : 0, width, height)
     }
