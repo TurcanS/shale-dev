@@ -26,25 +26,9 @@ BarLiveChip {
     onClicked: bar.toggleControl("audio")
     contentItem: RowLayout {
         spacing: 6
-        // Each source pops in as it starts and out as it stops.
-        C.Pop {
-            shown: privacyButton.mic
-            Layout.preferredWidth: 12
-            Layout.preferredHeight: 12
-            C.Icon { name: "mic"; size: 12; color: Theme.accentText }
-        }
-        C.Pop {
-            shown: privacyButton.camera
-            Layout.preferredWidth: 12
-            Layout.preferredHeight: 12
-            C.Icon { name: "camera"; size: 12; color: Theme.accentText }
-        }
-        C.Pop {
-            shown: privacyButton.sharing
-            Layout.preferredWidth: 12
-            Layout.preferredHeight: 12
-            C.Icon { name: "cast"; size: 12; color: Theme.accentText }
-        }
+        C.Icon { visible: privacyButton.mic; name: "mic"; size: 12; color: Theme.accentText }
+        C.Icon { visible: privacyButton.camera; name: "camera"; size: 12; color: Theme.accentText }
+        C.Icon { visible: privacyButton.sharing; name: "cast"; size: 12; color: Theme.accentText }
         // Names the app; more than one shows as "+N".
         C.Label {
             visible: !bar.compact && privacyButton.apps.length > 0

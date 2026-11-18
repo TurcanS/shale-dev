@@ -88,6 +88,14 @@ Rectangle {
             }
             background: Item {}
             contentItem: Item {
+                // The glow costs a blur pass; power saver goes without it.
+                RectangularShadow {
+                    anchors.fill: mark
+                    visible: page.current && !Theme.lowPower
+                    radius: mark.radius
+                    blur: 10
+                    color: Theme.tint(Theme.accent, 0.55)
+                }
                 Rectangle {
                     id: mark
                     x: 2
@@ -95,8 +103,7 @@ Rectangle {
                     width: page.markWidth
                     height: pages.dots ? 7 : 16
                     radius: pages.dots ? 4 : 6
-                    // The current page's light is the travelling pill under the strip.
-                    color: pages.dots && !page.current ? page.tint : "transparent"
+                    color: pages.dots || page.current ? page.tint : "transparent"
                     Behavior on color {
                         ColorAnimation {
                             duration: Theme.fast
@@ -115,71 +122,6 @@ Rectangle {
                 }
             }
             onClicked: Services.workspace(workspaceId)
-        }
-        // One lit pill travels to the current page. Its leading edge goes first and the trailing one follows, so it
-        // stretches across and settles; on springs with lively motion, timed otherwise, at once with reduced motion.
-        Item {
-            id: pill
-            parent: strip.contentItem
-            z: -1
-            readonly property Item target: strip.currentItem
-            readonly property real goalLeft: target ? target.x + 2 : 0
-            readonly property real goalRight: goalLeft + 22
-            property bool rightward: true
-            onGoalLeftChanged: rightward = goalLeft >= leftEdge
-            readonly property real leftEdge: Theme.springs ? springLeft : timedLeft
-            readonly property real rightEdge: Theme.springs ? springRight : timedRight
-            property real springLeft: goalLeft
-            property real springRight: goalRight
-            property real timedLeft: goalLeft
-            property real timedRight: goalRight
-            Behavior on springLeft {
-                SpringAnimation {
-                    spring: pill.rightward ? Theme.springGentle.spring : Theme.springSnappy.spring
-                    damping: pill.rightward ? Theme.springGentle.damping : Theme.springSnappy.damping
-                }
-            }
-            Behavior on springRight {
-                SpringAnimation {
-                    spring: pill.rightward ? Theme.springSnappy.spring : Theme.springGentle.spring
-                    damping: pill.rightward ? Theme.springSnappy.damping : Theme.springGentle.damping
-                }
-            }
-            Behavior on timedLeft {
-                enabled: !Theme.reduced
-                NumberAnimation {
-                    duration: pill.rightward ? Theme.ms(Theme.lowPower ? 180 : 260) : Theme.ms(Theme.lowPower ? 140 : 200)
-                    easing.type: Easing.BezierSpline
-                    easing.bezierCurve: Theme.easeInOut
-                }
-            }
-            Behavior on timedRight {
-                enabled: !Theme.reduced
-                NumberAnimation {
-                    duration: pill.rightward ? Theme.ms(Theme.lowPower ? 140 : 200) : Theme.ms(Theme.lowPower ? 180 : 260)
-                    easing.type: Easing.BezierSpline
-                    easing.bezierCurve: Theme.easeInOut
-                }
-            }
-            visible: !!target
-            x: leftEdge
-            width: Math.max(pages.dots ? 7 : 16, rightEdge - leftEdge)
-            height: pages.dots ? 7 : 16
-            y: (strip.height - height) / 2
-            // The glow costs a blur pass; power saver goes without it.
-            RectangularShadow {
-                anchors.fill: parent
-                visible: !Theme.lowPower
-                radius: light.radius
-                blur: 10
-                color: Theme.tint(Theme.accent, 0.55)
-            }
-            Rectangle {
-                id: light
-                anchors.fill: parent
-                radius: pages.dots ? 4 : 6
-                color: Theme.accent
-            }
         }
         add: Transition {
             NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Theme.fast }

@@ -130,29 +130,3 @@ radiusCase 22  radiusModule 16  radiusCard 12  radiusKey 10  radiusSegment 7
 caseShadow, panel enter/leave durations (existing fast/enter/leave)
 font "Hanken Grotesk"  mono "Martian Mono"
 ```
-
-## Live (stage 13)
-
-The Rack language, evolved: the owner chose a material of its own instead of plain frosted glass, and motion with
-physics. Power saver and Reduce effects keep everything above (solid cases, no pointer effects).
-
-**Etched glass** (`components/Frost.qml`, `assets/shaders/etched.frag`, Settings → Appearance → Glass, on by default).
-The owner turned down a refracting, glowing bevel as a Liquid Glass copy, and reeds read as stray lines; the
-material is quiet, precise hardware:
-- Body: the screen's wallpaper, blurred, under the case colour tinted 5% toward the accent at 80% (`glassCover`),
-  saturation 1.15, never brighter than relative luminance 0.22 (`glassCeiling`); a touch darker toward the bottom.
-- A fine grain (±0.9%) gives the etched finish and keeps the blur from banding.
-- Edge: a 1 px chamfer that catches light at the top (white 17%, 4.5% at the bottom) and a dark line just inside it
-  at the bottom. No glow, no refraction, no colour split, no pattern.
-- Under the pointer (lively motion only): a wide, faint white light (3.5%, 60% on the bar); in over 220 ms, out over
-  520 ms.
-- Surfaces inside glass are see-through: module white 5.5%, moduleAlt black 14%, group white 4%, well black 22%;
-  `moduleSolid` is the solid module colour for backings that must hide what is under them. textDim is 12% lighter.
-- A contact shadow (y 2, blur 6, black 30%) sits under the case's long shadow.
-- Contrast on the owner's wallpaper (90th-percentile background): body text 11.6 to 13.6:1, secondary 8:1 or better,
-  dim 5.1:1 or better at rest (4.5:1 on a tile right under the pointer).
-
-**Motion**: entering and leaving on cubic-bezier(.23, 1, .32, 1), moving across the screen on (.77, 0, .175, 1),
-colour on CSS ease; springs for things that follow a value or the pointer (`Theme.springSnappy`, `springCrisp`,
-`springGentle`); content coming in 35 ms apart, at most six steps. Motion: Calm in Settings goes back to the first
-Rack curves without springs, stagger or pointer effects.

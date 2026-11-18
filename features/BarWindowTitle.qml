@@ -25,10 +25,7 @@ BarKey {
     leftPadding: 8
     rightPadding: 8
     // Leaves room for the clock in the middle.
-    readonly property real maxWidth: Math.max(120, Math.min(340, bar.width / 2 - 460))
-    implicitWidth: Math.min(maxWidth, implicitContentWidth + leftPadding + rightPadding)
-    // What the title may take after the tile and the app's name.
-    readonly property real titleRoom: Math.max(30, maxWidth - leftPadding - rightPadding - (app !== "" ? 18 + appName.lineWidth : 0))
+    implicitWidth: Math.min(Math.max(120, Math.min(340, bar.width / 2 - 460)), implicitContentWidth + leftPadding + rightPadding)
     hint: title || "Pages"
     onClicked: ShellState.toggle("overview", bar.outputName)
     contentItem: RowLayout {
@@ -39,30 +36,29 @@ BarKey {
             Layout.preferredHeight: 18
             radius: 5
             color: Theme.key
-            C.RollText {
+            C.Label {
                 anchors.centerIn: parent
                 text: titleKey.app.charAt(0).toUpperCase()
                 color: Theme.textSecondary
                 font.pixelSize: 10
                 font.weight: Font.Bold
+                elide: Text.ElideNone
             }
         }
-        // The name and title roll when focus moves to another window, and the key eases to the new width.
-        C.RollText {
-            id: appName
+        C.Label {
             visible: titleKey.app !== ""
             text: titleKey.app
             font.pixelSize: 12
             font.weight: Font.DemiBold
-            maximumWidth: 140
+            Layout.maximumWidth: 140
         }
         // Runs on from the app name like one line of text.
-        C.RollText {
+        C.Label {
             visible: text !== ""
             text: titleKey.app === "" ? (titleKey.title || "Shale") : titleKey.title && titleKey.title !== titleKey.app ? " · " + titleKey.title : ""
             color: Theme.textDim
             font.pixelSize: 12
-            maximumWidth: titleKey.titleRoom
+            Layout.fillWidth: true
             Layout.leftMargin: titleKey.app === "" ? 0 : -Theme.gapS
         }
     }

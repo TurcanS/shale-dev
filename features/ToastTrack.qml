@@ -49,27 +49,14 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "shale-track"
     WlrLayershell.layer: WlrLayer.Overlay
-    C.FrostSource {
-        id: frostSource
-        screenName: trackWindow.screen ? trackWindow.screen.name : ""
-        screenSize: trackWindow.screen ? Qt.size(trackWindow.screen.width, trackWindow.screen.height) : Qt.size(1920, 1080)
-    }
     Rectangle {
         anchors.fill: parent
         radius: 18
-        color: Theme.glass ? "transparent" : Theme.module
-        border.width: Theme.glass ? 0 : 1
+        color: Theme.module
+        border.width: 1
         border.color: Theme.cardEdge
         opacity: trackWindow.reveal
         transform: Translate { y: Theme.reduced ? 0 : (1 - trackWindow.reveal) * -8 }
-        // With glass, the case: the window is centred under the bar.
-        C.Frost {
-            anchors.fill: parent
-            visible: Theme.glass
-            source: frostSource
-            radius: parent.radius
-            area: Qt.rect(((trackWindow.screen ? trackWindow.screen.width : 0) - trackWindow.width) / 2, trackWindow.margins.top, width, height)
-        }
         HoverHandler {
             id: trackHover
             // Reading the card keeps it open; leaving gives a moment before it goes.

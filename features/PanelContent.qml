@@ -23,11 +23,10 @@ Rectangle {
     objectName: "panel-" + panel
     readonly property int preferredWidth: page("panelWidth", 580)
     readonly property int preferredHeight: page("panelHeight", 520)
-    // With glass, PanelHost draws the case under the page (components/Frost.qml).
-    color: chromeless || Theme.glass ? "transparent" : Theme.caseColor
+    color: chromeless ? "transparent" : Theme.caseColor
     radius: Theme.radiusCase
     // A hairline edge keeps the case apart from dark wallpapers.
-    border.width: chromeless || Theme.glass ? 0 : 1
+    border.width: chromeless ? 0 : 1
     border.color: Theme.hairline
     clip: true
     // Consume pointer presses inside the surface instead of dismissing its backdrop.

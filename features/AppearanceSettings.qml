@@ -32,20 +32,6 @@ ColumnLayout {
     }
     C.SectionHeader { text: "Behaviour" }
     C.Group {
-        C.ChoiceRow {
-            settingKey: "motionStyle"
-            label: "Motion"
-            description: ShellState.setting("motionStyle", "lively") === "calm" ? "Plain fades and slides" : "Springs, rolling numbers, and content that comes in one piece after another"
-            model: [{key: "lively", text: "Lively"}, {key: "calm", text: "Calm"}]
-            current: ShellState.setting("motionStyle", "lively")
-            onActivated: key => ShellState.setSetting("motionStyle", key)
-        }
-        C.SettingToggle {
-            text: "Glass"
-            description: "Panels, the bar and messages show your wallpaper through them"
-            key: "glass"
-            fallback: true
-        }
         C.SettingToggle {
             text: "Reduce motion"
             description: "Panels and controls change without animating"
@@ -53,7 +39,7 @@ ColumnLayout {
         }
         C.SettingToggle {
             text: "Reduce effects in every mode"
-            description: "No visualizers, glass, blur, shadows or live window previews"
+            description: "No visualizers, blur, shadows or live window previews"
             key: "batterySaving"
         }
         C.SettingToggle {
@@ -117,15 +103,6 @@ ColumnLayout {
             model: [{key: "particles", text: "Particles"}, {key: "classic", text: "Classic"}]
             current: ShellState.setting("lockStyle", "particles")
             onActivated: key => ShellState.setSetting("lockStyle", key)
-        }
-        C.ChoiceRow {
-            settingKey: "unlockEffect"
-            visible: ShellState.setting("lockScreen", "builtin") === "builtin" || !Backend.has("hyprlock", true)
-            label: "Unlock"
-            description: ShellState.setting("unlockEffect", "shatter") === "shatter" ? "The lock screen shatters from the password field" : "The style's own way out"
-            model: [{key: "shatter", text: "Shatter"}, {key: "style", text: "The style's own"}]
-            current: ShellState.setting("unlockEffect", "shatter")
-            onActivated: key => ShellState.setSetting("unlockEffect", key)
         }
     }
 }

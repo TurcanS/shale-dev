@@ -59,27 +59,11 @@ Item {
     // Today's weather beside the clock, from the forecast Clock and sky shows (the backend keeps it for 30 minutes).
     // Nothing is requested until a city is chosen there.
     readonly property var weather: Weather.forecast
-    // The case: floating, it is a rounded strip with a hairline edge; edge to edge, a hairline under it. With glass,
-    // the wallpaper shows through it.
-    C.FrostSource {
-        id: frostSource
-        screenName: bar.outputName
-        screenSize: bar.window && bar.window.screen ? Qt.size(bar.window.screen.width, bar.window.screen.height) : Qt.size(1920, 1080)
-    }
-    C.Frost {
-        anchors.fill: parent
-        visible: Theme.glass
-        source: frostSource
-        radius: bar.edge ? 0 : 12
-        // Always on screen: a fainter light under the pointer.
-        glint: 0.6
-        area: Qt.rect(bar.window && bar.window.margins ? bar.window.margins.left : 0, bar.window && bar.window.margins ? bar.window.margins.top : 0, width, height)
-    }
+    // The case: floating, it is a rounded strip with a hairline edge; edge to edge, a hairline under it.
     Rectangle {
         anchors.fill: parent
-        visible: !Theme.glass || bar.edge
         radius: bar.edge ? 0 : 12
-        color: Theme.glass ? "transparent" : Theme.caseColor
+        color: Theme.caseColor
         border.width: bar.edge ? 0 : 1
         border.color: Theme.hairline
         Rectangle {
@@ -100,38 +84,15 @@ Item {
         spacing: 5
         Repeater {
             model: BarItems.runs(bar.layout[zoneRow.name])
-            // A slot grows to its item while it fades and swells in, and closes the same way, so the items beside
-            // it slide instead of the bar jumping. The item keeps its own width inside; the slot clips it.
-            Item {
-                id: slot
+            Loader {
                 required property var modelData
-                readonly property bool wanted: !!slotLoader.item && slotLoader.item.shown
-                property real presence: wanted ? 1 : 0
-                Behavior on presence {
-                    enabled: Theme.enter > 0
-                    NumberAnimation {
-                        duration: slot.wanted ? Theme.enter : Theme.leave
-                        easing.type: Easing.BezierSpline
-                        easing.bezierCurve: Theme.easeInOut
-                    }
-                }
-                visible: presence > 0
-                clip: presence < 1
+                readonly property var run: modelData
+                readonly property string zone: zoneRow.name
+                sourceComponent: run.status ? statusKey : bar.items[run.ids[0]] || null
+                visible: !!item && item.shown
                 Layout.alignment: Qt.AlignVCenter
-                Layout.preferredWidth: slotLoader.item ? slotLoader.item.implicitWidth * presence : 0
-                Layout.preferredHeight: slotLoader.item ? slotLoader.item.implicitHeight : 0
-                // The zone's gap closes with the slot.
-                Layout.rightMargin: -zoneRow.spacing * (1 - presence)
-                Loader {
-                    id: slotLoader
-                    readonly property var run: slot.modelData
-                    readonly property string zone: zoneRow.name
-                    sourceComponent: run.status ? statusKey : bar.items[run.ids[0]] || null
-                    width: item ? item.implicitWidth : 0
-                    height: item ? item.implicitHeight : 0
-                    opacity: slot.presence
-                    scale: Theme.reduced ? 1 : 0.9 + 0.1 * slot.presence
-                }
+                Layout.preferredWidth: item ? item.implicitWidth : 0
+                Layout.preferredHeight: item ? item.implicitHeight : 0
             }
         }
     }

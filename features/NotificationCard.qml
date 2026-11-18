@@ -85,17 +85,14 @@ Rectangle {
     readonly property int padding: popup ? 14 : 12
     width: 360
     implicitHeight: Math.max(content.implicitHeight, thumbnail.visible ? thumbnail.y - content.y + thumbnail.height : 0) + 2 * padding
-    // A popup on glass has the frosted case under it (ToastPopups.qml); hovering lays a light wash over it.
-    readonly property bool frosted: popup && Theme.glass
-    color: frosted ? (cardArea.containsMouse && root.clickable ? Theme.rowWash(false) : "transparent")
-                   : cardArea.containsMouse && root.clickable ? Theme.mix(Theme.module, Theme.text, 0.04) : Theme.module
+    color: cardArea.containsMouse && root.clickable ? Theme.mix(Theme.module, Theme.text, 0.04) : Theme.module
     Behavior on color {
         ColorAnimation {
             duration: Theme.fast
         }
     }
     radius: popup ? 18 : 14
-    border.width: urgent || (popup && !frosted) ? 1 : 0
+    border.width: urgent || popup ? 1 : 0
     border.color: urgent ? Theme.accentLine : Theme.cardEdge
     // Sits beneath the content so buttons keep their own clicks.
     MouseArea {

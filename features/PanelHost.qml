@@ -4,7 +4,6 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
 import "../core"
-import "../components" as C
 
 PanelWindow {
     id: host
@@ -65,12 +64,6 @@ PanelWindow {
         anchors.fill: parent
         onClicked: ShellState.close()
     }
-    // The wallpaper of this screen, blurred, for the frosted case.
-    C.FrostSource {
-        id: frostSource
-        screenName: host.outputName
-        screenSize: Qt.size(host.width, host.height)
-    }
     // The case's long soft shadow; skipped when effects are trimmed.
     RectangularShadow {
         x: content.x
@@ -83,38 +76,6 @@ PanelWindow {
         offset.x: Theme.caseShadow.x
         offset.y: Theme.caseShadow.y
         color: Theme.caseShadow.color
-        opacity: host.progress
-        transform: Translate {
-            y: (1 - host.progress) * Theme.panelRise
-        }
-    }
-    // A tight shadow where the case meets what is under it.
-    RectangularShadow {
-        x: content.x
-        y: content.y
-        width: content.width * host.zoom
-        height: content.height * host.zoom
-        visible: !content.chromeless && !Theme.lowPower && host.visible
-        radius: content.radius * host.zoom
-        blur: Theme.contactShadow.blur
-        offset.x: Theme.contactShadow.x
-        offset.y: Theme.contactShadow.y
-        color: Theme.contactShadow.color
-        opacity: host.progress
-        transform: Translate {
-            y: (1 - host.progress) * Theme.panelRise
-        }
-    }
-    // With glass, the case itself: the wallpaper through it, where the case lies on the screen.
-    C.Frost {
-        x: content.x
-        y: content.y
-        width: content.width * host.zoom
-        height: content.height * host.zoom
-        visible: Theme.glass && !content.chromeless && host.visible
-        source: frostSource
-        radius: content.radius * host.zoom
-        area: Qt.rect(x, y + (1 - host.progress) * Theme.panelRise, width, height)
         opacity: host.progress
         transform: Translate {
             y: (1 - host.progress) * Theme.panelRise

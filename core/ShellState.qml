@@ -750,8 +750,6 @@ QtObject {
             }
         }
     }
-    // How many times slower Theme's animations play (`shale slowmo N`, 1 to 20); not saved, so a restart is normal speed.
-    property real slowmo: 1
     property IpcHandler ipc: IpcHandler {
         target: "shell"
         function status(): string {
@@ -801,9 +799,6 @@ QtObject {
         }
         function settingsPage(name: string): void {
             root.openSettings(name);
-        }
-        function slowmo(factor: real): void {
-            root.slowmo = Math.max(1, Math.min(20, factor || 1));
         }
         function page(name: string): void {
             if (["wifi", "bluetooth", "audio", "power", "media", "tray", "update", "focus"].indexOf(name) < 0)

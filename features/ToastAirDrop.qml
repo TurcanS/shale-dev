@@ -32,11 +32,6 @@ PanelWindow {
     WlrLayershell.namespace: "shale-airdrop"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
-    C.FrostSource {
-        id: frostSource
-        screenName: window.screen ? window.screen.name : ""
-        screenSize: window.screen ? Qt.size(window.screen.width, window.screen.height) : Qt.size(1920, 1080)
-    }
     ColumnLayout {
         id: stack
         property int leaving: 0
@@ -130,8 +125,8 @@ PanelWindow {
             id: surface
             anchors.fill: parent
             radius: 18
-            color: Theme.glass ? "transparent" : Theme.module
-            border.width: Theme.glass ? 0 : 1
+            color: Theme.module
+            border.width: 1
             border.color: card.phase === "asking" ? Theme.accentLine : Theme.cardEdge
             opacity: card.reveal
             transform: Translate {
@@ -141,16 +136,6 @@ PanelWindow {
                 ColorAnimation {
                     duration: Theme.fast
                 }
-            }
-            // With glass, the case: the window sits under the bar, 12 px from the right edge.
-            C.Frost {
-                anchors.fill: parent
-                visible: Theme.glass
-                source: frostSource
-                radius: parent.radius
-                ring: card.phase === "asking" ? Theme.accentLine : "transparent"
-                area: Qt.rect((window.screen ? window.screen.width : 0) - window.width - window.margins.right + card.x,
-                              window.margins.top + card.y, width, height)
             }
             TapHandler {
                 onTapped: card.forceActiveFocus()

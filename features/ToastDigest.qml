@@ -30,27 +30,14 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "shale-digest"
     WlrLayershell.layer: WlrLayer.Overlay
-    C.FrostSource {
-        id: frostSource
-        screenName: digestWindow.screen ? digestWindow.screen.name : ""
-        screenSize: digestWindow.screen ? Qt.size(digestWindow.screen.width, digestWindow.screen.height) : Qt.size(1920, 1080)
-    }
     Rectangle {
         anchors.fill: parent
         radius: 18
-        color: Theme.glass ? "transparent" : Theme.module
-        border.width: Theme.glass ? 0 : 1
+        color: Theme.module
+        border.width: 1
         border.color: Theme.cardEdge
         opacity: digestWindow.reveal
         transform: Translate { y: Theme.reduced ? 0 : (1 - digestWindow.reveal) * -8 }
-        // With glass, the case: the window is centred under the bar.
-        C.Frost {
-            anchors.fill: parent
-            visible: Theme.glass
-            source: frostSource
-            radius: parent.radius
-            area: Qt.rect(((digestWindow.screen ? digestWindow.screen.width : 0) - digestWindow.width) / 2, digestWindow.margins.top, width, height)
-        }
         ColumnLayout {
             id: digestColumn
             anchors.fill: parent
