@@ -278,3 +278,42 @@ of Control's home view, Activity and Launcher and the helper's modules, one focu
 controls, a keyed model for Wi-Fi rows (rows are only rebuilt when the list changes), snippets (the design's are
 typed into apps, which Shale doesn't do), calendar events, widget blur. The `Services.qml` "Unable to assign
 [undefined]" warning shows only while the shell reloads, from the copy being torn down.
+
+## Stage 13: Live
+The owner asked for the whole shell to look more modern and, above all, feel alive: motion that is nice to watch,
+useful and impressive. Their choices: evolve the look too (not only motion), every surface, the design and animation
+skills plus the owner's own eye on the key visual choices, and any GPU cost while power saver is off (power saver and
+Reduce effects keep today's cheap path). One pass per session; the owner tests between passes.
+
+- Pass 0, motion foundation: lively/calm motion tokens and springs on `Theme`, `shale slowmo N`, the shared motion
+  components, the Motion setting, and a look board of the frosted materials for the owner to pick from.
+- Pass 1, material: frosted cases (`assets/shaders/frost.frag`: the blurred wallpaper under the case, the case colour
+  over it, a lit 1 px edge), a contact shadow under the long one, translucent modules; panels, bar, toasts, tray menu
+  and widgets; a Glass setting; contrast checked on bright wallpapers.
+- Pass 2, bar: one travelling page pill on a spring, items that arrive and leave without moving the bar in a jump,
+  rolling window title and track, badge pop and rolling count, a keyed tray model, breathing live indicators, tray
+  menus that grow from their icon.
+- Pass 3, panels: panels grow from the bar key that opened them, panel-to-panel morphs, directional navigation in
+  Control and Settings, staggered content, sliding selection highlights, Clipboard list motion, rolling live numbers.
+- Pass 4, notifications: toasts on a spring, swipe to dismiss, the stack closing up while a card leaves, a paused
+  timeout line on hover, a calmer OSD bump and morphing OSD kinds.
+- Pass 5, lock, wallpaper, widgets: a shader wallpaper reveal, the lock zooming and blurring in and coming back into
+  focus on unlock, a decaying shake, widget cards that stagger in and slide.
+- Pass 6, consistency: Theme curves everywhere instead of hand-typed ones, the remaining snaps (ListRow press,
+  HoldButton drain, Tooltip glide, focus rings), reduced motion keeping short fades, a profile of Control and the bar.
+
+Carry-over from pass 0: `Theme.easeOut` is now the strong cubic-bezier(.23, 1, .32, 1) with lively motion (Rack's
+first curve with calm); `easeInOut` is for movement across the screen, `easeDrawer` for sheets, `easeHover` for
+colour. `Theme.ms(duration)` applies `shale slowmo`; wrap any new literal duration in it. `Theme.springs` (off when
+calm, trimmed or slowed down) gates SpringAnimation; use `springSnappy` (pills, badges: settles in 320 ms with about
+7% overshoot), `springCrisp` (highlights, knobs: 225 ms, none) or `springGentle` (cases: 400 ms, none), measured
+with Qt's SpringAnimation, and give every spring Behavior a timed fallback. `Theme.reveal`, `stagger` (35 ms) and
+`staggerMax` (6) drive `components/Reveal.qml` (`order` sets the place in a stagger; it fills itself with its one
+child; `replay()`). `Pop` (badges: `shown` and `bump()`), `RollText` (`maximumWidth` to elide; the width eases),
+`RollNumber` (columns counted from the right, rolling forward when the number grows) and `PointerLight` (put first
+inside a card, under its content; drawn additively by `assets/shaders/pointerlight.frag`) are not used by any panel
+yet. Shaders are compiled with `/usr/lib/qt6/bin/qsb --qt6` and the `.qsb` is committed beside the source.
+Offscreen previews draw ShaderEffect only on the GPU backend (`QT_QUICK_BACKEND=rhi QSG_RHI_BACKEND=opengl` with
+the offscreen platform; the software backend draws nothing for it). The look board's frost prototype lives in the
+session scratchpad, not the repo; Pass 1 builds it as a component, with `glass` added then (Pass 0 added only
+`motionStyle`).
