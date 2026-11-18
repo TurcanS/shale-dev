@@ -71,11 +71,9 @@ Item {
         visible: Theme.glass
         source: frostSource
         radius: bar.edge ? 0 : 12
-        // Always on screen: a thin bevel, and the edge light, sheen and reeds turned down.
-        rim: 9
-        edgeGlow: 0.65
-        sheen: 0.6
+        // Always on screen: quieter reeds that catch less light.
         reeds: 0.6
+        glint: 0.6
         area: Qt.rect(bar.window && bar.window.margins ? bar.window.margins.left : 0, bar.window && bar.window.margins ? bar.window.margins.top : 0, width, height)
     }
     Rectangle {

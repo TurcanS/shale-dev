@@ -68,7 +68,6 @@ PanelWindow {
             visible: Theme.glass
             source: frostSource
             radius: parent.radius
-            rim: 14
             area: Qt.rect(((trackWindow.screen ? trackWindow.screen.width : 0) - trackWindow.width) / 2, trackWindow.margins.top, width, height)
         }
         HoverHandler {

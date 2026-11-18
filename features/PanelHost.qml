@@ -114,7 +114,6 @@ PanelWindow {
         visible: Theme.glass && !content.chromeless && host.visible
         source: frostSource
         radius: content.radius * host.zoom
-        rim: 18 * host.zoom
         area: Qt.rect(x, y + (1 - host.progress) * Theme.panelRise, width, height)
         opacity: host.progress
         transform: Translate {

@@ -148,7 +148,6 @@ PanelWindow {
                 visible: Theme.glass
                 source: frostSource
                 radius: parent.radius
-                rim: 14
                 ring: card.phase === "asking" ? Theme.accentLine : "transparent"
                 area: Qt.rect((window.screen ? window.screen.width : 0) - window.width - window.margins.right + card.x,
                               window.margins.top + card.y, width, height)

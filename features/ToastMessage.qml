@@ -70,7 +70,6 @@ PanelWindow {
             visible: Theme.glass
             source: frostSource
             radius: parent.radius
-            rim: 12
             ring: messageWindow.retainedKind === "error" ? Theme.dangerLine : "transparent"
             area: Qt.rect(((messageWindow.screen ? messageWindow.screen.width : 0) - messageWindow.width) / 2,
                           (messageWindow.screen ? messageWindow.screen.height : 0) - messageWindow.height - messageWindow.margins.bottom, width, height)

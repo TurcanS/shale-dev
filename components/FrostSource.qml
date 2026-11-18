@@ -2,10 +2,9 @@ import QtQuick
 import QtQuick.Effects
 import "../core"
 
-// One screen's wallpaper, blurred, for the glass cases of one window (Frost.qml): a heavy blur for the body and a
-// light one for the bevel and the edge light. Each window needs its own, as pictures don't cross windows. It is laid
-// out as the wallpaper is on the screen, at half the size (the blur hides the rest), and holds nothing while glass
-// is off.
+// One screen's wallpaper, blurred, for the glass cases of one window (Frost.qml). Each window needs its own, as
+// pictures don't cross windows. It is laid out as the wallpaper is on the screen, at a quarter of the size (the blur
+// hides the rest), and holds nothing while glass is off.
 Item {
     id: root
     property string screenName: ""
@@ -15,8 +14,7 @@ Item {
     readonly property bool active: Theme.glass && path !== ""
     readonly property bool ready: active && picture.status === Image.Ready
     readonly property Item frosted: heavyTexture
-    readonly property Item soft: lightTexture
-    readonly property size pictureSize: Qt.size(Math.max(1, Math.round(screenSize.width / 2)), Math.max(1, Math.round(screenSize.height / 2)))
+    readonly property size pictureSize: Qt.size(Math.max(1, Math.round(screenSize.width / 4)), Math.max(1, Math.round(screenSize.height / 4)))
     width: 0
     height: 0
     Image {
@@ -39,28 +37,12 @@ Item {
         source: picture
         blurEnabled: true
         blur: 1
-        blurMax: 40
+        blurMax: 24
         autoPaddingEnabled: false
     }
     ShaderEffectSource {
         id: heavyTexture
         sourceItem: heavy
-        hideSource: true
-        visible: false
-    }
-    MultiEffect {
-        id: light
-        width: root.pictureSize.width
-        height: root.pictureSize.height
-        source: picture
-        blurEnabled: true
-        blur: 0.35
-        blurMax: 20
-        autoPaddingEnabled: false
-    }
-    ShaderEffectSource {
-        id: lightTexture
-        sourceItem: light
         hideSource: true
         visible: false
     }

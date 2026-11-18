@@ -79,7 +79,6 @@ PanelWindow {
                 visible: Theme.glass
                 source: frostSource
                 radius: popupCard.radius
-                rim: 14
                 area: Qt.rect((popups.screen ? popups.screen.width : 0) - popups.width + popupList.x + popupItem.x,
                               (popups.screen ? popups.screen.height : 0) - popups.height + popupList.y + popupItem.y - popupList.contentY,
                               width, height)

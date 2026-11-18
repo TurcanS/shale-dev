@@ -49,7 +49,6 @@ PanelWindow {
             visible: Theme.glass
             source: frostSource
             radius: parent.radius
-            rim: 14
             area: Qt.rect(((digestWindow.screen ? digestWindow.screen.width : 0) - digestWindow.width) / 2, digestWindow.margins.top, width, height)
         }
         ColumnLayout {

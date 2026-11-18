@@ -88,7 +88,6 @@ PanelWindow {
             visible: Theme.glass
             source: frostSource
             radius: osdCase.radius
-            rim: 12
             color: Theme.tint(Theme.moduleSolid, 0.92)
             area: Qt.rect(((osdWindow.screen ? osdWindow.screen.width : 0) - osdWindow.width) / 2 + osdWindow.room,
                           (osdWindow.screen ? osdWindow.screen.height : 0) - osdWindow.height - osdWindow.margins.bottom + osdWindow.room, width, height)

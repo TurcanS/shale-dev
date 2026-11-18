@@ -2,11 +2,11 @@ import QtQuick
 import "../core"
 import "." as C
 
-// A glass case (assets/shaders/glass.frag): the wallpaper through a quiet fluted body, a bevelled rim lit by the
-// wallpaper's colour past the edge, and, with lively motion, a sheen and a brighter edge where the pointer is. It
-// needs a FrostSource in the same window and `area`: where it lies on the screen, in pixels, as drawn. Until the
-// picture is ready, a plain case in `color` with a hairline edge. `ring` draws a coloured edge over the glass
-// (urgent, error, asking). The bar and small cards turn the bevel, edge light, sheen and reeds down.
+// A glass case (assets/shaders/reeds.frag): reeded glass over the blurred wallpaper, with a chamfered 1 px edge;
+// with lively motion the reeds near the pointer catch its light. It needs a FrostSource in the same window and
+// `area`: where it lies on the screen, in pixels, as drawn. Until the picture is ready, a plain case in `color` with
+// a hairline edge. `ring` draws a coloured edge over the glass (urgent, error, asking). The bar turns the reeds and
+// their glint down.
 Item {
     id: root
     property C.FrostSource source: null
@@ -14,10 +14,8 @@ Item {
     property real radius: Theme.radiusCase
     property color color: Theme.caseColor
     property color ring: "transparent"
-    property real rim: 18
-    property real edgeGlow: 1
-    property real sheen: 1
     property real reeds: 1
+    property real glint: 1
     readonly property bool frosted: !!source && source.ready
     // Where the pointer is on the glass, kept where it left so the light fades out in place.
     property point pointer: Qt.point(width / 2, height / 2)
@@ -47,7 +45,6 @@ Item {
     ShaderEffect {
         anchors.fill: parent
         visible: root.frosted
-        property var soft: root.source ? root.source.soft : null
         property var frosted: root.source ? root.source.frosted : null
         property size box: Qt.size(width, height)
         property rect area: root.source ? Qt.rect(root.area.x / root.source.screenSize.width, root.area.y / root.source.screenSize.height,
@@ -56,16 +53,13 @@ Item {
         property real corner: root.radius
         property color tint: Theme.glassTint
         property real cover: Theme.glassCover
-        property color accent: Theme.accent
         property real vibrance: Theme.glassVibrance
         property real ceiling: Theme.glassCeiling
         property point pointer: root.pointer
         property real glow: root.glow
-        property real rim: root.rim
-        property real edgeGlow: root.edgeGlow
-        property real sheen: root.sheen
         property real reeds: root.reeds
-        fragmentShader: "../assets/shaders/glass.frag.qsb"
+        property real glint: root.glint
+        fragmentShader: "../assets/shaders/reeds.frag.qsb"
     }
     Rectangle {
         anchors.fill: parent

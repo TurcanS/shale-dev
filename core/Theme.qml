@@ -66,9 +66,9 @@ QtObject {
     // How much the case colour covers the wallpaper (tinted a little toward the accent), how colourful the wallpaper
     // shows, and the brightest it may show, so text keeps its contrast on a bright picture and under the sheen.
     readonly property color glassTint: mix(caseColor, accent, 0.05)
-    readonly property real glassCover: 0.76
-    readonly property real glassVibrance: 1.5
-    readonly property real glassCeiling: 0.26
+    readonly property real glassCover: 0.8
+    readonly property real glassVibrance: 1.15
+    readonly property real glassCeiling: 0.22
     // Spacing steps; everything between controls and sections uses one of these.
     readonly property int gapXs: 4
     readonly property int gapS: 8
