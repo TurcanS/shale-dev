@@ -105,7 +105,7 @@ def user_dir(name, fallback, home=None):
         return "~/" + str(path.relative_to(home)) if path.is_relative_to(home) else str(path)
     return fallback
 
-DEFAULTS = {"version": 1, "reducedMotion": False, "motionStyle": "lively", "clock24h": True,
+DEFAULTS = {"version": 1, "reducedMotion": False, "motionStyle": "lively", "glass": True, "clock24h": True,
             "dnd": False, "amplification": False, "persistNotifications": False,
             "fontSize": 14, "panelSize": 85, "batterySaving": False, "saverRefresh": True, "windowPreviews": True,
             "hideFullscreen": True, "hiddenOutputs": [], "pinnedApps": [], "appUsage": {}, "captureDelay": 0,

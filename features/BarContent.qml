@@ -59,11 +59,30 @@ Item {
     // Today's weather beside the clock, from the forecast Clock and sky shows (the backend keeps it for 30 minutes).
     // Nothing is requested until a city is chosen there.
     readonly property var weather: Weather.forecast
-    // The case: floating, it is a rounded strip with a hairline edge; edge to edge, a hairline under it.
+    // The case: floating, it is a rounded strip with a hairline edge; edge to edge, a hairline under it. With glass,
+    // the wallpaper shows through it.
+    C.FrostSource {
+        id: frostSource
+        screenName: bar.outputName
+        screenSize: bar.window && bar.window.screen ? Qt.size(bar.window.screen.width, bar.window.screen.height) : Qt.size(1920, 1080)
+    }
+    C.Frost {
+        anchors.fill: parent
+        visible: Theme.glass
+        source: frostSource
+        radius: bar.edge ? 0 : 12
+        // Always on screen: a thin bevel, and the edge light, sheen and reeds turned down.
+        rim: 9
+        edgeGlow: 0.65
+        sheen: 0.6
+        reeds: 0.6
+        area: Qt.rect(bar.window && bar.window.margins ? bar.window.margins.left : 0, bar.window && bar.window.margins ? bar.window.margins.top : 0, width, height)
+    }
     Rectangle {
         anchors.fill: parent
+        visible: !Theme.glass || bar.edge
         radius: bar.edge ? 0 : 12
-        color: Theme.caseColor
+        color: Theme.glass ? "transparent" : Theme.caseColor
         border.width: bar.edge ? 0 : 1
         border.color: Theme.hairline
         Rectangle {

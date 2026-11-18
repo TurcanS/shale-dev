@@ -50,15 +50,31 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "shale-message"
     WlrLayershell.layer: WlrLayer.Overlay
+    C.FrostSource {
+        id: frostSource
+        screenName: messageWindow.screen ? messageWindow.screen.name : ""
+        screenSize: messageWindow.screen ? Qt.size(messageWindow.screen.width, messageWindow.screen.height) : Qt.size(1920, 1080)
+    }
     // The same surface as the notification toasts: a tile says what kind of message it is.
     Rectangle {
         anchors.fill: parent
-        color: Theme.module
+        color: Theme.glass ? "transparent" : Theme.module
         opacity: messageWindow.reveal
         transform: Translate { y: Theme.reduced ? 0 : (1 - messageWindow.reveal) * 6 }
         radius: 14
-        border.width: 1
+        border.width: Theme.glass ? 0 : 1
         border.color: messageWindow.retainedKind === "error" ? Theme.dangerLine : Theme.cardEdge
+        // With glass, the case: the window is centred above the bottom edge.
+        C.Frost {
+            anchors.fill: parent
+            visible: Theme.glass
+            source: frostSource
+            radius: parent.radius
+            rim: 12
+            ring: messageWindow.retainedKind === "error" ? Theme.dangerLine : "transparent"
+            area: Qt.rect(((messageWindow.screen ? messageWindow.screen.width : 0) - messageWindow.width) / 2,
+                          (messageWindow.screen ? messageWindow.screen.height : 0) - messageWindow.height - messageWindow.margins.bottom, width, height)
+        }
         RowLayout {
             anchors.fill: parent
             anchors.leftMargin: 12

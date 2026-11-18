@@ -379,7 +379,7 @@ FocusScope {
                                     contentItem: Item {}
                                     background: Rectangle {
                                         radius: 8
-                                        color: Theme.tint(Theme.module, 0.94)
+                                        color: Theme.tint(Theme.moduleSolid, 0.94)
                                         border.width: card.picked ? 2 : root.folded !== "" && card.hit ? 1 : 0
                                         border.color: card.picked ? Theme.accent : Theme.accentLine
                                         // The window itself under its name, when previews are on and there is room.

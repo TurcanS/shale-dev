@@ -46,6 +46,11 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     // Nothing here is clickable, so clicks reach the windows underneath.
     mask: Region {}
+    C.FrostSource {
+        id: frostSource
+        screenName: osdWindow.screen ? osdWindow.screen.name : ""
+        screenSize: osdWindow.screen ? Qt.size(osdWindow.screen.width, osdWindow.screen.height) : Qt.size(1920, 1080)
+    }
     Item {
         id: osd
         anchors.fill: parent
@@ -71,10 +76,22 @@ PanelWindow {
         Rectangle {
             id: osdCase
             anchors.fill: parent
+            visible: !Theme.glass
             radius: osdWindow.level ? height / 2 : 24
-            color: Theme.tint(Theme.module, 0.92)
+            color: Theme.tint(Theme.moduleSolid, 0.92)
             border.width: 1
             border.color: Theme.cardEdge
+        }
+        // With glass, the case: the window is centred above the bottom edge, the pill inside its shadow room.
+        C.Frost {
+            anchors.fill: osdCase
+            visible: Theme.glass
+            source: frostSource
+            radius: osdCase.radius
+            rim: 12
+            color: Theme.tint(Theme.moduleSolid, 0.92)
+            area: Qt.rect(((osdWindow.screen ? osdWindow.screen.width : 0) - osdWindow.width) / 2 + osdWindow.room,
+                          (osdWindow.screen ? osdWindow.screen.height : 0) - osdWindow.height - osdWindow.margins.bottom + osdWindow.room, width, height)
         }
         // The level pill: icon disc, slim bar, value.
         RowLayout {

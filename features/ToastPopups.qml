@@ -34,6 +34,11 @@ PanelWindow {
     mask: Region {
         item: popupList
     }
+    C.FrostSource {
+        id: frostSource
+        screenName: popups.screen ? popups.screen.name : ""
+        screenSize: popups.screen ? Qt.size(popups.screen.width, popups.screen.height) : Qt.size(1920, 1080)
+    }
     ListView {
         id: popupList
         x: popups.room
@@ -67,6 +72,17 @@ PanelWindow {
                 blur: 32
                 offset.y: 14
                 color: Qt.rgba(0, 0, 0, 0.45)
+            }
+            // With glass, the card's case: the window sits in the screen's bottom right corner.
+            C.Frost {
+                anchors.fill: popupCard
+                visible: Theme.glass
+                source: frostSource
+                radius: popupCard.radius
+                rim: 14
+                area: Qt.rect((popups.screen ? popups.screen.width : 0) - popups.width + popupList.x + popupItem.x,
+                              (popups.screen ? popups.screen.height : 0) - popups.height + popupList.y + popupItem.y - popupList.contentY,
+                              width, height)
             }
             NotificationCard {
                 id: popupCard

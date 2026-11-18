@@ -41,13 +41,19 @@ ColumnLayout {
             onActivated: key => ShellState.setSetting("motionStyle", key)
         }
         C.SettingToggle {
+            text: "Glass"
+            description: "Panels, the bar and messages show your wallpaper through them"
+            key: "glass"
+            fallback: true
+        }
+        C.SettingToggle {
             text: "Reduce motion"
             description: "Panels and controls change without animating"
             key: "reducedMotion"
         }
         C.SettingToggle {
             text: "Reduce effects in every mode"
-            description: "No visualizers, blur, shadows or live window previews"
+            description: "No visualizers, glass, blur, shadows or live window previews"
             key: "batterySaving"
         }
         C.SettingToggle {

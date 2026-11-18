@@ -20,10 +20,14 @@ QtObject {
     // strips, stat tiles and zebra rows; grouped settings rows; slider, graph and field backgrounds.
     readonly property color backdrop: surfaces.backdrop
     readonly property color caseColor: surfaces.caseColor
-    readonly property color module: surfaces.module
-    readonly property color moduleAlt: surfaces.moduleAlt
-    readonly property color group: surfaces.group
-    readonly property color well: surfaces.well
+    // With glass the inner surfaces turn see-through: modules and grouped rows a touch lighter than the case, strips
+    // and wells a touch darker.
+    readonly property color module: glass ? Qt.rgba(1, 1, 1, 0.055) : surfaces.module
+    readonly property color moduleAlt: glass ? Qt.rgba(0, 0, 0, 0.14) : surfaces.moduleAlt
+    readonly property color group: glass ? Qt.rgba(1, 1, 1, 0.04) : surfaces.group
+    readonly property color well: glass ? Qt.rgba(0, 0, 0, 0.22) : surfaces.well
+    // The module colour as a solid, for a backing that must hide what is under it.
+    readonly property color moduleSolid: surfaces.module
     // Secondary buttons, empty tracks and icon tiles at rest (list tiles a step darker); the chosen segment.
     readonly property color key: surfaces.key
     readonly property color keyTile: surfaces.keyTile
@@ -37,7 +41,9 @@ QtObject {
     readonly property color cardEdge: Qt.rgba(1, 1, 1, 0.07)
     readonly property color textSecondary: surfaces.textSecondary
     readonly property color textMuted: surfaces.textMuted
-    readonly property color textDim: surfaces.textDim
+    // A touch lighter on glass, which is a little brighter than a solid case, so dim text keeps 5:1.
+    readonly property color textDim: glass ? mix(textDimSolid, text, 0.12) : textDimSolid
+    readonly property color textDimSolid: surfaces.textDim
     readonly property color textFaint: surfaces.textFaint
     // Slider and switch thumbs; text and icons on a filled accent (onAccent in the design; QML reads "on…" as a handler).
     readonly property color knob: "#f4f2ee"
@@ -51,8 +57,18 @@ QtObject {
     readonly property int radiusSegment: 7
     readonly property int casePadding: 14
     readonly property int modulePadding: 12
-    // The case's drop shadow under its hairline edge.
+    // The case's drop shadow under its hairline edge, and a tight one where it meets what is under it.
     readonly property var caseShadow: ({x: 0, y: 30, blur: 60, color: Qt.rgba(0, 0, 0, 0.35)})
+    readonly property var contactShadow: ({x: 0, y: 2, blur: 6, color: Qt.rgba(0, 0, 0, 0.3)})
+    // Settings → Appearance → Glass: cases show the wallpaper through them, blurred (components/Frost.qml), and the
+    // surfaces inside them turn see-through. Trimmed effects keep everything solid.
+    readonly property bool glass: ShellState.setting("glass", true) && !lowPower
+    // How much the case colour covers the wallpaper (tinted a little toward the accent), how colourful the wallpaper
+    // shows, and the brightest it may show, so text keeps its contrast on a bright picture and under the sheen.
+    readonly property color glassTint: mix(caseColor, accent, 0.05)
+    readonly property real glassCover: 0.76
+    readonly property real glassVibrance: 1.5
+    readonly property real glassCeiling: 0.26
     // Spacing steps; everything between controls and sections uses one of these.
     readonly property int gapXs: 4
     readonly property int gapS: 8
@@ -189,9 +205,13 @@ QtObject {
     function tint(color, opacity) {
         return Qt.rgba(color.r, color.g, color.b, opacity);
     }
+    // Mixed as they look, with their opacity: a see-through module lightened toward the text stays see-through.
     function mix(first, second, fraction) {
-        return Qt.rgba(first.r * (1 - fraction) + second.r * fraction,
-                       first.g * (1 - fraction) + second.g * fraction,
-                       first.b * (1 - fraction) + second.b * fraction, 1);
+        const a = first.a * (1 - fraction) + second.a * fraction;
+        if (a <= 0)
+            return Qt.rgba(0, 0, 0, 0);
+        return Qt.rgba((first.r * first.a * (1 - fraction) + second.r * second.a * fraction) / a,
+                       (first.g * first.a * (1 - fraction) + second.g * second.a * fraction) / a,
+                       (first.b * first.a * (1 - fraction) + second.b * second.a * fraction) / a, a);
     }
 }
