@@ -317,3 +317,16 @@ Offscreen previews draw ShaderEffect only on the GPU backend (`QT_QUICK_BACKEND=
 the offscreen platform; the software backend draws nothing for it). The look board's frost prototype lives in the
 session scratchpad, not the repo; Pass 1 builds it as a component, with `glass` added then (Pass 0 added only
 `motionStyle`).
+
+Carry-over from pass 1: cases are studio glass (`components/Frost.qml` with one `FrostSource` per window; see the
+Live section of `docs/design/README.md` for the values). A Frost needs `area`, where it lies on its screen in
+pixels as drawn: PanelHost works it out from the case, the bar from its margins, each toast window from its anchors
+(centred windows: half the spare width; bottom right: the screen size less the window). Transforms during an
+entrance (a few px) are not followed. While glass is on, `PanelContent`, the bar's case and the toast cards draw no
+fill of their own, so a new floating surface must add a Frost or use `Theme.moduleSolid` / `caseColor`:
+`Theme.module`, `moduleAlt`, `group` and `well` are see-through then, and `Theme.mix` mixes with opacity
+(premultiplied), so `mix(module, text, f)` hovers stay see-through. Not on glass yet: the tray menu and the media
+hover card (popup windows whose screen position is harder to know; they keep the solid case), and the desktop
+widgets (their window's place depends on the bar's reserved space; Pass 5). The Settings page's bottom fade is
+weaker on glass (it fades to see-through moduleAlt). Glass shows the wallpaper, not the windows behind a panel, by
+design. Offscreen previews of the glass need the GPU backend (see pass 0).

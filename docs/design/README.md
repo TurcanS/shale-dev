@@ -130,3 +130,30 @@ radiusCase 22  radiusModule 16  radiusCard 12  radiusKey 10  radiusSegment 7
 caseShadow, panel enter/leave durations (existing fast/enter/leave)
 font "Hanken Grotesk"  mono "Martian Mono"
 ```
+
+## Live (stage 13)
+
+The Rack language, evolved: the owner chose a material of its own instead of plain frosted glass, and motion with
+physics. Power saver and Reduce effects keep everything above (solid cases, no pointer effects).
+
+**Studio glass** (`components/Frost.qml`, `assets/shaders/glass.frag`, Settings → Appearance → Glass, on by default):
+- Body: the screen's wallpaper, blurred, seen through fine vertical reeds 14 px apart, under the case colour tinted
+  5% toward the accent at 76% (`glassCover`), saturation 1.5, never brighter than relative luminance 0.26
+  (`glassCeiling`) so text keeps its contrast on a bright picture.
+- Rim: a bevel that bends in what lies just past the edge, red, green and blue bent a little apart like cut glass,
+  lit by the wallpaper's colour beyond the edge, with a highlight from the top left and a faint lip where it meets
+  the flat. Width per surface: panels 18, notifications, digest, track and AirDrop cards 14, messages and the OSD 12,
+  the bar 9 (the bar also turns edge light, sheen and reeds down to about 60%).
+- Under the pointer (lively motion only): the edge brightens near the pointer and a thin film in the accent, with a
+  little iridescence, slides across the glass along a band through the pointer; it fades in over 220 ms and out over
+  520 ms.
+- Surfaces inside glass are see-through: module white 5.5%, moduleAlt black 14%, group white 4%, well black 22%;
+  `moduleSolid` is the solid module colour for backings that must hide what is under them. textDim is 12% lighter.
+- A contact shadow (y 2, blur 6, black 30%) sits under the case's long shadow.
+- Contrast measured on the owner's wallpaper: body text 11 to 13:1, secondary 7.7:1 or better, dim 5:1 or better at
+  rest (4.3 to 4.9:1 for the moment the sheen passes under it).
+
+**Motion**: entering and leaving on cubic-bezier(.23, 1, .32, 1), moving across the screen on (.77, 0, .175, 1),
+colour on CSS ease; springs for things that follow a value or the pointer (`Theme.springSnappy`, `springCrisp`,
+`springGentle`); content coming in 35 ms apart, at most six steps. Motion: Calm in Settings goes back to the first
+Rack curves without springs, stagger or pointer effects.
