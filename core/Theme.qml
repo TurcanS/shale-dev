@@ -128,15 +128,37 @@ QtObject {
     readonly property bool reduced: ShellState.setting("reducedMotion", false)
     // Power saver always trims effects; the setting keeps them trimmed in every mode.
     readonly property bool lowPower: ShellState.powerSaver || ShellState.setting("batterySaving", false)
-    readonly property int fast: reduced ? 0 : (lowPower ? 90 : 120)
-    readonly property int enter: reduced ? 0 : (lowPower ? 160 : 220)
-    readonly property int leave: reduced ? 0 : (lowPower ? 100 : 160)
+    // Settings → Appearance → Motion. Lively adds springs, staggered entrances, rolling text and the pointer light,
+    // on stronger curves; calm keeps the plain eased fades and slides.
+    readonly property bool lively: ShellState.setting("motionStyle", "lively") === "lively" && !reduced
+    // `shale slowmo N` plays every animation timed here N times slower, to look at motion closely. Not saved.
+    readonly property real slowmo: ShellState.slowmo
+    function ms(duration) {
+        return Math.round(duration * slowmo);
+    }
+    readonly property int fast: ms(reduced ? 0 : (lowPower ? 90 : 120))
+    readonly property int enter: ms(reduced ? 0 : (lowPower ? 160 : 220))
+    readonly property int leave: ms(reduced ? 0 : (lowPower ? 100 : 160))
     // Rack motion: panels rise this far while fading in and leave quicker; switch knobs slide; presses scale down.
     readonly property int panelRise: reduced ? 0 : 8
-    readonly property int panelEnter: reduced ? 0 : (lowPower ? 120 : 180)
-    readonly property int panelLeave: reduced ? 0 : (lowPower ? 90 : 130)
-    readonly property int slide: reduced ? 0 : (lowPower ? 100 : 160)
-    readonly property int press: reduced || lowPower ? 0 : 80
+    readonly property int panelEnter: ms(reduced ? 0 : (lowPower ? 120 : 180))
+    readonly property int panelLeave: ms(reduced ? 0 : (lowPower ? 90 : 130))
+    readonly property int slide: ms(reduced ? 0 : (lowPower ? 100 : 160))
+    readonly property int press: ms(reduced || lowPower ? 0 : 80)
+    // Content coming into a panel (components/Reveal.qml). Reduced motion still fades, briefly, without moving.
+    readonly property int reveal: ms(reduced ? 100 : (lowPower ? 160 : 260))
+    // Between the items of a group coming in one after another, and how many steps the wait grows for.
+    readonly property int stagger: lively && !lowPower ? ms(35) : 0
+    readonly property int staggerMax: 6
+    // Springs for things that follow a value or the pointer: they keep their speed when the target moves again.
+    // Measured with Qt's SpringAnimation: snappy reaches 90% in 130 ms, settles in 320 ms and overshoots about 7%
+    // (pills, badges); crisp reaches 90% in 160 ms and settles in 225 ms without overshoot (highlights, knobs);
+    // gentle takes 260 / 400 ms without overshoot (cases and other large surfaces). Slow motion can't stretch a
+    // spring evenly, so `springs` is off there and the timed fallback runs.
+    readonly property bool springs: lively && !lowPower && slowmo === 1
+    readonly property var springSnappy: ({spring: 4.5, damping: 0.32})
+    readonly property var springCrisp: ({spring: 6, damping: 0.5})
+    readonly property var springGentle: ({spring: 4, damping: 0.5})
     readonly property real pressScale: 0.97
     // A whole row (a setting, a list entry) gives only a little under the pointer; a key gives more.
     readonly property real rowPressScale: 0.99
@@ -148,8 +170,13 @@ QtObject {
     function rowWash(down) {
         return Qt.rgba(1, 1, 1, down ? 0.06 : 0.035);
     }
-    // cubic-bezier(.2, .8, .2, 1) for Easing.BezierSpline.
-    readonly property var easeOut: [0.2, 0.8, 0.2, 1, 1, 1]
+    // Curves for Easing.BezierSpline. Entering and leaving: easeOut, a strong cubic-bezier(.23, 1, .32, 1) with
+    // lively motion and Rack's first (.2, .8, .2, 1) with calm. Moving across the screen: easeInOut. Sheets and
+    // drawers: easeDrawer. Colour and hover changes: easeHover (CSS ease).
+    readonly property var easeOut: lively ? [0.23, 1, 0.32, 1, 1, 1] : [0.2, 0.8, 0.2, 1, 1, 1]
+    readonly property var easeInOut: lively ? [0.77, 0, 0.175, 1, 1, 1] : [0.45, 0, 0.55, 1, 1, 1]
+    readonly property var easeDrawer: [0.32, 0.72, 0, 1, 1, 1]
+    readonly property var easeHover: [0.25, 0.1, 0.25, 1, 1, 1]
     function luminance(color) {
         const channel = value => value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
         return 0.2126 * channel(color.r) + 0.7152 * channel(color.g) + 0.0722 * channel(color.b);

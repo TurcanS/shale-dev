@@ -32,6 +32,14 @@ ColumnLayout {
     }
     C.SectionHeader { text: "Behaviour" }
     C.Group {
+        C.ChoiceRow {
+            settingKey: "motionStyle"
+            label: "Motion"
+            description: ShellState.setting("motionStyle", "lively") === "calm" ? "Plain fades and slides" : "Springs, rolling numbers, and content that comes in one piece after another"
+            model: [{key: "lively", text: "Lively"}, {key: "calm", text: "Calm"}]
+            current: ShellState.setting("motionStyle", "lively")
+            onActivated: key => ShellState.setSetting("motionStyle", key)
+        }
         C.SettingToggle {
             text: "Reduce motion"
             description: "Panels and controls change without animating"

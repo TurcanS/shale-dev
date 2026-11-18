@@ -105,7 +105,7 @@ def user_dir(name, fallback, home=None):
         return "~/" + str(path.relative_to(home)) if path.is_relative_to(home) else str(path)
     return fallback
 
-DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
+DEFAULTS = {"version": 1, "reducedMotion": False, "motionStyle": "lively", "clock24h": True,
             "dnd": False, "amplification": False, "persistNotifications": False,
             "fontSize": 14, "panelSize": 85, "batterySaving": False, "saverRefresh": True, "windowPreviews": True,
             "hideFullscreen": True, "hiddenOutputs": [], "pinnedApps": [], "appUsage": {}, "captureDelay": 0,
@@ -311,6 +311,8 @@ def check_setting(key, value):
         raise BackendError("invalid", "Choose a supported text size.")
     if key == "panelSize" and value not in (80, 85, 90, 100):
         raise BackendError("invalid", "Choose a supported panel size.")
+    if key == "motionStyle" and value not in ("lively", "calm"):
+        raise BackendError("invalid", "Choose lively or calm motion.")
     if key == "captureDelay" and value not in (0, 3, 5, 10):
         raise BackendError("invalid", "Choose a supported capture delay.")
     if key == "surfaceTone" and value not in ("charcoal", "midnight", "warm"):
