@@ -121,10 +121,12 @@ Scope {
         status = attemptMessage || "Wrong password";
         failed();
     }
-    // Long enough for the style's unlock animation: the particles burst apart, the classic screen fades.
+    // Long enough for the unlock animation: the screen shatters (LockContent), or the style's own: the particles burst
+    // apart, the classic screen fades.
     Timer {
         id: unlockDelay
-        interval: Theme.reduced ? 0 : ShellState.setting("lockStyle", "particles") === "classic" ? 180 : Theme.lowPower ? 600 : 1000
+        interval: Theme.reduced ? 0 : ShellState.setting("unlockEffect", "shatter") === "shatter" && !Theme.lowPower ? Theme.ms(1200)
+                  : ShellState.setting("lockStyle", "particles") === "classic" ? 180 : Theme.lowPower ? 600 : 1000
         onTriggered: {
             ShellState.unlockShell();
             root.unlocking = false;

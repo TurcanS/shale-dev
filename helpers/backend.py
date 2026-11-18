@@ -111,7 +111,7 @@ DEFAULTS = {"version": 1, "reducedMotion": False, "motionStyle": "lively", "glas
             "hideFullscreen": True, "hiddenOutputs": [], "pinnedApps": [], "appUsage": {}, "captureDelay": 0,
             "accentColor": "#9ad6c6", "surfaceTone": "charcoal", "accentFromWallpaper": False, "accentManual": "#9ad6c6",
             "eqEnabled": False, "eqPreset": "flat", "eqBands": [0] * len(equalizer.BANDS), "visualizer": True, "barMedia": True, "trackChangeCard": True, "mediaRemaining": False,
-            "weatherLocation": {}, "weatherUnits": "metric", "updateCheck": True, "emojiUsage": {}, "searchEngine": "duckduckgo", "lockScreen": "builtin", "lockStyle": "particles", "bluetoothAutoConnect": [],
+            "weatherLocation": {}, "weatherUnits": "metric", "updateCheck": True, "emojiUsage": {}, "searchEngine": "duckduckgo", "lockScreen": "builtin", "lockStyle": "particles", "unlockEffect": "shatter", "bluetoothAutoConnect": [],
             "recordAudio": "none", "activityTracking": "ask", "systemWindow": 60,
             "focusMinutes": 25, "focusSession": {}, "timers": [], "runHistory": [],
             "widgets": False, "widgetCards": ["clock", "sky", "note", "system"], "widgetSaved": [], "widgetCorner": "bottom-left",
@@ -351,6 +351,8 @@ def check_setting(key, value):
         raise BackendError("invalid", "Choose a supported equalizer preset.")
     if key == "lockScreen" and value not in ("builtin", "hyprlock"):
         raise BackendError("invalid", "Choose the built-in lock screen or hyprlock.")
+    if key == "unlockEffect" and value not in ("shatter", "style"):
+        raise BackendError("invalid", "Choose shatter or the style's own unlock.")
     if key == "lockStyle" and value not in ("particles", "classic"):
         raise BackendError("invalid", "Choose the particle or classic lock screen.")
     if key == "bluetoothAutoConnect" and (len(value) > 32 or not all(isinstance(a, str) and bluetooth_keep.ADDRESS.match(a) for a in value)

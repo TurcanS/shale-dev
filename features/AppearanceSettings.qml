@@ -118,5 +118,14 @@ ColumnLayout {
             current: ShellState.setting("lockStyle", "particles")
             onActivated: key => ShellState.setSetting("lockStyle", key)
         }
+        C.ChoiceRow {
+            settingKey: "unlockEffect"
+            visible: ShellState.setting("lockScreen", "builtin") === "builtin" || !Backend.has("hyprlock", true)
+            label: "Unlock"
+            description: ShellState.setting("unlockEffect", "shatter") === "shatter" ? "The lock screen shatters from the password field" : "The style's own way out"
+            model: [{key: "shatter", text: "Shatter"}, {key: "style", text: "The style's own"}]
+            current: ShellState.setting("unlockEffect", "shatter")
+            onActivated: key => ShellState.setSetting("unlockEffect", key)
+        }
     }
 }
