@@ -101,15 +101,38 @@ Item {
         spacing: 5
         Repeater {
             model: BarItems.runs(bar.layout[zoneRow.name])
-            Loader {
+            // A slot grows to its item while it fades and swells in, and closes the same way, so the items beside
+            // it slide instead of the bar jumping. The item keeps its own width inside; the slot clips it.
+            Item {
+                id: slot
                 required property var modelData
-                readonly property var run: modelData
-                readonly property string zone: zoneRow.name
-                sourceComponent: run.status ? statusKey : bar.items[run.ids[0]] || null
-                visible: !!item && item.shown
+                readonly property bool wanted: !!slotLoader.item && slotLoader.item.shown
+                property real presence: wanted ? 1 : 0
+                Behavior on presence {
+                    enabled: Theme.enter > 0
+                    NumberAnimation {
+                        duration: slot.wanted ? Theme.enter : Theme.leave
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: Theme.easeInOut
+                    }
+                }
+                visible: presence > 0
+                clip: presence < 1
                 Layout.alignment: Qt.AlignVCenter
-                Layout.preferredWidth: item ? item.implicitWidth : 0
-                Layout.preferredHeight: item ? item.implicitHeight : 0
+                Layout.preferredWidth: slotLoader.item ? slotLoader.item.implicitWidth * presence : 0
+                Layout.preferredHeight: slotLoader.item ? slotLoader.item.implicitHeight : 0
+                // The zone's gap closes with the slot.
+                Layout.rightMargin: -zoneRow.spacing * (1 - presence)
+                Loader {
+                    id: slotLoader
+                    readonly property var run: slot.modelData
+                    readonly property string zone: zoneRow.name
+                    sourceComponent: run.status ? statusKey : bar.items[run.ids[0]] || null
+                    width: item ? item.implicitWidth : 0
+                    height: item ? item.implicitHeight : 0
+                    opacity: slot.presence
+                    scale: Theme.reduced ? 1 : 0.9 + 0.1 * slot.presence
+                }
             }
         }
     }

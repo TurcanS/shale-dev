@@ -49,7 +49,12 @@ PanelWindow {
     }
     // Lifts away as the desktop folds into the lock screen, and drops back in just behind the reveal after an unlock.
     property real arrival: 1
-    Component.onCompleted: arrival = ShellState.locked ? 0 : 1
+    // On start the bar drops in, unless it starts under the lock screen.
+    Component.onCompleted: {
+        arrival = 0;
+        if (!ShellState.locked)
+            arrive.restart();
+    }
     Connections {
         target: ShellState
         function onLockedChanged() {

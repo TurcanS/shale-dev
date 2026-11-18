@@ -97,20 +97,20 @@ BarKey {
                 }
             }
         }
-        C.Label {
+        // A new track rolls in.
+        C.RollText {
             visible: mediaButton.wide
             text: mediaButton.player ? mediaButton.player.trackTitle || mediaButton.player.identity : ""
             font.pixelSize: 12
             font.weight: Font.DemiBold
-            Layout.maximumWidth: 170
+            maximumWidth: 170
         }
-        C.Label {
+        C.RollText {
             visible: mediaButton.wide && mediaButton.artist !== ""
             text: " · " + mediaButton.artist
             color: Theme.textDim
             font.pixelSize: 12
-            Layout.fillWidth: true
-            Layout.maximumWidth: 130
+            maximumWidth: 130
             Layout.leftMargin: -8
         }
     }
