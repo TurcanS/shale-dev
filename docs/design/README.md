@@ -136,22 +136,21 @@ font "Hanken Grotesk"  mono "Martian Mono"
 The Rack language, evolved: the owner chose a material of its own instead of plain frosted glass, and motion with
 physics. Power saver and Reduce effects keep everything above (solid cases, no pointer effects).
 
-**Studio glass** (`components/Frost.qml`, `assets/shaders/glass.frag`, Settings → Appearance → Glass, on by default):
-- Body: the screen's wallpaper, blurred, seen through fine vertical reeds 14 px apart, under the case colour tinted
-  5% toward the accent at 76% (`glassCover`), saturation 1.5, never brighter than relative luminance 0.26
-  (`glassCeiling`) so text keeps its contrast on a bright picture.
-- Rim: a bevel that bends in what lies just past the edge, red, green and blue bent a little apart like cut glass,
-  lit by the wallpaper's colour beyond the edge, with a highlight from the top left and a faint lip where it meets
-  the flat. Width per surface: panels 18, notifications, digest, track and AirDrop cards 14, messages and the OSD 12,
-  the bar 9 (the bar also turns edge light, sheen and reeds down to about 60%).
-- Under the pointer (lively motion only): the edge brightens near the pointer and a thin film in the accent, with a
-  little iridescence, slides across the glass along a band through the pointer; it fades in over 220 ms and out over
-  520 ms.
+**Reeded glass** (`components/Frost.qml`, `assets/shaders/reeds.frag`, Settings → Appearance → Glass, on by default).
+The owner turned down a refracting, glowing bevel as a Liquid Glass copy; the material is quiet, precise hardware:
+- Body: the screen's wallpaper, blurred, through vertical reeds 16 px apart, under the case colour tinted 5% toward
+  the accent at 80% (`glassCover`), saturation 1.15, never brighter than relative luminance 0.22 (`glassCeiling`).
+- Each reed is lighter over its crown, softly creased where two meet, and carries a thin white glint; a fine grain
+  (±0.9%) gives an etched finish and keeps the blur from banding. A touch darker toward the bottom.
+- Edge: a 1 px chamfer that catches light at the top (white 17%, 4.5% at the bottom) and a dark line just inside it
+  at the bottom. No glow, no refraction, no colour split.
+- Under the pointer (lively motion only): the reeds near the pointer glint brighter, in white, as reeded glass does
+  under a lamp; in over 220 ms, out over 520 ms. The bar's reeds and glint are at 60%.
 - Surfaces inside glass are see-through: module white 5.5%, moduleAlt black 14%, group white 4%, well black 22%;
   `moduleSolid` is the solid module colour for backings that must hide what is under them. textDim is 12% lighter.
 - A contact shadow (y 2, blur 6, black 30%) sits under the case's long shadow.
-- Contrast measured on the owner's wallpaper: body text 11 to 13:1, secondary 7.7:1 or better, dim 5:1 or better at
-  rest (4.3 to 4.9:1 for the moment the sheen passes under it).
+- Contrast on the owner's wallpaper (90th-percentile background): body text 11 to 13.5:1, secondary 7.9:1 or better,
+  dim 5:1 or better at rest (about 4.3:1 on a tile right under the pointer).
 
 **Motion**: entering and leaving on cubic-bezier(.23, 1, .32, 1), moving across the screen on (.77, 0, .175, 1),
 colour on CSS ease; springs for things that follow a value or the pointer (`Theme.springSnappy`, `springCrisp`,

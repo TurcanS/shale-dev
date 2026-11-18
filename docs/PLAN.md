@@ -330,3 +330,9 @@ hover card (popup windows whose screen position is harder to know; they keep the
 widgets (their window's place depends on the bar's reserved space; Pass 5). The Settings page's bottom fade is
 weaker on glass (it fades to see-through moduleAlt). Glass shows the wallpaper, not the windows behind a panel, by
 design. Offscreen previews of the glass need the GPU backend (see pass 0).
+
+Carry-over from the glass polish: the owner found the prism bevel, edge glow and iridescent sheen cheap and too close
+to Liquid Glass; the material is now reeded glass (`assets/shaders/reeds.frag`; Frost takes `reeds` and `glint`,
+0 to 1, and nothing else per surface). FrostSource keeps one quarter-size heavy blur. The running shell keeps a
+shader by its file name across reloads, so a changed shader needs a new file name (or a restart) to show; and copy
+shader files before the QML that uses them, as each copied file can reload the shell.
