@@ -352,3 +352,13 @@ and `bottom` are FINAL anchor lines, so they can't be property names.
 Carry-over from the glass polish, second round: the reeds read as stray lines on the panels (most when hovering or
 opening one), so the glass is plain etched glass now (`assets/shaders/etched.frag`; Frost takes `glint`, the
 strength of the soft light under the pointer, and nothing else per surface).
+
+Carry-over from the shatter: `components/Shatter.qml` breaks any texture (a ShaderEffectSource) into Shape pieces
+filled with it (`ShapePath.fillItem`, Qt 6.8+) along rays and rings from `impact`; the last ring lies past every
+corner so nothing shows through early; each break is different. The lock screen uses it on unlock
+(`LockContent.qml`: one snapshot as the password is accepted, the shards over the plain wallpaper, black for the
+classic style, which is the picture LockTransition opens onto the desktop from; `LockScreen` waits 1.2 s). Setting
+`unlockEffect` ("shatter" or "style"), Settings → Appearance → Lock screen → Unlock; reduced motion and trimmed
+effects keep the style's own. Not built yet: Clear all in Notifications and holding power off, the other two places
+the owner was offered. The unlock path was tested offscreen with stand-in styles only (a real unlock needs the
+owner's password). QML gotcha: a function named like an Item property (`clip`) silently overrides it.
