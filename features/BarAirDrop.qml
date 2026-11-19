@@ -27,6 +27,8 @@ BarLiveChip {
         return "";
     }
     readonly property bool trouble: !!AirDrop.error && !live
+    // Going live (visible, looking, a request, files moving), the chip warms up.
+    onLiveChanged: if (live) flash()
     shown: AirDrop.available && (AirDrop.active || !!AirDrop.error)
     rest: live ? Theme.accentSoft : "transparent"
     foreground: live ? Theme.accentText : trouble ? Theme.dangerText : Theme.text

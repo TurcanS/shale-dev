@@ -48,6 +48,51 @@ Item {
             ShellState.detail = detail;
         }
     }
+    // Coming on, after start-up and after an unlock: the items light one after another from left to right, like the
+    // LEDs on a rack unit warming up, and the page pill runs across the pages (bootStarted). sweep is how far the
+    // light has got across the bar; Calm skips it.
+    property real sweep: Motion.calm ? 2 : 0
+    signal bootStarted()
+    function boot() {
+        if (Motion.calm) {
+            sweep = 2;
+            return;
+        }
+        sweeping.restart();
+        bootStarted();
+    }
+    NumberAnimation {
+        id: sweeping
+        target: bar
+        property: "sweep"
+        from: 0
+        to: 1.3
+        duration: Motion.ms(760)
+        onFinished: bar.sweep = 2
+    }
+    Timer {
+        id: bootDelay
+        // Just as the bar lands (Bar.qml drops it in after an unlock).
+        interval: 320
+        onTriggered: bar.boot()
+    }
+    // Items that come and go slide out from beside their neighbour, but not while the bar first fills in.
+    property bool settledIn: false
+    Timer {
+        interval: 1500
+        running: true
+        onTriggered: bar.settledIn = true
+    }
+    Component.onCompleted: bootDelay.start()
+    Connections {
+        target: ShellState
+        function onLockedChanged() {
+            if (!ShellState.locked && !Motion.calm) {
+                bar.sweep = 0;
+                bootDelay.restart();
+            }
+        }
+    }
     // This page, for its items: in their own bindings `bar` names their own property.
     readonly property Item content: bar
     // The time every item on this bar shows.
@@ -85,13 +130,43 @@ Item {
         Repeater {
             model: BarItems.runs(bar.layout[zoneRow.name])
             Loader {
+                id: slot
                 required property var modelData
                 readonly property var run: modelData
                 readonly property string zone: zoneRow.name
                 sourceComponent: run.status ? statusKey : bar.items[run.ids[0]] || null
-                visible: !!item && item.shown
+                // Coming and going: a slot opens out from beside its neighbour and seats; it goes at once.
+                readonly property bool wanted: !!item && item.shown
+                property real reveal: wanted ? 1 : 0
+                onWantedChanged: {
+                    opening.stop();
+                    if (wanted && bar.settledIn && !Motion.calm) {
+                        reveal = 0;
+                        opening.start();
+                    } else {
+                        reveal = wanted ? 1 : 0;
+                    }
+                }
+                NumberAnimation {
+                    id: opening
+                    target: slot
+                    property: "reveal"
+                    from: 0
+                    to: 1
+                    duration: Motion.ms(320)
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Motion.seatCurve(Motion.ov(0.6))
+                }
+                // The start-up light reaching this slot.
+                readonly property real lit: bar.sweep >= 1.3 || Motion.calm ? 1 : Motion.clamp((bar.sweep * bar.width - zoneRow.x - x) / 240, 0, 1)
+                visible: reveal > 0.02
+                clip: reveal < 0.999
+                opacity: Math.min(1, reveal * 1.5) * lit
+                transform: Translate {
+                    y: slot.lit < 1 ? -3 * Motion.travel * (1 - Motion.seat(Motion.ov(1), slot.lit)) : 0
+                }
                 Layout.alignment: Qt.AlignVCenter
-                Layout.preferredWidth: item ? item.implicitWidth : 0
+                Layout.preferredWidth: item ? item.implicitWidth * Math.min(1, reveal) : 0
                 Layout.preferredHeight: item ? item.implicitHeight : 0
             }
         }

@@ -22,9 +22,20 @@ BarLiveChip {
     contentItem: RowLayout {
         spacing: 6
         C.Icon {
+            id: dot
             name: "record"
             size: 12
             color: Theme.accentText
+            // A recording LED: a short blink, a long glow.
+            SequentialAnimation on opacity {
+                running: recordingChip.shown && !Motion.calm && recordingChip.bar.onScreen
+                loops: Animation.Infinite
+                NumberAnimation { to: 0.3; duration: 140; easing.type: Easing.OutQuad }
+                PauseAnimation { duration: 260 }
+                NumberAnimation { to: 1; duration: 140; easing.type: Easing.OutQuad }
+                PauseAnimation { duration: 900 }
+                onStopped: dot.opacity = 1
+            }
         }
         // Tabular digits keep the chip from jittering every second.
         C.Label {

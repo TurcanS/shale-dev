@@ -27,6 +27,18 @@ BarStatusPart {
     tooltip: bar.tooltip
     Accessible.name: "Battery " + Math.round(Services.batteryPercent) + "%" + (Services.batteryCharging ? ", charging" : "")
     selected: bar.controlActive("power")
+    // Plugged in: the key flashes once, like a charge lamp coming on.
+    readonly property bool charging: Services.batteryCharging
+    onChargingChanged: if (charging) lamp.flash()
+    C.WarmUp {
+        id: lamp
+        anchors.fill: parent
+        anchors.topMargin: 2
+        anchors.bottomMargin: 2
+        radius: Theme.radiusSegment
+        color: Theme.accent
+        peak: 0.35
+    }
     onClicked: bar.toggleControl("power")
     contentItem: RowLayout {
         spacing: 5

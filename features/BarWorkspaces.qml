@@ -23,6 +23,29 @@ Rectangle {
     implicitHeight: 28
     radius: Theme.radiusKey
     color: Theme.module
+    // The start-up self-test: the pill runs across every page, then clicks back to the current one.
+    property int testAt: -1
+    Connections {
+        target: pages.bar
+        function onBootStarted() {
+            if (workspaceModel.count > 1) {
+                pages.testAt = 0;
+                tester.restart();
+            }
+        }
+    }
+    Timer {
+        id: tester
+        interval: Motion.ms(70)
+        repeat: true
+        onTriggered: {
+            pages.testAt++;
+            if (pages.testAt >= workspaceModel.count) {
+                pages.testAt = -1;
+                stop();
+            }
+        }
+    }
     ListView {
         id: strip
         // Empty pages 1…N shown as well, unless they belong to another screen.
@@ -70,20 +93,24 @@ Rectangle {
             required property string workspaceName
             required property bool urgent
             required property bool empty
+            required property int index
             readonly property bool current: strip.activeId === workspaceId
-            readonly property color tint: current ? Theme.accent : urgent ? Theme.warning : page.hovered ? Theme.textSecondary : empty ? bar.emptyPage : Theme.textDim
+            // The page the pill sits on: the current one, or the one the self-test has reached.
+            readonly property bool lit: pages.testAt >= 0 ? index === pages.testAt : current
+            readonly property color tint: lit ? Theme.accent : urgent ? Theme.warning : page.hovered ? Theme.textSecondary : empty ? bar.emptyPage : Theme.textDim
             // The current page stretches into a lit pill.
-            property real markWidth: pages.dots ? (current ? 22 : 7) : (current ? 22 : 16)
+            property real markWidth: pages.dots ? (lit ? 22 : 7) : (lit ? 22 : 16)
             width: markWidth + 5
             height: strip.height
             padding: 0
             hint: "Page " + workspaceName
             Accessible.name: "Page " + workspaceName + (current ? ", current" : empty ? ", empty" : ", has windows")
+            // A selector with a detent: the pill holds, then snaps over with a click (a plain slide under Calm).
             Behavior on markWidth {
                 NumberAnimation {
-                    duration: Theme.reduced ? 0 : Theme.lowPower ? 140 : 220
+                    duration: Theme.reduced ? 0 : Motion.calm ? (Theme.lowPower ? 140 : 220) : Motion.ms(pages.testAt >= 0 ? 120 : 280)
                     easing.type: Easing.BezierSpline
-                    easing.bezierCurve: Theme.easeOut
+                    easing.bezierCurve: Motion.calm ? Theme.easeOut : Motion.detentCurve(Motion.ov(1))
                 }
             }
             background: Item {}
@@ -91,7 +118,7 @@ Rectangle {
                 // The glow costs a blur pass; power saver goes without it.
                 RectangularShadow {
                     anchors.fill: mark
-                    visible: page.current && !Theme.lowPower
+                    visible: page.lit && !Theme.lowPower
                     radius: mark.radius
                     blur: 10
                     color: Theme.tint(Theme.accent, 0.55)
@@ -103,7 +130,7 @@ Rectangle {
                     width: page.markWidth
                     height: pages.dots ? 7 : 16
                     radius: pages.dots ? 4 : 6
-                    color: pages.dots || page.current ? page.tint : "transparent"
+                    color: pages.dots || page.lit ? page.tint : "transparent"
                     Behavior on color {
                         ColorAnimation {
                             duration: Theme.fast
@@ -113,10 +140,10 @@ Rectangle {
                         visible: !pages.dots
                         anchors.centerIn: parent
                         text: page.workspaceName
-                        color: page.current ? Theme.accentInk : page.tint
+                        color: page.lit ? Theme.accentInk : page.tint
                         font.family: Theme.mono
                         font.pixelSize: 10
-                        font.weight: page.current ? Font.DemiBold : Font.Normal
+                        font.weight: page.lit ? Font.DemiBold : Font.Normal
                         elide: Text.ElideNone
                     }
                 }
