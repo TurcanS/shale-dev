@@ -278,3 +278,16 @@ of Control's home view, Activity and Launcher and the helper's modules, one focu
 controls, a keyed model for Wi-Fi rows (rows are only rebuilt when the list changes), snippets (the design's are
 typed into apps, which Shale doesn't do), calendar events, widget blur. The `Services.qml` "Unable to assign
 [undefined]" warning shows only while the shell reloads, from the copy being torn down.
+
+Carry-over from the motion pass (studio gear): `core/Motion.qml` is the motion engine. `Motion.style` comes from the
+`motion` setting (calm, lively, playful); Reduce motion and trimmed effects mean `Motion.calm`, which keeps the plain
+Rack timings. Use `Motion.ms()` for durations (0 under Reduce motion) and its curves (`seatCurve`, `detentCurve`,
+`warmCurve`; `seat()`, `detent()`, `out()` for frame-by-frame work). Components: `Seat`, `Detent` and `Ballistic` are
+Behaviors (`C.Detent on x {}`), `WarmUp` is a lamp to `flash()`, `Shake` a transform, `SwitchTrack` the one switch,
+`Cascade` a transform that brings a panel's items in turn when `Motion.entering(panel, delay)` fires. Every panel's
+entrance lives in `PanelHost.frameAt()` (`entranceFor`; a page may declare `entrance`); bar keys `Motion.mark()` on
+press so panels come out of them and `Motion.landed()` makes the key catch it. Buttons sink by `pressDepth` (rows set 0)
+and carry a Translate, so a Button that sets its own `transform` must add `sunk` itself (BarKey does). Not done yet:
+Find's emoji ripple and row-highlight detent, Player's cover eject and load, Wi-Fi rows cascading after a scan, the
+digest and AirDrop toasts, Capture's countdown tick, Overview's windows flying to their cells and Wallpapers' bracket
+apply.
