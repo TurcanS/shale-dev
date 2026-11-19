@@ -170,10 +170,26 @@ FocusScope {
                     list.positionViewAtIndex(index, ListView.Contain)
                 onRemoving: list.refocus = index
                 property real rise: 1
-                opacity: rise
-                transform: Translate {
-                    y: (1 - historyCard.rise) * -6
-                }
+                opacity: rise * feed.shown
+                // Opening the panel, the cards are fed down one after another like paper, flattening as they land.
+                transform: [
+                    Translate {
+                        y: (1 - historyCard.rise) * -6
+                    },
+                    C.Cascade {
+                        id: feed
+                        panel: "notifications"
+                        order: historyCard.index
+                        dy: -10
+                        spacing: 2.2
+                    },
+                    Rotation {
+                        origin.x: historyCard.width / 2
+                        origin.y: 0
+                        axis { x: 1; y: 0; z: 0 }
+                        angle: feed.progress < 1 ? -34 * (1 - feed.progress) : 0
+                    }
+                ]
                 NumberAnimation {
                     id: arrival
                     target: historyCard

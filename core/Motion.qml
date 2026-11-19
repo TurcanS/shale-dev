@@ -130,6 +130,8 @@ QtObject {
         return m && Date.now() - m.at < 700 ? m.item : null;
     }
     signal caught(Item item)
+    // A panel's entrance has started; its items (Cascade) come in after delay ms, one after another.
+    signal entering(string panel, int delay)
     function landed(item) {
         if (item && !calm)
             caught(item);

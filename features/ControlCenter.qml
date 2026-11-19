@@ -618,7 +618,21 @@ FocusScope {
                             C.QuickTile {
                                 id: quickTile
                                 required property string modelData
+                                required property int index
                                 readonly property var info: root.tile(modelData)
+                                // Opening Control, the tiles seat in their rails one after another.
+                                opacity: seat.shown
+                                transform: [
+                                    Translate {
+                                        y: quickTile.sunk
+                                    },
+                                    C.Cascade {
+                                        id: seat
+                                        panel: "control"
+                                        order: quickTile.index
+                                        dy: -14
+                                    }
+                                ]
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 Layout.preferredWidth: 1

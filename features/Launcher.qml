@@ -794,6 +794,15 @@ FocusScope {
                     required property int index
                     readonly property bool current: ListView.isCurrentItem
                     width: list.width
+                    // Opening Find, the results cascade in under the field.
+                    opacity: arrive.shown
+                    transform: C.Cascade {
+                        id: arrive
+                        panel: "launcher"
+                        order: entry.index
+                        dy: 8
+                        limit: 8
+                    }
                     C.Label {
                         visible: entry.modelData.header !== ""
                         width: parent.width

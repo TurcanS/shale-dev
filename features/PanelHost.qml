@@ -106,6 +106,11 @@ PanelWindow {
         brackets: [1100, 230], receipt: [520, 170], eject: [560, 260], power: [790, 290], plot: [860, 220],
         iris: [460, 220], settings: [490, 240], zoom: [240, 300]
     })
+    // When, into each entrance at Lively, the case has opened far enough for its items to start arriving.
+    readonly property var innerDelay: ({
+        drawer: 150, unroll: 120, scope: 300, session: 260, flip: 160, brackets: 380, receipt: 60, eject: 300,
+        power: 220, plot: 540, iris: 200, settings: 220, zoom: 90
+    })
     function span(name, leaving) {
         if (name === "rise")
             return leaving ? Theme.panelLeave : Theme.panelEnter;
@@ -136,6 +141,9 @@ PanelWindow {
             drive.restart();
             if (host.entrance === "iris")
                 rings.restart();
+            // The page's own items come in once the case has room for them (Cascade), the Player being Control's.
+            const own = host.retainedPanel === "control" && ShellState.detail === "media" ? "player" : host.retainedPanel;
+            Motion.entering(own, host.innerDelay[host.entrance] || 0);
         });
     }
     function finish() {

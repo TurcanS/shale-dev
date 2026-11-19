@@ -396,6 +396,21 @@ FocusScope {
                     readonly property string type: root.typeOf(modelData)
                     width: list.width
                     height: 48
+                    // Opening the panel, the rows print in from the top like a receipt.
+                    opacity: (enabled ? 1 : Theme.disabledOpacity) * printIn.shown
+                    transform: [
+                        Translate {
+                            y: row.sunk
+                        },
+                        C.Cascade {
+                            id: printIn
+                            panel: "clipboard"
+                            order: row.index
+                            dy: -8
+                            spacing: 1.7
+                            limit: 12
+                        }
+                    ]
                     topPadding: 9
                     bottomPadding: 9
                     leftPadding: 8

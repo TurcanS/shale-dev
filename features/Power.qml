@@ -85,6 +85,23 @@ FocusScope {
     // One keyed action: icon tile, name, a short note and its letter. Picked, it takes the accent.
     component SessionTile: C.Button {
         id: tile
+        // Opening the menu, the tiles rise out of the case one after another (order: left to right).
+        property int order: 0
+        opacity: rise.shown
+        transform: [
+            Translate {
+                y: tile.sunk
+            },
+            C.Cascade {
+                id: rise
+                panel: "power"
+                order: tile.order
+                dy: 64
+                overshoot: 1
+                duration: 380
+                spacing: 1.6
+            }
+        ]
         property string note: ""
         property string key: ""
         property string sessionAction: ""
@@ -148,6 +165,7 @@ FocusScope {
             Layout.fillHeight: true
             spacing: Theme.gapS
             SessionTile {
+                order: 0
                 text: "Lock"
                 glyph: "lock"
                 key: "L"
@@ -155,6 +173,7 @@ FocusScope {
                 note: "Apps keep running."
             }
             SessionTile {
+                order: 1
                 text: "Sleep"
                 glyph: "moon"
                 key: "S"
@@ -162,6 +181,7 @@ FocusScope {
                 note: "Locks first."
             }
             SessionTile {
+                order: 2
                 text: root.picked === "logout" ? "Sign out?" : "Sign out"
                 glyph: "logout"
                 key: "O"
@@ -170,6 +190,7 @@ FocusScope {
                 note: root.picked === "logout" ? "Press again to sign out." : "Closes every app."
             }
             SessionTile {
+                order: 3
                 text: root.picked === "reboot" ? "Restart?" : "Restart"
                 glyph: "refresh"
                 key: "R"
