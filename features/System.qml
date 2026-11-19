@@ -373,6 +373,15 @@ FocusScope {
                 readonly property bool current: !!root.current && root.current.key === modelData
                 width: list.width
                 height: list.rowHeight
+                // Powering up, the device keys seat one after another under the light bar.
+                opacity: rowIn.shown
+                transform: C.Cascade {
+                    id: rowIn
+                    panel: "system"
+                    order: row.index
+                    dy: -10
+                    spacing: 1.4
+                }
                 radius: 14
                 color: current ? Theme.accentSoft : rowArea.containsMouse ? Theme.mix(Theme.module, Theme.text, 0.04) : Theme.module
                 border.width: 1
@@ -582,6 +591,19 @@ FocusScope {
                                 id: core
                                 required property int index
                                 readonly property real load: root.sample && root.sample.cpu.cores[index] !== undefined ? root.sample.cpu.cores[index] : 0
+                                // The self-test as the panel powers up: each thread's bar sweeps to full and falls back to its load.
+                                readonly property real test: selfTest.progress
+                                readonly property real shown: test >= 1 ? load : test < 0.45 ? 100 * Motion.out(test / 0.45) : Motion.lerp(100, load, Motion.smooth((test - 0.45) / 0.55))
+                                transform: C.Cascade {
+                                    id: selfTest
+                                    panel: "system"
+                                    order: core.index
+                                    dy: 0
+                                    limit: 32
+                                    spacing: 0.5
+                                    duration: 620
+                                    overshoot: 0
+                                }
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 // Bare bars on the graph's floor: empty wells read as a row of broken boxes at idle.
@@ -589,10 +611,13 @@ FocusScope {
                                 Rectangle {
                                     anchors.bottom: parent.bottom
                                     width: parent.width
-                                    height: Math.max(2, parent.height * core.load / 100)
+                                    height: Math.max(2, parent.height * Math.min(100, core.shown) / 100)
                                     radius: 2
-                                    color: core.load >= 1 ? Theme.accent : Theme.key
-                                    Behavior on height { NumberAnimation { duration: Theme.fast; easing.type: Easing.OutCubic } }
+                                    color: core.shown >= 1 ? Theme.accent : Theme.key
+                                    Behavior on height {
+                                        enabled: core.test >= 1
+                                        NumberAnimation { duration: Theme.fast; easing.type: Easing.OutCubic }
+                                    }
                                 }
                             }
                         }

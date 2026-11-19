@@ -398,25 +398,43 @@ FocusScope {
                     Layout.preferredWidth: 1
                     Layout.fillHeight: true
                     opacity: chart.selectedIndex < 0 || chart.selectedIndex === index ? 1 : 0.55
+                    // Opening Activity, the chart is plotted from left to right behind the pen, each bar overshooting
+                    // a little as it lands.
+                    readonly property real plotted: Math.max(0, plotIn.progress)
+                    transform: C.Cascade {
+                        id: plotIn
+                        panel: "activity"
+                        order: column.index
+                        dy: 0
+                        limit: 60
+                        spacing: 0.7
+                        overshoot: 1.2
+                    }
                     Accessible.role: Accessible.Button
                     Accessible.name: chart.names[index] || ""
                     Rectangle {
                         id: lower
                         anchors.bottom: parent.bottom
                         width: parent.width
-                        height: Math.max(2, Math.min(1, (column.modelData.a || 0) / chart.maximum) * parent.height)
+                        height: Math.max(2, Math.min(1, (column.modelData.a || 0) / chart.maximum) * parent.height * column.plotted)
                         radius: 3
                         color: column.index === chart.highlight ? Theme.accent : chart.color
-                        Behavior on height { NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic } }
+                        Behavior on height {
+                            enabled: column.plotted === 1
+                            NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic }
+                        }
                     }
                     Rectangle {
                         anchors.bottom: lower.top
                         anchors.bottomMargin: height > 0 ? 1 : 0
                         width: parent.width
-                        height: Math.min(1, (column.modelData.b || 0) / chart.maximum) * parent.height
+                        height: Math.min(1, (column.modelData.b || 0) / chart.maximum) * parent.height * column.plotted
                         radius: 3
                         color: Theme.second
-                        Behavior on height { NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic } }
+                        Behavior on height {
+                            enabled: column.plotted === 1
+                            NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic }
+                        }
                     }
                     MouseArea { anchors.fill: parent; onClicked: chart.picked(column.index) }
                 }

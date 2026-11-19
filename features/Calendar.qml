@@ -23,6 +23,27 @@ FocusScope {
     function shift(delta) {
         month = new Date(month.getFullYear(), month.getMonth() + delta, 1);
     }
+    // A new month turns over like a desk calendar's page: forward hinges on its top edge, back on its bottom.
+    property date shownMonth: month
+    property int turnDirection: 1
+    property real turn: 1
+    onMonthChanged: {
+        if (month.getTime() !== shownMonth.getTime() && !Motion.calm) {
+            turnDirection = month > shownMonth ? 1 : -1;
+            turning.restart();
+        }
+        shownMonth = month;
+    }
+    NumberAnimation {
+        id: turning
+        target: root
+        property: "turn"
+        from: 0
+        to: 1
+        duration: Motion.ms(340)
+        easing.type: Easing.BezierSpline
+        easing.bezierCurve: Motion.seatCurve(Motion.ov(0.9))
+    }
     // The month grid is one Tab stop: the picked day, or the first of the month when the picked day is elsewhere.
     readonly property date tabDay: picked.getFullYear() === month.getFullYear() && picked.getMonth() === month.getMonth() ? picked : month
     // Arrow keys in the grid pick the day next to the focused one (a week up or down), into the next month when they
@@ -144,10 +165,18 @@ FocusScope {
                     }
                 }
                 GridLayout {
+                    id: monthPage
                     columns: 7
                     columnSpacing: 0
                     rowSpacing: 2
                     Layout.fillWidth: true
+                    opacity: Math.min(1, root.turn * 2.5)
+                    transform: Rotation {
+                        origin.x: monthPage.width / 2
+                        origin.y: root.turnDirection > 0 ? 0 : monthPage.height
+                        axis { x: 1; y: 0; z: 0 }
+                        angle: root.turn < 1 ? root.turnDirection * 80 * (1 - root.turn) : 0
+                    }
                     Repeater {
                         model: 7
                         C.Label {
