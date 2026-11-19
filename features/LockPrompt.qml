@@ -37,11 +37,13 @@ ColumnLayout {
         transform: Translate { id: shakeOffset }
         SequentialAnimation {
             id: shake
-            NumberAnimation { target: shakeOffset; property: "x"; to: -6; duration: 60; easing.type: Easing.InOutSine }
-            NumberAnimation { target: shakeOffset; property: "x"; to: 6; duration: 60; easing.type: Easing.InOutSine }
-            NumberAnimation { target: shakeOffset; property: "x"; to: -6; duration: 60; easing.type: Easing.InOutSine }
-            NumberAnimation { target: shakeOffset; property: "x"; to: 6; duration: 60; easing.type: Easing.InOutSine }
-            NumberAnimation { target: shakeOffset; property: "x"; to: 0; duration: 60; easing.type: Easing.InOutSine }
+            // Calm: an even shake. Lively and Playful: harder at first, dying away like a struck panel.
+            NumberAnimation { target: shakeOffset; property: "x"; to: Motion.calm ? -6 : -9 * Motion.travel; duration: 60; easing.type: Easing.InOutSine }
+            NumberAnimation { target: shakeOffset; property: "x"; to: Motion.calm ? 6 : 7 * Motion.travel; duration: 60; easing.type: Easing.InOutSine }
+            NumberAnimation { target: shakeOffset; property: "x"; to: Motion.calm ? -6 : -4.5 * Motion.travel; duration: 60; easing.type: Easing.InOutSine }
+            NumberAnimation { target: shakeOffset; property: "x"; to: Motion.calm ? 6 : 2.5 * Motion.travel; duration: 60; easing.type: Easing.InOutSine }
+            NumberAnimation { target: shakeOffset; property: "x"; to: Motion.calm ? 0 : -1 * Motion.travel; duration: 60; easing.type: Easing.InOutSine }
+            NumberAnimation { target: shakeOffset; property: "x"; to: 0; duration: Motion.calm ? 0 : 70; easing.type: Easing.OutSine }
         }
         Connections {
             target: root.context

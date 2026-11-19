@@ -22,6 +22,9 @@ Item {
         target: root.context
         function onFailed() {
             field.forceActiveFocus();
+            // A wrong password: the edge flashes amber before it settles on red.
+            if (!Motion.calm)
+                failFlash.restart();
         }
         function onPasswordChanged() {
             if (field.text !== root.context.password)
@@ -58,8 +61,15 @@ Item {
             forceActiveFocus()
         onActiveFocusChanged: if (activeFocus)
             capsWatch.restart()
-        onTextChanged: if (root.context.password !== text)
-            root.context.password = text
+        onTextChanged: {
+            // Each character typed lights the field for a moment, like a key's LED.
+            if (text.length > typed && !Motion.calm)
+                keyLamp.flash();
+            typed = text.length;
+            if (root.context.password !== text)
+                root.context.password = text;
+        }
+        property int typed: 0
         onAccepted: root.context.submit()
         Keys.onEscapePressed: root.context.cancel()
         Keys.onPressed: event => {
@@ -74,6 +84,28 @@ Item {
             border.width: 1
             border.color: root.context.status !== "" ? Theme.tint(Theme.danger, 0.6) : Qt.rgba(1, 1, 1, 0.1)
             Behavior on border.color { ColorAnimation { duration: Theme.fast } }
+        }
+    }
+    C.WarmUp {
+        id: keyLamp
+        anchors.fill: parent
+        radius: height / 2
+        color: Theme.accent
+        peak: 0.07
+    }
+    Rectangle {
+        id: failEdge
+        anchors.fill: parent
+        radius: height / 2
+        color: "transparent"
+        border.width: 1.5
+        border.color: Theme.warning
+        opacity: 0
+        visible: opacity > 0
+        SequentialAnimation {
+            id: failFlash
+            NumberAnimation { target: failEdge; property: "opacity"; from: 0; to: 1; duration: Motion.ms(70); easing.type: Easing.OutQuad }
+            NumberAnimation { target: failEdge; property: "opacity"; to: 0; duration: Motion.ms(520); easing.type: Easing.InOutQuad }
         }
     }
     // Caps Lock is checked each second only while this field has the keyboard and someone
