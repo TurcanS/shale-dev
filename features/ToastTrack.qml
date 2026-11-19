@@ -19,7 +19,14 @@ PanelWindow {
     readonly property bool allowed: trackWindow.target && !ShellState.locked && ShellState.setting("trackChangeCard", true) && !Focus.digest
         && !(workspace && workspace.hasFullscreen) && !(ShellState.panel === "control" && ShellState.detail === "media")
     property real reveal: shown && allowed ? 1 : 0
-    Behavior on reveal { NumberAnimation { duration: trackWindow.shown ? Theme.enter : Theme.leave; easing.type: Easing.OutCubic } }
+    // Lively and Playful: it swings down from its top edge like a cassette door and seats. Calm keeps the drop.
+    Behavior on reveal {
+        NumberAnimation {
+            duration: trackWindow.shown ? (Motion.calm ? Theme.enter : Motion.ms(420)) : Theme.leave
+            easing.type: trackWindow.shown && !Motion.calm ? Easing.BezierSpline : Easing.OutCubic
+            easing.bezierCurve: Motion.seatCurve(Motion.ov(1.1))
+        }
+    }
     Connections {
         target: NowPlaying
         function onTrackChanged() {
@@ -55,8 +62,16 @@ PanelWindow {
         color: Theme.module
         border.width: 1
         border.color: Theme.cardEdge
-        opacity: trackWindow.reveal
-        transform: Translate { y: Theme.reduced ? 0 : (1 - trackWindow.reveal) * -8 }
+        opacity: Math.min(1, trackWindow.reveal * (Motion.calm ? 1 : 3))
+        transform: [
+            Translate { y: Theme.reduced || !Motion.calm ? 0 : (1 - trackWindow.reveal) * -8 },
+            Rotation {
+                origin.x: trackWindow.width / 2
+                origin.y: 0
+                axis { x: 1; y: 0; z: 0 }
+                angle: Motion.calm ? 0 : 84 * (1 - trackWindow.reveal)
+            }
+        ]
         HoverHandler {
             id: trackHover
             // Reading the card keeps it open; leaving gives a moment before it goes.

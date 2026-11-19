@@ -49,6 +49,42 @@ PanelWindow {
             required property var notificationData
             width: popupList.width
             height: popupCard.implicitHeight
+            // Swiped to the right, the card follows the pointer; let go past a third of the way it flies off and is
+            // dismissed, short of that it springs back into its slot.
+            property real swipeX: 0
+            opacity: 1 - Math.min(1, swipeX / width) * 0.6
+            transform: Translate {
+                x: popupItem.swipeX
+            }
+            DragHandler {
+                id: swipe
+                target: null
+                yAxis.enabled: false
+                grabPermissions: PointerHandler.CanTakeOverFromAnything
+                onTranslationChanged: if (active) popupItem.swipeX = Math.max(0, translation.x)
+                onActiveChanged: {
+                    if (active)
+                        return;
+                    if (popupItem.swipeX > popupItem.width / 3)
+                        flingAway.start();
+                    else
+                        springBack.start();
+                }
+            }
+            NumberAnimation {
+                id: springBack
+                target: popupItem
+                property: "swipeX"
+                to: 0
+                duration: Motion.ms(260)
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Motion.seatCurve(Motion.ov(0.6))
+            }
+            SequentialAnimation {
+                id: flingAway
+                NumberAnimation { target: popupItem; property: "swipeX"; to: popupItem.width + 40; duration: Motion.ms(160); easing.type: Easing.InQuad }
+                ScriptAction { script: popupCard.dismiss(false) }
+            }
             ListView.onRemove: {
                 popups.retiring++;
                 removal.start();
@@ -56,7 +92,11 @@ PanelWindow {
             SequentialAnimation {
                 id: removal
                 PropertyAction { target: popupItem; property: "ListView.delayRemove"; value: true }
-                NumberAnimation { target: popupItem; property: "opacity"; to: 0; duration: Theme.leave }
+                // Lively and Playful: it slides back out to the right as it goes.
+                ParallelAnimation {
+                    NumberAnimation { target: popupItem; property: "opacity"; to: 0; duration: Theme.leave }
+                    NumberAnimation { target: popupItem; property: "swipeX"; to: Motion.calm ? popupItem.swipeX : popupItem.swipeX + 48 * Motion.travel; duration: Theme.leave; easing.type: Easing.InQuad }
+                }
                 ScriptAction { script: popups.retiring-- }
                 PropertyAction { target: popupItem; property: "ListView.delayRemove"; value: false }
             }
@@ -79,18 +119,25 @@ PanelWindow {
         add: Transition {
             ParallelAnimation {
                 NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Theme.panelEnter }
+                // Pushed in from the screen's edge into its slot, where it seats (a short slide under Calm).
                 NumberAnimation {
                     property: "x"
-                    from: Theme.reduced ? 0 : 24
+                    from: Theme.reduced ? 0 : Motion.calm ? 24 : 90 * Motion.travel
                     to: 0
-                    duration: Theme.reduced ? 0 : Theme.lowPower ? 120 : 200
+                    duration: Theme.reduced ? 0 : Motion.calm ? (Theme.lowPower ? 120 : 200) : Motion.ms(380)
                     easing.type: Easing.BezierSpline
-                    easing.bezierCurve: Theme.easeOut
+                    easing.bezierCurve: Motion.calm ? Theme.easeOut : Motion.seatCurve(Motion.ov(0.8))
                 }
             }
         }
         displaced: Transition {
-            NumberAnimation { property: "y"; duration: Theme.reduced ? 0 : Theme.enter; easing.type: Easing.OutCubic }
+            // The stack closes up, each card seating in its new slot.
+            NumberAnimation {
+                property: "y"
+                duration: Theme.reduced ? 0 : Motion.calm ? Theme.enter : Motion.ms(300)
+                easing.type: Motion.calm ? Easing.OutCubic : Easing.BezierSpline
+                easing.bezierCurve: Motion.seatCurve(Motion.ov(0.6))
+            }
         }
     }
 }

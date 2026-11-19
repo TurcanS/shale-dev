@@ -31,8 +31,41 @@ PanelWindow {
     readonly property bool lit: ShellState.osdGlyph === "bell-off"
     // Transparent room for the shadow; nothing here takes clicks.
     readonly property int room: 40
-    property real reveal: osdWindow.target && ShellState.osdVisible && !ShellState.locked ? 1 : 0
-    Behavior on reveal { NumberAnimation { duration: Theme.fast; easing.type: Easing.OutCubic } }
+    readonly property bool showing: osdWindow.target && ShellState.osdVisible && !ShellState.locked
+    property real reveal: showing ? 1 : 0
+    // Lively and Playful: it extrudes out of the bottom edge and seats; it goes back quickly. Calm keeps the fade.
+    Behavior on reveal {
+        NumberAnimation {
+            duration: Motion.calm || !osdWindow.showing ? Theme.fast : Motion.ms(300)
+            easing.type: Motion.calm || !osdWindow.showing ? Easing.OutCubic : Easing.BezierSpline
+            easing.bezierCurve: Motion.seatCurve(Motion.ov(0.9))
+        }
+    }
+    // The level as a VU needle: it swings to a new value. Pushed past 0 or 100 it gives against the stop and comes
+    // back (peg, toward pegSide).
+    property real shownLevel: Math.max(0, Math.min(1, ShellState.osdValue))
+    C.Ballistic on shownLevel {}
+    property real lastValue: -1
+    property real peg: 0
+    property int pegSide: 1
+    SequentialAnimation {
+        id: pegging
+        NumberAnimation { target: osdWindow; property: "peg"; to: 1; duration: Motion.ms(60); easing.type: Easing.OutQuad }
+        NumberAnimation { target: osdWindow; property: "peg"; to: 0; duration: Motion.ms(320); easing.type: Easing.BezierSpline; easing.bezierCurve: Motion.seatCurve(Motion.ov(1.2)) }
+    }
+    // Switching between the level pill and the card swaps the face like a module.
+    property real swapScale: 1
+    onLevelChanged: if (reveal > 0.5 && !Motion.calm) swapping.restart()
+    NumberAnimation {
+        id: swapping
+        target: osdWindow
+        property: "swapScale"
+        from: 0.88
+        to: 1
+        duration: Motion.ms(300)
+        easing.type: Easing.BezierSpline
+        easing.bezierCurve: Motion.seatCurve(Motion.ov(1))
+    }
     anchors {
         bottom: true
     }
@@ -50,15 +83,19 @@ PanelWindow {
         id: osd
         anchors.fill: parent
         anchors.margins: osdWindow.room
-        opacity: osdWindow.reveal
+        opacity: Math.min(1, osdWindow.reveal * (Motion.calm ? 1 : 2))
         transform: [
             Scale {
                 origin.x: osd.width / 2
-                origin.y: osd.height / 2
-                xScale: Theme.reduced ? 1 : 0.94 + 0.06 * osdWindow.reveal
-                yScale: xScale
+                origin.y: Motion.calm ? osd.height / 2 : osd.height
+                xScale: (Theme.reduced ? 1 : Motion.calm ? 0.94 + 0.06 * osdWindow.reveal : Motion.lerp(0.86, 1, Math.min(1, osdWindow.reveal)))
+                        * (1 + 0.05 * osdWindow.peg * Motion.travel) * osdWindow.swapScale
+                yScale: (Theme.reduced ? 1 : Motion.calm ? 0.94 + 0.06 * osdWindow.reveal : Motion.lerp(0.3, 1, osdWindow.reveal)) * osdWindow.swapScale
             },
-            Translate { y: Theme.reduced ? 0 : (1 - osdWindow.reveal) * 6 }
+            Translate {
+                x: osdWindow.pegSide * 4 * osdWindow.peg * Motion.travel
+                y: Theme.reduced ? 0 : Motion.calm ? (1 - osdWindow.reveal) * 6 : (1 - osdWindow.reveal) * 22 * Motion.travel
+            }
         ]
         RectangularShadow {
             anchors.fill: osdCase
@@ -112,13 +149,12 @@ PanelWindow {
                     id: levelFill
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
-                    width: parent.width * Math.max(0, Math.min(1, ShellState.osdValue))
+                    width: parent.width * Math.max(0, Math.min(1, osdWindow.shownLevel))
                     radius: 3
                     // Volume runs from the accent wash to the accent; brightness is light; muted keeps the real
                     // level visible, just quieter.
                     color: ShellState.osdMuted ? Theme.textFaint : Theme.text
                     gradient: osdWindow.volume && !ShellState.osdMuted ? volumeGradient : undefined
-                    Behavior on width { NumberAnimation { duration: Theme.fast; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut } }
                     Gradient {
                         id: volumeGradient
                         orientation: Gradient.Horizontal
@@ -185,6 +221,13 @@ PanelWindow {
             function onOsdSerialChanged() {
                 if (!Theme.reduced && !Theme.lowPower && osdWindow.reveal > 0)
                     bump.restart();
+                // Pushed against an end it is already at: the needle pegs.
+                const value = ShellState.osdValue;
+                if (osdWindow.level && !Motion.calm && osdWindow.reveal > 0.5 && value === osdWindow.lastValue && (value >= 1 || value <= 0)) {
+                    osdWindow.pegSide = value >= 1 ? 1 : -1;
+                    pegging.restart();
+                }
+                osdWindow.lastValue = value;
             }
         }
     }

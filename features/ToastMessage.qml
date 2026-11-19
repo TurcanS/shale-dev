@@ -15,7 +15,8 @@ PanelWindow {
     property string retainedText: ""
     property string retainedKind: "info"
     property var retainedAction: null
-    property real reveal: messageWindow.target && ShellState.toast !== "" && !ShellState.locked ? 1 : 0
+    readonly property bool showing: messageWindow.target && ShellState.toast !== "" && !ShellState.locked
+    property real reveal: showing ? 1 : 0
     Connections {
         target: ShellState
         function onToastChanged() {
@@ -26,7 +27,14 @@ PanelWindow {
             messageWindow.retainedAction = ShellState.toastAction;
         }
     }
-    Behavior on reveal { NumberAnimation { duration: Theme.fast; easing.type: Easing.OutCubic } }
+    // Lively and Playful: it rises out of the bottom edge like a tray and seats. Calm keeps the short fade.
+    Behavior on reveal {
+        NumberAnimation {
+            duration: Motion.calm || !messageWindow.showing ? Theme.fast : Motion.ms(320)
+            easing.type: Motion.calm || !messageWindow.showing ? Easing.OutCubic : Easing.BezierSpline
+            easing.bezierCurve: Motion.seatCurve(Motion.ov(0.8))
+        }
+    }
     anchors {
         bottom: true
     }
@@ -54,8 +62,8 @@ PanelWindow {
     Rectangle {
         anchors.fill: parent
         color: Theme.module
-        opacity: messageWindow.reveal
-        transform: Translate { y: Theme.reduced ? 0 : (1 - messageWindow.reveal) * 6 }
+        opacity: Math.min(1, messageWindow.reveal * (Motion.calm ? 1 : 2))
+        transform: Translate { y: Theme.reduced ? 0 : (1 - messageWindow.reveal) * (Motion.calm ? 6 : 44 * Motion.travel) }
         radius: 14
         border.width: 1
         border.color: messageWindow.retainedKind === "error" ? Theme.dangerLine : Theme.cardEdge
