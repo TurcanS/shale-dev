@@ -17,6 +17,8 @@ C.Button {
     Accessible.role: Accessible.CheckBox
     Accessible.checkable: true
     Accessible.checked: selected
+    // M and S light like the lamps on a desk channel strip.
+    onSelectedChanged: if (selected) lamp.flash()
     background: Rectangle {
         radius: stripKey.cornerRadius
         color: stripKey.selected ? stripKey.onColor : stripKey.hovered || stripKey.down || stripKey.visualFocus ? Theme.keyHover : Theme.keyTile
@@ -24,6 +26,12 @@ C.Button {
             ColorAnimation {
                 duration: Theme.fast
             }
+        }
+        C.WarmUp {
+            id: lamp
+            anchors.fill: parent
+            radius: parent.radius
+            peak: 0.45
         }
     }
 }

@@ -56,6 +56,19 @@ AbstractButton {
             easing.type: Easing.OutCubic
         }
     }
+    // Key travel: a press also sinks the key a pixel with a darker top edge, like a real key going down, and letting
+    // go brings it straight back. Whole rows set pressDepth 0. Calm keeps only the scale.
+    property real pressDepth: 1
+    property real sunk: down && !Motion.calm ? pressDepth : 0
+    Behavior on sunk {
+        NumberAnimation {
+            duration: root.down ? Motion.ms(60) : Motion.ms(110)
+            easing.type: Easing.OutQuad
+        }
+    }
+    transform: Translate {
+        y: root.sunk
+    }
     background: Rectangle {
         readonly property bool lit: root.hovered || root.down || root.visualFocus
         radius: root.cornerRadius
@@ -85,6 +98,16 @@ AbstractButton {
                     duration: Theme.fast
                 }
             }
+        }
+    }
+    Rectangle {
+        anchors.fill: parent
+        visible: root.sunk > 0.01 && !root.flat
+        radius: root.cornerRadius
+        opacity: root.sunk
+        gradient: Gradient {
+            GradientStop { position: 0; color: Qt.rgba(0, 0, 0, 0.28) }
+            GradientStop { position: 0.35; color: "transparent" }
         }
     }
     // Keyboard focus only (visualFocus is false for mouse clicks), so there are still no click outlines.

@@ -22,6 +22,7 @@ Button {
     Accessible.description: description
     // A whole row only gives a little under the pointer.
     scale: down && !Theme.reduced ? Theme.rowPressScale : 1
+    pressDepth: 0
     background: Rectangle {
         radius: root.flat ? Theme.radiusCard + 2 : Theme.radiusCard
         color: root.flat ? (root.hovered || root.visualFocus || root.down ? Theme.rowWash(root.down) : "transparent")
@@ -76,29 +77,12 @@ Button {
                 font.pixelSize: Theme.small
             }
         }
-        // The switch: a key-coloured track that turns accent, with a light knob that slides across.
-        Rectangle {
+        SwitchTrack {
+            on: root.selected
+            hot: root.hovered || root.visualFocus || root.down
+            opacity: root.enabled ? 1 : Theme.disabledOpacity
             Layout.preferredWidth: 40
             Layout.preferredHeight: 22
-            radius: 11
-            color: root.selected ? Theme.accent : root.hovered || root.visualFocus || root.down ? Theme.keyHover : Theme.key
-            opacity: root.enabled ? 1 : Theme.disabledOpacity
-            Behavior on color { ColorAnimation { duration: Theme.slide } }
-            Rectangle {
-                x: root.selected ? 21 : 3
-                y: 3
-                width: 16
-                height: 16
-                radius: 8
-                color: Theme.knob
-                Behavior on x {
-                    NumberAnimation {
-                        duration: Theme.slide
-                        easing.type: Easing.BezierSpline
-                        easing.bezierCurve: Theme.easeOut
-                    }
-                }
-            }
         }
     }
 }

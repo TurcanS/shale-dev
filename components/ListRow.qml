@@ -34,6 +34,7 @@ Button {
     cornerRadius: Theme.radiusKey + 2
     // A whole row only gives a little under the pointer.
     scale: down && !Theme.reduced ? Theme.rowPressScale : 1
+    pressDepth: 0
     // A module at rest; the chosen row lays the accent wash over it.
     background: Rectangle {
         radius: root.cornerRadius

@@ -26,7 +26,7 @@ C.Button {
     // Catching its panel back, the key dips a pixel or two and lights for a moment.
     property real catchT: 1
     transform: Translate {
-        y: 1.6 * Math.sin(Math.PI * key.catchT)
+        y: key.sunk + 1.6 * Math.sin(Math.PI * key.catchT)
     }
     NumberAnimation {
         id: catchAnimation

@@ -12,6 +12,8 @@ Button {
     readonly property bool split: detailHint !== ""
     readonly property int detailWidth: 40
     signal detailRequested()
+    // Turning on, the glyph tile warms up like an indicator lamp.
+    onSelectedChanged: if (selected) lamp.flash()
     // Hovering the chevron segment must not also light up the body it doesn't act on.
     readonly property bool bodyActive: root.down || root.visualFocus || (root.hovered && !(split && detailButton.hovered))
     implicitHeight: Math.max(60, tileContent.implicitHeight + topPadding + bottomPadding)
@@ -46,6 +48,12 @@ Button {
             size: 36
             glyph: root.glyph
             selected: root.selected
+            WarmUp {
+                id: lamp
+                anchors.fill: parent
+                radius: parent.radius
+                peak: 0.4
+            }
         }
         ColumnLayout {
             Layout.fillWidth: true
@@ -88,6 +96,7 @@ Button {
         hint: root.detailHint
         padding: 0
         scale: 1
+        pressDepth: 0
         onClicked: root.detailRequested()
         // A translucent tint reads correctly on both the neutral and the selected tile colors.
         background: Rectangle {

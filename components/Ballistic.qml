@@ -11,7 +11,7 @@ Behavior {
     readonly property bool rising: targetProperty.object && targetValue > targetProperty.object[targetProperty.name]
     SpringAnimation {
         spring: Motion.calm ? 3.4 : root.rising ? (Motion.playful ? 6 : 5) : 2.4
-        damping: Motion.calm ? 0.55 : root.rising ? (Motion.playful ? 0.2 : 0.26) : 0.36
+        damping: Motion.calm ? 0.55 : root.rising ? (Motion.playful ? 0.24 : 0.32) : 0.36
         epsilon: 0.002
     }
 }

@@ -55,19 +55,22 @@ Rectangle {
         readonly property bool placed: !!root.currentItem && root.currentItem.width > 0
         // Slides only between options, so it doesn't fly in from the corner when the control first lays out.
         property bool settled: false
-        x: placed ? row.x + root.currentItem.x : 0
+        // Where the selector is headed; it stops against the track's ends rather than run past them.
+        property real slide: placed ? row.x + root.currentItem.x : 0
+        x: Math.max(row.x, Math.min(slide, row.x + row.width - width))
         y: placed ? row.y + root.currentItem.y : 0
         width: placed ? root.currentItem.width : 0
         height: placed ? root.currentItem.height : 0
         visible: placed
         onPlacedChanged: if (placed) Qt.callLater(() => indicator.settled = true)
-        Behavior on x {
+        // A selector clicking over: it holds, snaps past the middle and settles (plain slide under Calm).
+        Detent on slide {
             enabled: indicator.settled
-            NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
+            overshoot: 0.5
         }
-        Behavior on width {
+        Detent on width {
             enabled: indicator.settled
-            NumberAnimation { duration: Theme.slide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.easeOut }
+            overshoot: 0
         }
         Rectangle {
             anchors.fill: parent
@@ -98,6 +101,7 @@ Rectangle {
                 glyph: modelData.glyph || ""
                 hint: modelData.hint || ""
                 flat: true
+                pressDepth: 0
                 selected: root.current === modelData.key
                 cornerRadius: root.radius - 3
                 implicitHeight: root.segmentHeight - 6

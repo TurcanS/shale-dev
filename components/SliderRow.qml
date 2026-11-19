@@ -80,6 +80,13 @@ RowLayout {
         rightPadding: 0
         Accessible.name: root.title
         onMoved: root.moved(value)
+        // Where the fill and knob are drawn. Dragged, they follow the pointer exactly; a level changed elsewhere (keys,
+        // the OSD, another app) swings there like a VU needle and stops at the ends.
+        property real shown: visualPosition
+        C.Ballistic on shown {
+            enabled: !slider.pressed && !Motion.reduced
+        }
+        readonly property real drawn: Math.max(0, Math.min(1, shown))
         background: Rectangle {
             x: slider.leftPadding
             y: (slider.height - height) / 2
@@ -90,22 +97,15 @@ RowLayout {
             Rectangle {
                 id: fillBar
                 readonly property bool lit: root.glow && !root.muted
-                width: Math.max(height, slider.visualPosition * parent.width)
+                width: Math.max(height, slider.drawn * parent.width)
                 height: parent.height
                 radius: 3
-                visible: slider.visualPosition > 0
+                visible: slider.drawn > 0.002
                 color: root.muted ? Theme.textFaint : Theme.accent
                 gradient: lit ? volumeGradient : null
                 Behavior on color {
                     ColorAnimation {
                         duration: Theme.fast
-                    }
-                }
-                Behavior on width {
-                    enabled: !slider.pressed
-                    NumberAnimation {
-                        duration: Theme.fast
-                        easing.type: Easing.OutCubic
                     }
                 }
                 Gradient {
@@ -127,7 +127,7 @@ RowLayout {
             }
         }
         handle: Item {
-            x: slider.leftPadding + slider.visualPosition * (slider.availableWidth - width)
+            x: slider.leftPadding + slider.drawn * (slider.availableWidth - width)
             y: (slider.height - height) / 2
             width: 18
             height: 18
