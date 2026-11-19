@@ -105,7 +105,7 @@ def user_dir(name, fallback, home=None):
         return "~/" + str(path.relative_to(home)) if path.is_relative_to(home) else str(path)
     return fallback
 
-DEFAULTS = {"version": 1, "reducedMotion": False, "clock24h": True,
+DEFAULTS = {"version": 1, "reducedMotion": False, "motion": "lively", "clock24h": True,
             "dnd": False, "amplification": False, "persistNotifications": False,
             "fontSize": 14, "panelSize": 85, "batterySaving": False, "saverRefresh": True, "windowPreviews": True,
             "hideFullscreen": True, "hiddenOutputs": [], "pinnedApps": [], "appUsage": {}, "captureDelay": 0,
@@ -315,6 +315,8 @@ def check_setting(key, value):
         raise BackendError("invalid", "Choose a supported capture delay.")
     if key == "surfaceTone" and value not in ("charcoal", "midnight", "warm"):
         raise BackendError("invalid", "Choose a supported surface tone.")
+    if key == "motion" and value not in ("calm", "lively", "playful"):
+        raise BackendError("invalid", "Choose Calm, Lively or Playful motion.")
     if key in ("accentColor", "accentManual") and ((luminance := accent_luminance(value)) is None or luminance < 0.28):
         raise BackendError("invalid", "Choose a brighter six-digit hex colour.")
     if key == "airdropMode" and value not in AIRDROP_MODES:

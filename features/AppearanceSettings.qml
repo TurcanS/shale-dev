@@ -32,6 +32,16 @@ ColumnLayout {
     }
     C.SectionHeader { text: "Behaviour" }
     C.Group {
+        C.ChoiceRow {
+            settingKey: "motion"
+            label: "Motion"
+            // Reduce motion and trimmed effects win over the choice; say so rather than look ignored.
+            description: Theme.reduced ? "Reduce motion is on" : Theme.lowPower ? "Calm while effects are reduced" : "How much panels and controls move"
+            model: [{key: "calm", text: "Calm", hint: "Short rises and fades"}, {key: "lively", text: "Lively", hint: "Drawers, flips and scope lines"},
+                    {key: "playful", text: "Playful", hint: "The same, turned up"}]
+            current: ShellState.setting("motion", "lively")
+            onActivated: key => ShellState.setSetting("motion", key)
+        }
         C.SettingToggle {
             text: "Reduce motion"
             description: "Panels and controls change without animating"

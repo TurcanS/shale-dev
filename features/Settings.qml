@@ -58,7 +58,7 @@ FocusScope {
     // The settings each page owns, for its reset button.
     readonly property var resetKeys: ({
             Appearance: ["fontSize", "panelSize", "accentColor", "accentManual", "accentFromWallpaper", "surfaceTone", "visualizer", "wallpaperDirectory", "wallpaperFit", "lockScreen", "lockStyle",
-                         "reducedMotion", "batterySaving", "windowPreviews"],
+                         "motion", "reducedMotion", "batterySaving", "windowPreviews"],
             Bar: ["hideFullscreen", "barMedia", "trackChangeCard", "hiddenOutputs", "barLayout", "barStyle", "clockFormat", "clockSeconds",
                   "workspaceStyle", "workspaceSlots", "trayIcons", "batteryPercent"],
             Control: ["controlLayout"],
