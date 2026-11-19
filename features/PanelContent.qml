@@ -12,8 +12,10 @@ Rectangle {
     id: root
     property string panel: "launcher"
     property bool active: true
-    // True while the host itself fades the case in; the page then skips its own entrance.
+    // True while the host itself brings the case in; the page then skips its own entrance.
     property bool entering: false
+    // The host draws the case's fill and edge itself, so they can take the entrance's shape.
+    property bool bare: false
     readonly property var pageItem: loader.item
     function page(name, fallback) {
         return pageItem && pageItem[name] !== undefined && pageItem[name] !== null ? pageItem[name] : fallback;
@@ -23,10 +25,10 @@ Rectangle {
     objectName: "panel-" + panel
     readonly property int preferredWidth: page("panelWidth", 580)
     readonly property int preferredHeight: page("panelHeight", 520)
-    color: chromeless ? "transparent" : Theme.caseColor
+    color: chromeless || bare ? "transparent" : Theme.caseColor
     radius: Theme.radiusCase
     // A hairline edge keeps the case apart from dark wallpapers.
-    border.width: chromeless ? 0 : 1
+    border.width: chromeless || bare ? 0 : 1
     border.color: Theme.hairline
     clip: true
     // Consume pointer presses inside the surface instead of dismissing its backdrop.

@@ -21,6 +21,28 @@ C.Button {
     topPadding: 0
     bottomPadding: 0
     cornerRadius: Theme.radiusKey
+    // Panels open out of the key that was pressed (PanelHost takes the mark), and go back into it on closing.
+    onPressed: Motion.mark(key)
+    // Catching its panel back, the key dips a pixel or two and lights for a moment.
+    property real catchT: 1
+    transform: Translate {
+        y: 1.6 * Math.sin(Math.PI * key.catchT)
+    }
+    NumberAnimation {
+        id: catchAnimation
+        target: key
+        property: "catchT"
+        from: 0
+        to: 1
+        duration: Motion.ms(190)
+    }
+    Connections {
+        target: Motion
+        function onCaught(item) {
+            if (item === key)
+                catchAnimation.restart();
+        }
+    }
     foreground: !enabled ? Theme.textFaint : tone === "danger" ? Theme.dangerText : tone === "warning" ? Theme.warning : Theme.text
     background: Rectangle {
         radius: key.cornerRadius
@@ -40,6 +62,13 @@ C.Button {
                     duration: Theme.fast
                 }
             }
+        }
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            color: Theme.knob
+            opacity: 0.12 * Math.sin(Math.PI * key.catchT)
+            visible: opacity > 0.001
         }
     }
 }

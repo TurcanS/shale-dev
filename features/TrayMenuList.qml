@@ -12,6 +12,12 @@ FocusScope {
     property bool canOpen: true
     // Title of the open submenu, or "" at the top level.
     property string submenu: ""
+    // Folding out (TrayMenu): each row unfolds on its hinge under the one above, foldGap ms after it; foldAt is how
+    // far into the fold the menu is, in ms.
+    property bool foldActive: false
+    property real foldAt: 0
+    property int foldGap: 60
+    property int foldSpan: 260
     signal openRequested()
     signal quitRequested()
     signal entryChosen(var entry)
@@ -126,6 +132,15 @@ FocusScope {
                 delegate: Loader {
                     id: rowLoader
                     required property var modelData
+                    required property int index
+                    readonly property real fold: root.foldActive ? Motion.clamp((root.foldAt - index * root.foldGap) / Math.max(1, root.foldSpan), 0, 1) : 1
+                    opacity: Math.min(1, fold * 3)
+                    transform: Rotation {
+                        origin.x: rowLoader.width / 2
+                        origin.y: 0
+                        axis { x: 1; y: 0; z: 0 }
+                        angle: rowLoader.fold >= 1 ? 0 : 92 * (1 - Motion.seat(Motion.ov(1.4), rowLoader.fold))
+                    }
                     Layout.fillWidth: true
                     sourceComponent: modelData.kind === "separator" ? separator : button
                     Component {
