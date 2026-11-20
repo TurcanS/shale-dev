@@ -496,10 +496,11 @@ def example_menu():
     return line, EXAMPLE_MENU.sub(SHALE_MENU, line, count=1)
 
 
-def setup_system(home, apply=False, yes=False, interactive=True, read=input, run=subprocess.run, detected=None, login_screen=True):
+def setup_system(home, apply=False, yes=False, interactive=True, read=input, run=subprocess.run, detected=None, login_screen=True,
+                 drivers=True):
     """Install the packages and enable the services this machine needs, after showing why. Without `apply`, only
     show them. Returns the plan."""
-    needs = detected if detected is not None else system.plan(home)
+    needs = detected if detected is not None else system.plan(home, drivers=drivers)
     print('Checking this machine')
     for note in needs['notes']:
         print('  note: ' + note)
@@ -890,9 +891,10 @@ def undo_command(state, home):
 # ---- Installing and rolling back ----------------------------------------------------------------
 
 def install(home, apply=False, shell_only=False, wallpaper_shortcut=False, yes=False, force=False,
-            interactive=None, read=input, checks=None, verbose=False, ask_again=False, packages=(), hints=True):
+            interactive=None, read=input, checks=None, verbose=False, ask_again=False, packages=(), hints=True, reboot=False):
     """Install Shale, or with apply=False show what that would change. `packages` are more missing packages to
-    mention (an update's). Returns whether anything was written."""
+    mention (an update's); `reboot` says a driver was just added, which loads from the next boot. Returns whether
+    anything was written."""
     if not (ROOT / 'shell.qml').exists():
         raise ValueError('Missing shell.qml; installation is incomplete')
     check_location(home)
@@ -962,11 +964,13 @@ def install(home, apply=False, shell_only=False, wallpaper_shortcut=False, yes=F
     if not hints:
         return bool(state)
     if os.environ.get('HYPRLAND_INSTANCE_SIGNATURE'):
-        print('\nStart it now:\n  ~/.local/bin/shale start && hyprctl reload')
+        print('\nStart it now:\n  ~/.local/bin/shale start && hyprctl reload'
+              + ('\nThe new graphics driver loads from the next boot.' if reboot else ''))
     elif system.service_state('display-manager'):
-        print('\nNext: reboot (or log out) and choose Hyprland on the login screen. Shale starts with it.')
+        print('\nNext: reboot' + ('' if reboot else ' (or log out)') + ' and choose Hyprland on the login screen. Shale starts with it.')
     else:
-        print('\nNext: log in on a TTY and run start-hyprland. Shale starts with Hyprland.')
+        print('\nNext: ' + ('reboot so the new graphics driver loads, then ' if reboot else '')
+              + 'log in on a TTY and run start-hyprland. Shale starts with Hyprland.')
     return bool(state)
 
 
@@ -1214,7 +1218,8 @@ def uninstall(home, apply=False, purge=False, yes=False, interactive=None, read=
             print('  services ./install.sh enabled: ' + ', '.join(setup['services']))
             print('    sudo systemctl disable --now ' + ' '.join(unit + '.service' for unit in setup['services']))
         if setup.get('boot'):
-            print('  enabled from boot: ' + ', '.join(setup['boot']) + " (the login screen; don't stop it while you're logged in through it)")
+            print('  enabled from boot: ' + ', '.join(setup['boot'])
+                  + (" (sddm is the login screen; don't stop it while you're logged in through it)" if 'sddm' in setup['boot'] else ''))
             print('    sudo systemctl disable ' + ' '.join(unit + '.service' for unit in setup['boot']))
         if setup.get('packages'):
             print('  packages ./install.sh installed (pacman refuses to remove one that something else still needs):')
@@ -1348,6 +1353,8 @@ def main():
     parser.add_argument('--setup', action='store_true', help=hide('first install packages and services this machine needs (used by ./install.sh)'))
     parser.add_argument('--no-packages', action='store_true', help=('' if wrapper else 'with --setup: ') + 'skip packages and services')
     parser.add_argument('--no-login-screen', action='store_true', help=('' if wrapper else 'with --setup: ') + 'never add the SDDM login screen')
+    parser.add_argument('--no-drivers', action='store_true', help=('' if wrapper else 'with --setup: ')
+                        + 'never add graphics drivers, GPU or audio firmware')
     parser.add_argument('--verbose', action='store_true', help='list every shell file')
     parser.add_argument('--version', action='version', version=f'Shale {version()}')
     args = parser.parse_args()
@@ -1378,18 +1385,22 @@ def main():
                   'copy as it is now.\n')
         if args.purge:
             print('Note: --purge only applies with --uninstall; ignored.\n')
-        if not args.setup and not updating and (args.no_packages or args.no_login_screen):
-            print('Note: --no-packages and --no-login-screen only apply with --setup (./install.sh); ignored.\n')
+        if not args.setup and not updating and (args.no_packages or args.no_login_screen or args.no_drivers):
+            print('Note: --no-packages, --no-login-screen and --no-drivers only apply with --setup (./install.sh); ignored.\n')
         check_config_format(home, args.shell_only, args.wallpaper_shortcut)
+        reboot = False
         if args.setup and not args.no_packages:
-            needs = setup_system(home, apply=args.apply, yes=args.yes, interactive=sys.stdin.isatty(), login_screen=not args.no_login_screen)
+            needs = setup_system(home, apply=args.apply, yes=args.yes, interactive=sys.stdin.isatty(), login_screen=not args.no_login_screen,
+                                 drivers=not args.no_drivers)
+            reboot = args.apply and bool(needs.get('reboot'))
             if not args.apply and needs['config'] and not (home / '.config/hypr/hyprland.lua').exists():
                 print("The shell's own changes depend on that hyprland.lua, which --apply creates first.")
                 return
         session = own_home(home)
         running = updating and args.apply and session and shell_running()
         install(home, args.apply, args.shell_only, args.wallpaper_shortcut, yes=args.yes, force=args.force, verbose=args.verbose,
-                ask_again=args.ask_again, packages=missing_packages(home) if updating and not args.setup else (), hints=not running)
+                ask_again=args.ask_again, packages=missing_packages(home) if updating and not args.setup else (), hints=not running,
+                reboot=reboot)
         if updating and args.apply and not session:
             print()
             session_skipped(home)
