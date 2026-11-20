@@ -41,8 +41,8 @@ NVIDIA, AMD, INTEL = '0x10de', '0x1002', '0x8086'
 # Arch's kernels. NVIDIA's open module comes built for the first two; the others build it with DKMS.
 KERNELS = ('linux', 'linux-lts', 'linux-zen', 'linux-hardened')
 NVIDIA_MODULES = {'linux': 'nvidia-open', 'linux-lts': 'nvidia-open-lts'}
-# The open module runs on Turing (GTX 16, RTX 20) and newer, device ids from 0x1e00; RTX 50 cards run on nothing
-# else. Older cards need a legacy driver from the AUR.
+# NVIDIA's own driver (not nouveau) with its open kernel module: NVIDIA's choice for Turing (GTX 16, RTX 20) and newer,
+# device ids from 0x1e00, and the only one RTX 50 cards run on. Older cards need a legacy driver from the AUR.
 OPEN_MODULE_FROM = 0x1e00
 # Hand suspend and hibernation to the NVIDIA driver, so the desktop comes back from a sleep.
 NVIDIA_SLEEP = ('nvidia-suspend', 'nvidia-hibernate', 'nvidia-resume')
@@ -179,9 +179,9 @@ def graphics(facts, present, services):
                          "added. Install nvidia-open-dkms with your kernel's headers before starting Hyprland.")
             return packages, boot, notes, False
         if all(kernel in NVIDIA_MODULES for kernel in kernels):
-            packages += [(NVIDIA_MODULES[kernel], f'NVIDIA driver for the {kernel} kernel') for kernel in kernels]
+            packages += [(NVIDIA_MODULES[kernel], f"NVIDIA's own driver, for the {kernel} kernel") for kernel in kernels]
         else:
-            packages.append(('nvidia-open-dkms', 'NVIDIA driver, built for each kernel'))
+            packages.append(('nvidia-open-dkms', "NVIDIA's own driver, built for each kernel"))
             packages += [(kernel + '-headers', f'building the NVIDIA driver for {kernel}') for kernel in kernels]
         module = True
     if module or 'nvidia-utils' in present:
