@@ -892,6 +892,8 @@ def pin_data(pin):
         raise BackendError("failed", "This pin's contents are missing. Unpin it.") from None
 
 
+# Installed by scripts/install-power-max.py; Control → Power offers Max performance when it is there.
+POWER_MAX_UNIT = Path("/etc/systemd/system/shale-power-max.service")
 # The desktop Note card's one running note: lines with a done mark, readable by you only.
 NOTE = STATE / "note.json"
 MAX_NOTE_LINES = 50
@@ -2352,18 +2354,42 @@ class Backend:
             interface = await self.interface(name, "/net/hadess/PowerProfiles", "org.freedesktop.DBus.Properties")
             properties = await interface.call_get_all(name)
             available = [x["Profile"].value for x in properties["Profiles"].value]
+            platform = Path("/sys/firmware/acpi/platform_profile")
+            def firmware_custom():
+                try:
+                    return platform.read_text().strip() == "custom"
+                except OSError:
+                    return False
+            from dbus_next import Variant
             if method == "power.set":
                 profile = p.get("profile")
                 if profile not in available:
                     raise BackendError("invalid", "Select an available power profile.")
-                from dbus_next import Variant
+                # Leaving Max performance for Performance: the daemon skips an unchanged profile, so step through Balanced
+                # to make it write the firmware's own limits back.
+                if firmware_custom() and properties["ActiveProfile"].value == profile and "balanced" in available:
+                    await interface.call_set(name, "ActiveProfile", Variant("s", "balanced"))
                 await interface.call_set(name, "ActiveProfile", Variant("s", profile))
+                properties = await interface.call_get_all(name)
+            # Max performance: Performance, then shale-power-max.service (scripts/install-power-max.py) raises the
+            # Lenovo firmware limits to the highest values the firmware allows.
+            if method == "power.max":
+                if not POWER_MAX_UNIT.exists():
+                    raise BackendError("unavailable", "Install Max performance first: sudo python3 scripts/install-power-max.py --apply")
+                if "performance" in available:
+                    await interface.call_set(name, "ActiveProfile", Variant("s", "performance"))
+                try:
+                    # Without the polkit rule, the polkit agent asks for a password: give it time.
+                    await run("systemctl", "start", "shale-power-max.service", timeout=120)
+                except BackendError as error:
+                    raise BackendError(error.code, "Max performance needs the charger plugged in." if error.code == "failed" else error.message) from None
                 properties = await interface.call_get_all(name)
             try:
                 tuned = "=shale-" in Path("/etc/tuned/ppd.conf").read_text()
             except OSError:
                 tuned = None  # not tuned-ppd (e.g. power-profiles-daemon): Shale's profiles don't apply
-            return {"active": properties["ActiveProfile"].value, "profiles": available, "tuned": tuned}
+            return {"active": properties["ActiveProfile"].value, "profiles": available, "tuned": tuned,
+                    "max": firmware_custom(), "maxAvailable": POWER_MAX_UNIT.exists()}
         if method == "clipboard.list":
             data = (await run("cliphist", "list")).decode(errors="replace")
             query = str(p.get("query", "")).casefold()

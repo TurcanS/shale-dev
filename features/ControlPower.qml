@@ -45,7 +45,7 @@ ColumnLayout {
             text: ({"power-saver": "Power saver", "balanced": "Balanced", "performance": "Performance"})[modelData] || modelData
             subtitle: ({"power-saver": "Longest battery life, quiet fans", "balanced": "Fast when needed, efficient at idle", "performance": "Full CPU and GPU power"})[modelData] || "System power profile"
             glyph: modelData === "power-saver" ? "leaf" : modelData === "performance" ? "bolt" : "gauge"
-            selected: ShellState.profiles.active === modelData
+            selected: ShellState.profiles.active === modelData && !(modelData === "performance" && maxRow.selected)
             enabled: !control.acting
             Accessible.role: Accessible.RadioButton
             Accessible.checkable: true
@@ -54,6 +54,21 @@ ColumnLayout {
                 profile: modelData
             }, r => ShellState.profiles = r)
         }
+    }
+    // Lenovo firmware limits at their maximum, through shale-power-max.service (scripts/install-power-max.py).
+    C.ListRow {
+        id: maxRow
+        visible: ShellState.profiles.maxAvailable === true
+        Layout.fillWidth: true
+        text: "Max performance"
+        subtitle: Services.onBattery ? "Plug in the charger to use it" : "Highest CPU and GPU power the firmware allows · louder fans"
+        glyph: "bolt"
+        selected: ShellState.profiles.max === true && ShellState.profiles.active === "performance"
+        enabled: !control.acting && !Services.onBattery
+        Accessible.role: Accessible.RadioButton
+        Accessible.checkable: true
+        Accessible.checked: selected
+        onClicked: control.perform("power.max", {}, r => ShellState.profiles = r)
     }
     C.Label {
         id: tunedHint
