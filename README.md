@@ -148,6 +148,13 @@ sudo systemctl enable --now tuned.service tuned-ppd.service
 python3 scripts/install-power.py --apply
 ```
 
+Wi-Fi power saving can follow the power mode: off in Performance (lower latency, steadier throughput), on in
+Balanced and Power saver. It works with either daemon and also sets the low-power mode of Realtek rtw89 cards:
+
+```sh
+python3 scripts/install-wifi-power.py --apply     # --remove --apply takes it out again
+```
+
 </details>
 
 <details>
