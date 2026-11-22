@@ -110,6 +110,19 @@ files go, this computer's name and the senders let straight in, and checks what 
   the oldest request; the last two and the panel can get shortcuts in Settings → Shortcuts.
 - Each session needs the airdrop helper's permission; install its polkit rule to stop being asked every time.
 
+`scripts/install-airdrop.py` sets all of it up on an Arch laptop: it checks the Wi-Fi card (monitor mode),
+Bluetooth and the regulatory domain, installs the build tools and libraries, builds and installs the command with
+its root helper, OWL and polkit action as a package, adds the polkit rule and an `airdrop` group for you, and on a
+MediaTek MT7921/MT7922 or a Realtek RTL8852BE builds and loads the patched driver. Without `--apply` it only shows what it would do.
+
+```sh
+python3 scripts/install-airdrop.py                     # preview
+python3 scripts/install-airdrop.py --country DE --apply
+```
+
+`--source DIR` builds another source tree instead of Samara's, `--no-driver` skips the driver and
+`--driver-at-boot` loads it at every boot. It ends with `airdrop doctor`.
+
 ## Files
 
 | What | Where |
