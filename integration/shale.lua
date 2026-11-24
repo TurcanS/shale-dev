@@ -41,6 +41,8 @@ end)
 -- Lets hyprlock take over if the shell's lock screen stops while the session is locked.
 hl.config({ misc = { allow_session_lock_restore = true } })
 hl.layer_rule({ name = "shale-motion", match = { namespace = "^shale.*" }, no_anim = true })
+-- Desktop widgets: the wallpaper blurs behind the cards (78% opaque) but not under their shadows or between them.
+hl.layer_rule({ name = "shale-widgets-blur", match = { namespace = "^shale-widgets$" }, blur = true, ignore_alpha = 0.5 })
 hl.on("hyprland.start", function()
     hl.exec_cmd(command .. "start")
 end)
