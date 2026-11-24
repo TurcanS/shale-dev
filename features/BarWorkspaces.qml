@@ -15,10 +15,12 @@ Rectangle {
     required property var bar
     readonly property bool shown: true
     readonly property bool dots: ShellState.setting("workspaceStyle", "dots") === "dots"
-    // Each page's slot includes the 5 px gap after it; the current page stretches.
+    // Each page's slot includes the 5 px gap after it; the current page stretches. syncWorkspaces() always lists the
+    // active page, so the stretch follows activeId: the list's currentIndex moves while it applies inserts, and
+    // reading it here made a binding loop.
     readonly property int slotWidth: dots ? 13 : 23
     readonly property int stretch: dots ? 18 : 8
-    readonly property real naturalWidth: workspaceModel.count * slotWidth + (strip.currentIndex >= 0 ? stretch : 0)
+    readonly property real naturalWidth: workspaceModel.count * slotWidth + (strip.activeId > 0 ? stretch : 0)
     implicitWidth: Math.min(naturalWidth, Math.max(60, Math.min(bar.width / 2 - 260, 300))) + 15
     implicitHeight: 28
     radius: Theme.radiusKey

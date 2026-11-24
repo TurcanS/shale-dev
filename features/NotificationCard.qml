@@ -180,18 +180,21 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 24
                 spacing: 6
+                // A long app name elides first; the time and the close key keep their size. (Not a maximum width from
+                // the column's own width: that fed back into the column, a recursive rearrange.)
                 C.Label {
                     text: root.notification.appName || "Notification"
                     color: Theme.textSecondary
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
-                    Layout.maximumWidth: body.width - 90
+                    Layout.minimumWidth: 0
                 }
                 C.Label {
                     text: "· " + root.when(root.notification.timestamp)
                     color: Theme.textDim
                     font.pixelSize: 12
                     elide: Text.ElideNone
+                    Layout.minimumWidth: implicitWidth
                 }
                 Item {
                     Layout.fillWidth: true
@@ -201,6 +204,7 @@ Rectangle {
                     flat: true
                     implicitWidth: 24
                     implicitHeight: 24
+                    Layout.minimumWidth: 24
                     padding: 4
                     cornerRadius: 7
                     foreground: hovered || visualFocus ? Theme.text : Theme.textDim

@@ -140,7 +140,8 @@ QtObject {
             bluetoothAdapter.enabled = enabled;
     }
     function bluetoothScan(enabled) {
-        if (bluetoothAdapter)
+        // BlueZ refuses to stop a scan it isn't running (Control stops one each time it closes).
+        if (bluetoothAdapter && bluetoothAdapter.discovering !== enabled)
             bluetoothAdapter.discovering = enabled;
     }
     function workspace(id) {
