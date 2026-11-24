@@ -1706,7 +1706,10 @@ class Backend:
         networks, rsn = {}, {}
         for path in await wireless.call_get_all_access_points():
             props = await self.interface(name, path, "org.freedesktop.DBus.Properties", alike="nm-access-point")
-            ap = await props.call_get_all(name + ".AccessPoint")
+            try:
+                ap = await props.call_get_all(name + ".AccessPoint")
+            except Exception:
+                continue  # out of range since the list was read
             ssid = bytes(ap["Ssid"].value)
             if not ssid:
                 continue
@@ -1751,7 +1754,19 @@ class Backend:
         if action != "connect":
             raise BackendError("invalid", "Unknown wireless operation.")
         if profile:
-            active_path = await manager.call_activate_connection(profile, device_path, path)
+            try:
+                active_path = await manager.call_activate_connection(profile, device_path, path)
+            except Exception as error:
+                if "UnknownConnection" not in str(getattr(error, "type", "")):
+                    raise
+                # NetworkManager says a saved network isn't available when this access point has gone since the
+                # list was read: let it pick one of the network's access points itself.
+                try:
+                    active_path = await manager.call_activate_connection(profile, device_path, "/")
+                except Exception as again:
+                    if "UnknownConnection" not in str(getattr(again, "type", "")):
+                        raise
+                    raise BackendError("unavailable", f"{network['name']} isn't in range right now. Scan and try again.") from None
         else:
             if network["type"] == "8021x":
                 raise BackendError("invalid", "Configure enterprise credentials in NetworkManager first.")
@@ -1767,7 +1782,10 @@ class Backend:
             profile, active_path = await manager.call_add_and_activate_connection(config, device_path, path)
         active_props = await self.interface(name, active_path, "org.freedesktop.DBus.Properties")
         for _ in range(60):
-            state = (await active_props.call_get(name + ".Connection.Active", "State")).value
+            try:
+                state = (await active_props.call_get(name + ".Connection.Active", "State")).value
+            except Exception:
+                state = 4  # the attempt is gone: it failed
             if state == 2:
                 return {"done": True}
             if state == 4:
