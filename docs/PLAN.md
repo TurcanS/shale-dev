@@ -291,3 +291,17 @@ and carry a Translate, so a Button that sets its own `transform` must add `sunk`
 Find's emoji ripple and row-highlight detent, Player's cover eject and load, Wi-Fi rows cascading after a scan, the
 digest and AirDrop toasts, Capture's countdown tick, Overview's windows flying to their cells and Wallpapers' bracket
 apply.
+
+Carry-over from the fix and installer pass: `Backend.request(..., {owner: root})` is verified and is how a page's
+callback is dropped once its panel closes; the `alive` flags are gone. After a page is destroyed its callbacks see `root`
+as null, singletons still work and the page's own names throw, so a callback that must act anyway (stopping a recording,
+applying imported settings, leaving the shortcut recorder's submap) does the singleton part first, then
+`if (!root) return`. The Activity and System screenshot sample data (`SHALE_PREVIEW`) and `activity.week` are removed.
+Still unreproduced: the occasional binding loop on PanelHost's `f`. The installer adds the apps the shell opens things in
+(`system.APPS`: Firefox, Thunar with gvfs and tumbler, Ristretto, mpv; kitty when there is no terminal) only where no
+installed app with that category opens the type, makes them the default only where `mimeapps.list` has none, writes
+`APP_SETTINGS` (kitty in the owner's Graphite colours, GTK dark) only where none exist, points a new config's Super+E at
+the file manager, and offers `pacman -Syu` when `-S` fails; `--no-apps` and `--no-app-config` turn these off.
+`integration/shale.lua` blurs behind the widget cards (`ignore_alpha` 0.5 relies on the cards' 78% fill). On the owner's
+machine a session can run the checkout itself: stop `shale.service`, run `quickshell --path .`, drive it with
+`quickshell ipc -p . call shell ...`, then start the service again.
