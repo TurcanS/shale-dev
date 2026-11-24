@@ -27,7 +27,6 @@ FocusScope {
     // The first sample brings the helper's history; later ones add a point each.
     property bool needsHistory: true
     property string selected: "cpu"
-    property bool alive: true
     property bool waiting: false
     property int generation: 0
     property string error: ""
@@ -62,7 +61,7 @@ FocusScope {
         // nvidia-smi keeps an NVIDIA card awake, so its usage is only asked for while that card is on screen.
         const nvidia = !!current && current.kind === "gpu" && current.item.vendor === "nvidia";
         Backend.request("system.sample", {nvidia: nvidia, history: needsHistory, processes: processSort}, (result, failure) => {
-            if (!alive || request !== generation)
+            if (request !== generation)
                 return;
             waiting = false;
             if (failure) {
@@ -71,7 +70,7 @@ FocusScope {
                 error = "";
                 absorb(result);
             }
-        });
+        }, {owner: root});
     }
     Timer {
         id: pollTimer
@@ -307,9 +306,9 @@ FocusScope {
         ended = ended.concat([key]);
         Backend.request("system.end", {pid: process.pid, start: process.start}, (result, failure) => {
             // The helper says why (already gone, another user's); show the row again.
-            if (failure && root.alive)
+            if (failure)
                 root.ended = root.ended.filter(entry => entry !== key);
-        });
+        }, {owner: root});
     }
     Timer {
         id: disarm

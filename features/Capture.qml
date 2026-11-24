@@ -60,14 +60,17 @@ FocusScope {
             ShellState.record(effectiveMode, audio);
         } else {
             Backend.request("capture.record.stop", {}, (r, e) => {
-                pending = false;
-                if (e) {
-                    error = e.message || "Could not stop recording. Try again.";
-                    return;
+                if (!e) {
+                    ShellState.recording = r;
+                    ShellState.refreshRecording();
+                    ShellState.recordingResult(r);
                 }
-                ShellState.recording = r;
-                ShellState.refreshRecording();
-                ShellState.recordingResult(r);
+                // Capture closed meanwhile.
+                if (!root)
+                    return;
+                pending = false;
+                if (e)
+                    error = e.message || "Could not stop recording. Try again.";
             });
         }
     }
@@ -85,7 +88,7 @@ FocusScope {
         const keys = action => (r.shortcuts.find(item => item.action === action) || {}).keys || "";
         shortcutHint = [[keys("screenshot region"), "region"], [keys("screenshot output"), "screen"]]
             .filter(pair => pair[0]).map(pair => KeyNames.caps(pair[0]).join(" ") + " for " + pair[1]).join(" · ");
-    })
+    }, {owner: root})
     Keys.onReturnPressed: capture()
     Keys.onEnterPressed: capture()
     ColumnLayout {

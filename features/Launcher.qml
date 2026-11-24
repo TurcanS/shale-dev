@@ -82,9 +82,13 @@ FocusScope {
         copying = true;
         const generation = calculationGeneration;
         Backend.request("clipboard.write", {text: calculation}, (result, error) => {
+            if (!error)
+                ShellState.message("Result copied", "success");
+            if (!root)
+                return;
             copying = false;
-            if (error) { if (generation === calculationGeneration) calculationError = error.message; }
-            else ShellState.message("Result copied", "success");
+            if (error && generation === calculationGeneration)
+                calculationError = error.message;
         });
     }
     // Folded once whenever the installed apps change, so typing only scores the term.
@@ -309,7 +313,7 @@ FocusScope {
             filesBusy = false;
             filesError = e ? e.message : "";
             fileResults = e ? [] : grouped([["Files in your home folder", r.results.map(f => ({kind: "file", key: f.path, name: f.name, subtitle: f.folder, path: f.path, directory: f.directory, glyph: fileIcon(f), fallback: f.directory ? "folder" : "text"}))]]);
-        });
+        }, {owner: root});
     }
     function fileIcon(file) {
         if (file.directory) return "folder";
@@ -1058,9 +1062,9 @@ FocusScope {
                 root.calculationError = error ? error.message : "";
             };
             if (conversion)
-                Backend.request("units.convert", {query: query}, done);
+                Backend.request("units.convert", {query: query}, done, {owner: root});
             else
-                Backend.request("calculator", {expression: root.expression(query)}, done);
+                Backend.request("calculator", {expression: root.expression(query)}, done, {owner: root});
         }
     }
 }

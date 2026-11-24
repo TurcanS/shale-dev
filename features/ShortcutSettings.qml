@@ -29,7 +29,7 @@ ColumnLayout {
             if (!e)
                 root.listing = r;
             root.loaded = true;
-        });
+        }, {owner: root});
     }
     function start(action) {
         stop();
@@ -40,6 +40,12 @@ ColumnLayout {
         recorder.forceActiveFocus();
         const ticket = ++recordTicket;
         Backend.request("shortcuts.record", {active: true}, (r, e) => {
+            // Settings closed meanwhile: leave the submap, or Hyprland's shortcuts stay off until Escape.
+            if (!root) {
+                if (!e && r.active)
+                    Backend.request("shortcuts.record", {active: false});
+                return;
+            }
             if (ticket === root.recordTicket && root.recording !== "")
                 root.submap = !e && r.active;
             // Stopped meanwhile: leave the submap again, unless another shortcut is being recorded and needs it.
@@ -74,7 +80,7 @@ ColumnLayout {
             root.listing = r;
             root.savedAction = action || "*";
             savedTimer.restart();
-        });
+        }, {owner: root});
     }
     onVisibleChanged: visible ? load() : stop()
     Component.onCompleted: if (Backend.ready) load()

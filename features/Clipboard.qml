@@ -22,7 +22,6 @@ FocusScope {
     property bool confirmClear: false
     property bool mutating: false
     property bool hasHistory: false
-    property bool alive: true
     property string filter: "all"
     readonly property var filters: [{key: "all", text: "All"}, {key: "text", text: "Text"}, {key: "image", text: "Images"},
                                     {key: "link", text: "Links"}, {key: "color", text: "Colours"}, {key: "pinned", text: "Pinned"}]
@@ -32,10 +31,7 @@ FocusScope {
         .filter(entry => (!pending || keyOf(entry) !== keyOf(pending)) && matches(entry, filter))
     readonly property var current: list.currentIndex >= 0 && list.currentIndex < shown.length ? shown[list.currentIndex] : null
     readonly property bool openable: !!current && (current.kind === "link" || current.kind === "path")
-    Component.onDestruction: {
-        alive = false;
-        commit();
-    }
+    Component.onDestruction: commit()
     function keyOf(entry) {
         return entry ? (entry.pin ? "pin:" + entry.pin : entry.raw) : "";
     }
@@ -74,8 +70,6 @@ FocusScope {
         mutating = true;
         error = "";
         Backend.request(method, params, (result, failure) => {
-            if (!root.alive)
-                return;
             mutating = false;
             if (failure) {
                 error = failure.message;
@@ -86,7 +80,7 @@ FocusScope {
             if (method === "clipboard.clear") hasHistory = false;
             refresh();
             search.forceActiveFocus();
-        });
+        }, {owner: root});
     }
     function togglePin(entry) {
         if (!entry)
@@ -115,7 +109,8 @@ FocusScope {
         Backend.request(entry.pinned ? "clipboard.unpin" : "clipboard.delete", entry.pinned ? {pin: entry.pin, forget: true} : {entry: entry.raw}, (result, failure) => {
             if (failure)
                 ShellState.message(failure.message, "error");
-            if (root.alive)
+            // Sent as the panel closes, so the answer may find it gone.
+            if (root)
                 root.refresh();
         });
     }
@@ -151,15 +146,13 @@ FocusScope {
             if (retainedIndex < 0 && previousEntry)
                 retainedIndex = shown.findIndex(entry => entry.text === previousEntry.text);
             list.currentIndex = shown.length ? (retainedIndex >= 0 ? retainedIndex : Math.max(0, Math.min(previousIndex, shown.length - 1))) : -1;
-        });
+        }, {owner: root});
     }
     function copy(entry) {
         if (!entry || busy || mutating)
             return;
         mutating = true;
         Backend.request("clipboard.copy", entry.pinned ? {pin: entry.pin} : {entry: entry.raw}, (result, failure) => {
-            if (!root.alive)
-                return;
             mutating = false;
             if (failure) {
                 error = failure.message;
@@ -168,17 +161,15 @@ FocusScope {
             }
             ShellState.close();
             ShellState.message("Copied to clipboard", "success");
-        });
+        }, {owner: root});
     }
     // Links open in the browser; paths in their app or the file manager.
     function open(entry) {
         if (!entry || (entry.kind !== "link" && entry.kind !== "path") || busy || mutating)
             return;
         mutating = true;
+        // Closed while cliphist was decoding: the user moved on, so the owner drops the answer and nothing opens.
         Backend.request("clipboard.open", entry.pinned ? {pin: entry.pin} : {entry: entry.raw}, (result, failure) => {
-            // Closed while cliphist was decoding: the user moved on, so open nothing.
-            if (!root.alive)
-                return;
             mutating = false;
             if (failure) {
                 ShellState.message(failure.message, "error");
@@ -187,7 +178,7 @@ FocusScope {
             ShellState.close();
             if (result.url) ShellState.openUrl(result.url);
             else ShellState.openPath(result.path);
-        });
+        }, {owner: root});
     }
     // The selected entry in full: the whole text (the list only has cliphist's first line) or the image.
     property string previewKey: ""
@@ -217,7 +208,7 @@ FocusScope {
         previewLoading = true;
         const image = !!entry.label;
         Backend.request(image ? "clipboard.thumbnail" : "clipboard.text", entry.pinned ? {pin: entry.pin} : {entry: entry.raw}, (r, e) => {
-            if (!root.alive || root.previewKey !== key)
+            if (root.previewKey !== key)
                 return;
             previewLoading = false;
             if (e)
@@ -228,7 +219,7 @@ FocusScope {
                 previewText = r.text;
                 previewCut = !!r.cut;
             }
-        });
+        }, {owner: root});
     }
     Timer {
         id: previewTimer

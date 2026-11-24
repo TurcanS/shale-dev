@@ -31,7 +31,6 @@ FocusScope {
     // The load the error came from: only that load working again clears it, so the other loads sent with it can't
     // hide it. "" (Pause, Clear history) is cleared by any load that works.
     property string errorFrom: ""
-    property bool alive: true
     property string caption: ""
     property double nowMs: Date.now()
     property real contentProgress: 1
@@ -220,10 +219,9 @@ FocusScope {
     function request(method, params, done) {
         if (!Backend.ready) return;
         Backend.request(method, params, (result, failure) => {
-            if (!alive) return;
             if (failure) { error = failure.message; errorFrom = method; }
             else { if (errorFrom === "" || errorFrom === method) error = ""; done(result); }
-        });
+        }, {owner: root});
     }
     function loadOverview() { request("activity.overview", {weekStart: weekStart}, result => overview = result); }
     function loadDay() {
@@ -259,12 +257,13 @@ FocusScope {
         if (busy) return;
         busy = true;
         Backend.request("activity.pause", {paused: !overview.paused}, (result, failure) => {
-            if (!alive) return;
+            // Recording again starts from what is on screen now, whether or not the panel is still open.
+            if (!failure && !result.paused) ShellState.activitySnapshotRequested();
+            if (!root) return;
             busy = false;
             if (failure) { error = failure.message; errorFrom = ""; }
             else {
                 overview = Object.assign({}, overview, result);
-                if (!result.paused) ShellState.activitySnapshotRequested();
                 refresh();
             }
         });
@@ -273,11 +272,12 @@ FocusScope {
         if (busy) return;
         busy = true;
         Backend.request("activity.clear", {}, (result, failure) => {
-            if (!alive) return;
+            if (!failure) ShellState.activitySnapshotRequested();
+            if (!root) return;
             busy = false;
             clearHistoryButton.triggered = false;
             if (failure) { error = failure.message; errorFrom = ""; }
-            else { ShellState.activitySnapshotRequested(); refresh(); }
+            else refresh();
         });
     }
     Component.onCompleted: refresh()

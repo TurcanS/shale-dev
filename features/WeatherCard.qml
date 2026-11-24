@@ -51,7 +51,7 @@ Rectangle {
                 weather = r;
                 Weather.take(r);
             }
-        });
+        }, {owner: root});
     }
     function startSearch() {
         menuOpen = false;
@@ -83,7 +83,7 @@ Rectangle {
             searchBusy = false;
             searchError = e ? e.message : r.results.length ? "" : "No cities match “" + text + "”";
             results = e ? [] : r.results;
-        });
+        }, {owner: root});
     }
     function choose(place) {
         weather = null;

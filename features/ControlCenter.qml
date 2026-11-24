@@ -142,7 +142,6 @@ FocusScope {
     property string pendingVpn: ""
     property string pendingMethod: ""
     property int requestGeneration: 0
-    property bool alive: true
     property var selectedNetwork: null
     // Kept outside the network rows: refreshes recreate them while you type.
     property string passwordDraft: ""
@@ -199,12 +198,10 @@ FocusScope {
         setWork(path, kind);
         error = "";
         Backend.request("bluetooth." + kind, {path: path}, (r, e) => {
-            if (!root.alive)
-                return;
             root.setWork(path, "");
             if (e && e.code !== "cancelled")
                 root.error = e.message;
-        });
+        }, {owner: root});
     }
     function toggleAutoConnect(device) {
         const address = String(device.address).toUpperCase();
@@ -299,7 +296,7 @@ FocusScope {
         pendingMethod = method;
         error = "";
         Backend.request(method, params, (r, e) => {
-            if (!root.alive || generation !== root.requestGeneration || page !== ShellState.detail)
+            if (generation !== root.requestGeneration || page !== ShellState.detail)
                 return;
             pendingMethod = "";
             if (e) {
@@ -308,7 +305,7 @@ FocusScope {
             }
             else if (callback)
                 callback(r);
-        });
+        }, {owner: root});
     }
     function connectSelected() {
         if (busy || !selectedNetwork)
@@ -358,7 +355,6 @@ FocusScope {
     }
     Component.onDestruction: {
         restoreSolo();
-        alive = false;
         requestGeneration++;
         Services.bluetoothScan(false);
         Backend.request("bluetooth.reply", {

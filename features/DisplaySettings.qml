@@ -20,7 +20,7 @@ ColumnLayout {
             root.error = e ? e.message : "";
             if (!e)
                 root.listing = r;
-        });
+        }, {owner: root});
     }
     function call(method, params, done) {
         busy = true;
@@ -30,7 +30,7 @@ ColumnLayout {
             if (done && !e)
                 done(r);
             load();
-        });
+        }, {owner: root});
     }
     function rateText(rate, rates) {
         // Whole hertz unless two rates would read the same.

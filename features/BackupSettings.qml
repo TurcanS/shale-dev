@@ -23,13 +23,13 @@ ColumnLayout {
         Backend.request("settings.backup", {path: pathField.text.trim()}, (r, e) => {
             exported = e ? "" : when(r.exported);
             previous = e ? "" : when(r.previous);
-        });
+        }, {owner: root});
     }
     function refreshProfiles() {
         Backend.request("settings.profiles", {}, (r, e) => {
             if (!e)
                 root.profiles = r.profiles;
-        });
+        }, {owner: root});
     }
     Component.onCompleted: {
         refresh();
@@ -52,6 +52,15 @@ ColumnLayout {
         busy = true;
         result = "";
         Backend.request(method, params || {path: pathField.text.trim()}, (r, e) => {
+            // What was brought back applies to the shell even when Settings closed meanwhile.
+            const restored = !e && method !== "settings.profile.save" && method !== "settings.export";
+            if (restored) {
+                ShellState.unsaved = {};
+                ShellState.settings = r.settings;
+                ShellState.settingsSaved();
+            }
+            if (!root)
+                return;
             busy = false;
             failed = !!e;
             if (e) {
@@ -69,9 +78,6 @@ ColumnLayout {
                 refresh();
                 return;
             }
-            ShellState.unsaved = {};
-            ShellState.settings = r.settings;
-            ShellState.settingsSaved();
             const others = r.skipped.filter(key => key !== "shortcuts");
             result = (r.applied.length ? "Applied " + r.applied.length + " setting" + (r.applied.length === 1 ? "" : "s") + "." : "Nothing to apply.")
                 + (others.length ? " Skipped " + others.join(", ") + "." : "")
@@ -192,7 +198,7 @@ ColumnLayout {
                     onClicked: Backend.request("settings.profile.delete", {name: profileRow.modelData.name}, (r, e) => {
                         if (e)
                             ShellState.message(e.message, "error");
-                        else
+                        else if (root)
                             root.profiles = r.profiles;
                     })
                 }

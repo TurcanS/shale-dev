@@ -126,7 +126,7 @@ FocusScope {
             onlinePage = result.page;
             hasMore = result.hasMore;
             selected = append ? position : 0;
-        });
+        }, {owner: root});
     }
     function refresh() {
         if (!Backend.ready) return;
@@ -147,7 +147,7 @@ FocusScope {
                 const preferred = filtered.findIndex(item => item.path === (previous || activePath));
                 selected = Math.max(0, preferred);
             }
-        });
+        }, {owner: root});
     }
     // A local copy the colour reader can open: the small cached copy, or the file itself.
     function localImage(entry) {

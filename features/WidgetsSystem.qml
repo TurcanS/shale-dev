@@ -30,7 +30,7 @@ WidgetsCard {
             root.waiting = false;
             if (!failure)
                 root.sample = result;
-        });
+        }, {owner: root});
     }
     Timer {
         interval: Theme.lowPower ? 10000 : 5000

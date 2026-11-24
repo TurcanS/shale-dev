@@ -48,14 +48,17 @@ Rectangle {
     function apply() {
         applying++;
         Backend.request("eq.apply", {enabled: eqOn, bands: levels}, (r, e) => {
+            if (e) {
+                ShellState.message(e.message || "The equalizer is unavailable", "error");
+                if (ShellState.setting("eqEnabled", false))
+                    ShellState.setSetting("eqEnabled", false);
+            }
+            // Control closed meanwhile.
+            if (!root)
+                return;
             applying = Math.max(0, applying - 1);
             if (applying === 0)
                 switching = false;
-            if (!e)
-                return;
-            ShellState.message(e.message || "The equalizer is unavailable", "error");
-            if (ShellState.setting("eqEnabled", false))
-                ShellState.setSetting("eqEnabled", false);
         });
     }
     function setEnabled(value) {
@@ -106,7 +109,7 @@ Rectangle {
         Backend.request("eq.status", {}, (r, e) => {
             if (!e && !r.enabled && root.eqOn && !root.busy)
                 root.apply();
-        })
+        }, {owner: root})
 
     implicitHeight: column.implicitHeight + 24
     radius: Theme.radiusModule
