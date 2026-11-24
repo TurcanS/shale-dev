@@ -7,4 +7,6 @@ Type=oneshot
 ExecStart=/usr/local/libexec/shale-wifi-power
 
 [Install]
-WantedBy=multi-user.target
+# Not multi-user.target: power-profiles-daemon starts after that target, so ordering after it from there is a
+# cycle and systemd drops this job at boot. graphical.target comes after both.
+WantedBy=graphical.target

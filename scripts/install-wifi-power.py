@@ -58,7 +58,8 @@ def install(apply):
     for path in fixed:
         path.unlink(missing_ok=True)
     subprocess.run([SYSTEMCTL, 'daemon-reload'], check=True)
-    subprocess.run([SYSTEMCTL, 'enable', *UNITS], check=True)
+    # reenable, not enable: an older install's boot link (multi-user.target) must go, or its ordering cycle stays.
+    subprocess.run([SYSTEMCTL, 'reenable', *UNITS], check=True)
     subprocess.run([SYSTEMCTL, 'start', 'shale-wifi-power.path'], check=True)
     subprocess.run([SYSTEMCTL, 'start', 'shale-wifi-power.service'], check=True)
     print(f'\nInstalled. Check it: journalctl -u shale-wifi-power -n 5. Remove: sudo python3 {SCRIPT} --remove --apply')
