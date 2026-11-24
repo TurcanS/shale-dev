@@ -1903,8 +1903,6 @@ class Backend:
                     return self.activity.overview(first)
                 if method == "activity.day":
                     return self.activity.day(str(p.get("date", "")))
-                if method == "activity.week":
-                    return self.activity.week(str(p.get("date", "")), first)
                 if method == "activity.apps":
                     return self.activity.apps(str(p.get("range", "")), str(p.get("date", "")), first)
                 if method == "activity.app":

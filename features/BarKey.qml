@@ -1,12 +1,5 @@
 import QtQuick
-import QtQuick.Effects
-import QtQuick.Layouts
-import QtQuick.Shapes
-import Quickshell
-import Quickshell.Services.Pipewire
 import "../core"
-import "../core/barItems.js" as BarItems
-import "../services"
 import "../components" as C
 
 // A key on the bar, 28 px tall. Flat keys show a light wash on hover; the status key rests on

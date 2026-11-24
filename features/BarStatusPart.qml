@@ -1,13 +1,5 @@
 import QtQuick
-import QtQuick.Effects
-import QtQuick.Layouts
-import QtQuick.Shapes
-import Quickshell
-import Quickshell.Services.Pipewire
 import "../core"
-import "../core/barItems.js" as BarItems
-import "../services"
-import "../components" as C
 
 // One part of the status key: its own click, scroll and hint, with a wash on hover.
 BarKey {

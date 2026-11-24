@@ -1,13 +1,10 @@
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
-import QtQuick.Shapes
 import Quickshell
 import Quickshell.Services.Pipewire
 import "../core"
 import "../core/barItems.js" as BarItems
 import "../services"
-import "../components" as C
 
 // The bar's items in their zones. Bar.qml puts it in a layer-shell window; previews put it in a plain one.
 Item {

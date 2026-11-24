@@ -1,8 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import "../core"
-import "../services"
 import "../components" as C
 
 // Settings → Capture: recording sound, delay and folders.

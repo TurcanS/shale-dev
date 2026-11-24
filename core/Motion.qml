@@ -114,8 +114,6 @@ QtObject {
     }
     readonly property var warmCurve: [0.28 / 3, 1.6 * 2 / 3, 0.56 / 3, 1.6, 0.28, 1.6,
                                       0.28 + 0.24, 1.6, 0.28 + 0.48, 1, 1, 1]
-    readonly property var outCurve: [0.16, 1, 0.3, 1, 1, 1]
-    readonly property var awayCurve: [0.55, 0, 0.8, 0.3, 1, 1]
 
     // ---- where a panel comes from ----
     // A bar key marks itself when pressed; the panel host takes the mark once, while it is fresh, and opens the

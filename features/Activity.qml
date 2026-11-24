@@ -35,7 +35,6 @@ FocusScope {
     property string caption: ""
     property double nowMs: Date.now()
     property real contentProgress: 1
-    readonly property bool previewMode: Quickshell.env("SHALE_PREVIEW") === "activity" && Quickshell.env("SHALE_DETAIL") !== ""
     // "ask" until chosen here; nothing is recorded or shown unless it's "on".
     readonly property string tracking: ShellState.setting("activityTracking", "ask")
     readonly property date selected: new Date(selectedDate + "T12:00:00")
@@ -241,7 +240,7 @@ FocusScope {
     }
     function refresh() {
         nowMs = Date.now();
-        if (previewMode || tracking !== "on") return;
+        if (tracking !== "on") return;
         loadOverview();
         loadDay();
         if (mode === "apps") { loadApps(); loadApp(); }
@@ -251,9 +250,9 @@ FocusScope {
         modeEntrance.restart();
         caption = "";
         if (mode !== "apps") appDetail = "";
-        if (mode === "apps" && !previewMode) loadApps();
+        if (mode === "apps") loadApps();
     }
-    onAppsRangeChanged: if (!previewMode) loadApps()
+    onAppsRangeChanged: loadApps()
     onTrackingChanged: refresh()
     NumberAnimation { id: modeEntrance; target: root; property: "contentProgress"; to: 1; duration: Theme.enter; easing.type: Easing.OutCubic }
     function pause() {
@@ -281,70 +280,12 @@ FocusScope {
             else { ShellState.activitySnapshotRequested(); refresh(); }
         });
     }
-    function previewSample() {
-        const now = new Date();
-        const current = Qt.formatDate(now, "yyyy-MM-dd");
-        selectedDate = current;
-        const days = [];
-        for (let i = 0; i < 200; i++) {
-            const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i, 12);
-            const rest = i % 7 === 0;
-            days.push({date: Qt.formatDate(date, "yyyy-MM-dd"), active: rest ? 0 : 1200 + ((i * 31) % 150) * 90, watching: rest ? 0 : ((i * 17) % 40) * 90, unlocked: rest ? 0 : 18000});
-        }
-        days.reverse();
-        const apps = ["firefox", "kitty", "code-oss", "thunderbird", "libreoffice-writer", "mpv", "thunar"];
-        const totals = [21600, 14400, 5400, 2700, 1500, 900, 300];
-        const ranked = apps.map((app, index) => ({app: app, active: totals[index] * 0.8, watching: totals[index] * 0.2, total: totals[index], share: totals[index] / 46800, previous: totals[index] * (index % 2 ? 1.3 : 0.8), first: 0, last: 0}));
-        const profile = [0, 0, 0, 0, 0, 0, 0, 0.1, 0.35, 0.7, 0.85, 0.8, 0.5, 0.6, 0.9, 0.8, 0.7, 0.55, 0.4, 0.6, 0.85, 1, 0.75, 0.3];
-        overview = {days: days, started: now.getTime() - 200 * 86400000, firstDay: days[0].date, paused: false, state: "active", topApps: ranked.slice(0, 5),
-            insights: {today: 16800, average7: 14200, average30: 13100, thisWeek: 61200, lastWeek: 55800, streak: 12, longestStreak: 31, typicalStart: 548, typicalEnd: 1390, busiestHour: 21,
-                       hours: profile.map(share => share * 30 * 2400)}};
-        const beginning = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-        const hour = 3600000;
-        const segments = [];
-        const plan = [[9, 10.5, "active", "firefox"], [10.5, 10.6, "idle", null], [10.6, 12, "active", "kitty"], [12, 13, "idle", null], [13, 14.2, "active", "code-oss"],
-                      [14.2, 15, "active", "firefox"], [15, 16.5, "watching", "firefox"], [16.5, 18, "active", "kitty"], [18, 18.4, "active", "thunderbird"],
-                      [20, 21.5, "active", "libreoffice-writer"], [21.5, 23, "watching", "mpv"]];
-        for (const entry of plan) segments.push({start: beginning + entry[0] * hour, end: beginning + entry[1] * hour, state: entry[2], app: entry[3]});
-        const hours = [];
-        for (let h = 0; h < 24; h++) {
-            const slot = {start: beginning + h * hour, end: beginning + (h + 1) * hour, label: String(h).padStart(2, "0") + ":00", active: 0, watching: 0, unlocked: 0};
-            for (const segment of segments) {
-                const overlap = Math.max(0, Math.min(slot.end, segment.end) - Math.max(slot.start, segment.start)) / 1000;
-                slot.unlocked += overlap;
-                if (segment.state !== "idle") slot[segment.state] += overlap;
-            }
-            hours.push(slot);
-        }
-        const dayApps = ranked.slice(0, 6);
-        day = {date: current, active: 36000, watching: 10800, unlocked: 50400, detailAvailable: true, legacy: false, hours: hours, segments: segments, apps: dayApps,
-            firstActive: beginning + 9 * hour, lastActive: beginning + 23 * hour, focus: [], focused: 0, windows: [
-                {app: "firefox", start: beginning + 9 * hour, end: beginning + 23 * hour, startKnown: true, endReason: "open"},
-                {app: "kitty", start: beginning + 10 * hour, end: beginning + 18 * hour, startKnown: true, endReason: "closed"},
-                {app: "code-oss", start: beginning + 12.8 * hour, end: beginning + 14.4 * hour, startKnown: true, endReason: "closed"},
-                {app: "thunderbird", start: beginning + 8 * hour, end: beginning + 23.5 * hour, startKnown: false, endReason: "open"},
-                {app: "libreoffice-writer", start: beginning + 19.8 * hour, end: beginning + 22 * hour, startKnown: true, endReason: "closed"},
-                {app: "mpv", start: beginning + 21.4 * hour, end: beginning + 23.2 * hour, startKnown: true, endReason: "closed"}]};
-        const weekBegin = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() - weekStart + 7) % 7), 12);
-        appsData = {range: "week", start: Qt.formatDate(weekBegin, "yyyy-MM-dd"), end: Qt.formatDate(new Date(weekBegin.getTime() + 6 * 86400000), "yyyy-MM-dd"), apps: ranked, total: 46800, previousTotal: 41000, days: []};
-        appData = {app: "firefox", total: 412000, active: 330000, watching: 82000, daysUsed: 61, firstDay: days[0].date, averagePerDay: 6754,
-            days: Array.from({length: 30}, (_, index) => ({date: Qt.formatDate(new Date(now.getTime() - (29 - index) * 86400000), "yyyy-MM-dd"), total: index % 7 === 3 ? 0 : 3600 + ((index * 37) % 11) * 900})),
-            hours: Array.from({length: 24}, (_, h) => h < 8 ? 0 : 1800 + Math.sin(h / 3) * 1500 + (h > 19 ? 2600 : 0))};
-        const detail = Quickshell.env("SHALE_DETAIL");
-        mode = detail === "app" ? "apps" : ["day", "apps"].indexOf(detail) >= 0 ? detail : "overview";
-        if (detail === "app") appDetail = "firefox";
-        if (detail === "day") caption = "Firefox · 14:12 – 15:00 · 48 min active";
-    }
-    Component.onCompleted: {
-        if (previewMode) previewSample();
-        else refresh();
-    }
-    Component.onDestruction: alive = false
+    Component.onCompleted: refresh()
     Connections {
         target: Backend
         function onReadyChanged() { if (Backend.ready) root.refresh(); }
     }
-    Timer { interval: 30000; running: Quickshell.env("SHALE_PREVIEW") !== "activity" && root.tracking === "on"; repeat: true; onTriggered: root.refresh() }
+    Timer { interval: 30000; running: root.tracking === "on"; repeat: true; onTriggered: root.refresh() }
 
     // Reusable pieces ----------------------------------------------------------
     // A rank-coloured square with the app's first letter.

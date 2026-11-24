@@ -1,8 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import "../core"
-import "../services"
 import "../components" as C
 
 // Settings → Sound: volume limits, the player's time and the equalizer.

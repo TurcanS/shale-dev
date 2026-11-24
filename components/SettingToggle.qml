@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import "../core"
-import "." as C
 
 // A plain on/off preference on a group.
 Toggle {

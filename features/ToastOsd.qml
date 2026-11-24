@@ -4,7 +4,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../core"
-import "../services"
 import "../components" as C
 
 // Levels (volume, brightness) as a round pill with a slim bar and the value; everything else (microphone,

@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import "../core"
 import "../components" as C
 

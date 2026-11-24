@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import "../core"
 import "../components" as C
 import "../core/format.js" as Format
@@ -37,11 +36,6 @@ FocusScope {
     property string processSort: "cpu"
     property string armed: ""
     property var ended: []
-    // Screenshot runs (SHALE_PREVIEW=system with SHALE_SCREENSHOT set) render fixed sample data so they are deterministic.
-    readonly property string previewDetail: Quickshell.env("SHALE_PREVIEW") === "system" && Quickshell.env("SHALE_SCREENSHOT") !== ""
-        ? (Quickshell.env("SHALE_DETAIL") || "cpu") : ""
-    Component.onDestruction: alive = false
-    Component.onCompleted: if (previewDetail !== "") loadPreview(previewDetail)
 
     Component {
         id: rangeTool
@@ -55,7 +49,7 @@ FocusScope {
     }
 
     function poll() {
-        if (previewDetail !== "" || waiting)
+        if (waiting)
             return;
         if (!Backend.ready) {
             // Shown over the last numbers, so they are never read as live while the helper restarts.
@@ -82,7 +76,7 @@ FocusScope {
     Timer {
         id: pollTimer
         interval: Theme.lowPower ? 2000 : 1000
-        running: root.previewDetail === ""
+        running: true
         repeat: true
         triggeredOnStart: true
         onTriggered: root.poll()
@@ -778,39 +772,5 @@ FocusScope {
                 }
             }
         }
-    }
-
-    // Fixed data for screenshot runs.
-    function loadPreview(detail) {
-        const bare = detail === "bare", asleep = detail === "gpu-asleep";
-        const make = (base, swing, phase) => Array.from({length: window + 1}, (_, i) => [i, Math.max(0, base + swing * Math.sin(i / 5 + phase) + swing / 2 * Math.sin(i / 2.3 + phase * 2))]);
-        const next = {
-            time: 0, uptime: 93784,
-            cpu: {available: !bare, model: "11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz", usage: 23, cores: [31, 12, 45, 8, 22, 17, 60, 5, 14, 28, 9, 33],
-                  frequency: 3120, load: [1.24, 0.98, 0.75], processes: 284, threads: 1192, temperature: 58},
-            memory: {available: !bare, total: 16470024192, used: 6012954214, free: 10457069978, cached: 4335702016, swapTotal: 4294963200, swapUsed: 268435456},
-            disks: bare ? [] : [
-                {name: "nvme0n1", model: "SAMSUNG MZALQ512HALU-000L2", read: 1288490, write: 335544, busy: 4, temperature: 34.9,
-                 mounts: [{path: "/", total: 501863112704, used: 58992025600}, {path: "/boot", total: 1071628288, used: 543440896}]},
-                {name: "nvme1n1", model: "Micron_2400_MTFDKBA512QFM", read: 0, write: 0, busy: 0, temperature: 30.9, mounts: [{path: "/home", total: 502920011776, used: 477774011187}]}],
-            network: bare ? [] : [{name: "wlan0", kind: "wifi", up: true, rx: 2411724, tx: 180224}, {name: "enp47s0", kind: "ethernet", up: false, rx: 0, tx: 0}],
-            gpus: bare ? [] : [
-                {id: "card0", vendor: "nvidia", name: "NVIDIA GeForce RTX 3050 Mobile", state: asleep ? "asleep" : "active", usage: asleep ? null : 41,
-                 memoryUsed: asleep ? null : 1288490188, memoryTotal: asleep ? null : 4294967296, temperature: asleep ? null : 52, frequency: null, frequencyMax: null},
-                {id: "card1", vendor: "intel", name: "Intel UHD Graphics", state: "active", usage: null, memoryUsed: null, memoryTotal: null, temperature: null, frequency: 633, frequencyMax: 1450}],
-            fans: bare ? [] : [{label: "CPU fan", rpm: 3100}, {label: "GPU fan", rpm: 3200}],
-            processes: bare ? [] : [
-                {pid: 2101, start: 9000, name: "firefox", cpu: 9.4, memory: 1503238553, own: true, protected: false},
-                {pid: 812, start: 400, name: "Hyprland", cpu: 3.1, memory: 188743680, own: true, protected: true},
-                {pid: 990, start: 700, name: "quickshell", cpu: 2.2, memory: 251658240, own: true, protected: true},
-                {pid: 3301, start: 12000, name: "spotify", cpu: 1.8, memory: 440401920, own: true, protected: false},
-                {pid: 3502, start: 15000, name: "obsidian", cpu: 1.1, memory: 325058560, own: true, protected: false}]
-        };
-        history = {"cpu": make(24, 10, 0), "memory": make(37, 1.5, 1), "disk:nvme0n1": make(4, 4, 2), "disk:nvme1n1": make(1, 1, 3),
-                   "net-rx:wlan0": make(1600000, 1200000, 4), "net-tx:wlan0": make(160000, 120000, 5),
-                   "gpu:card0": asleep ? make(0, 0, 0) : make(40, 15, 6), "gpu:card1": make(40, 20, 7)};
-        now = window;
-        sample = next;
-        selected = ({memory: "memory", disk: "disk:nvme0n1", network: "net:wlan0", gpu: "gpu:card0", "gpu-asleep": "gpu:card0"})[detail] || "cpu";
     }
 }

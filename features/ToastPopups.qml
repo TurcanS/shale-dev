@@ -1,11 +1,9 @@
 import QtQuick
 import QtQuick.Effects
-import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../core"
 import "../services"
-import "../components" as C
 
 // Notification toasts: the Notifications card, stacked up from the bottom right corner, newest lowest.
 PanelWindow {

@@ -1,6 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
-import "../core"
 import "." as C
 
 // A row whose control is one button that opens something.

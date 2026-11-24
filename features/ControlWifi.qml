@@ -1,8 +1,6 @@
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import "../core"
-import "../services"
 import "../components" as C
 
 // Control → Wi-Fi: the switch and Scan, the network in use, the others by strength with their password form, a hidden

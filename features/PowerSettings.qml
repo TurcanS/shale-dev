@@ -1,8 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import "../core"
-import "../services"
 import "../components" as C
 
 // Settings → Power: the power mode, the lid and the refresh rate in power saver. Control → Power has the battery.

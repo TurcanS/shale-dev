@@ -1,10 +1,8 @@
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../core"
-import "../services"
 import "../components" as C
 
 // Shell messages (a saved setting, an error, Undo) in a small card above the bottom edge, one at a time.

@@ -641,7 +641,7 @@ class ActivityStore:
         return {**self.status(), "days": [daily[day] for day in sorted(daily)], "insights": self.insights(daily, first),
                 "topApps": self._apps(week_first(today, first), today)[:5], "firstDay": self._tracking_start_day()}
 
-    def day(self, value, windows=True):
+    def day(self, value):
         start, end = day_bounds(value)
         now = self._now()
         totals = self._daily(value, value).get(value, {"active": 0, "watching": 0, "unlocked": 0})
@@ -663,18 +663,12 @@ class ActivityStore:
         result["focus"] = [{"start": max(a, start), "end": min(b, end)} for a, b in self.db.execute(
             "SELECT start,end FROM focus_sessions WHERE start<? AND end>? ORDER BY start", (end, start))]
         result["focused"] = sum(block["end"] - block["start"] for block in result["focus"]) / 1000
-        if windows:
-            for app, beginning, ending, known, reason in self.db.execute(
-                    "SELECT app,start,end,start_known,end_reason FROM windows WHERE start<? AND COALESCE(end,?)>? ORDER BY start", (end, now, start)):
-                result["windows"].append({"app": app, "start": max(beginning, start), "end": min(ending or now, end),
-                    "startKnown": bool(known) and beginning >= start,
-                    "endReason": "continues" if ending and ending > end else reason if ending else "open"})
+        for app, beginning, ending, known, reason in self.db.execute(
+                "SELECT app,start,end,start_known,end_reason FROM windows WHERE start<? AND COALESCE(end,?)>? ORDER BY start", (end, now, start)):
+            result["windows"].append({"app": app, "start": max(beginning, start), "end": min(ending or now, end),
+                "startKnown": bool(known) and beginning >= start,
+                "endReason": "continues" if ending and ending > end else reason if ending else "open"})
         return result
-
-    def week(self, value, first=1):
-        start = week_first(value, first)
-        end = shift_day(start, 6)
-        return {"start": start, "days": [self.day(day, windows=False) for day in day_range(start, end)], "apps": self._apps(start, end)}
 
     @staticmethod
     def period(kind, value, week_start=1):
