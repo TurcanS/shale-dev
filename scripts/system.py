@@ -1,7 +1,9 @@
 """What this machine needs for Shale and a usable Hyprland: packages (each with its reason), services, notes.
 
 Only what the shell and Hyprland itself use is planned, with the graphics drivers and firmware this hardware needs to
-run them (unless --no-drivers). Browsers and other app choices stay with the user.
+run them (unless --no-drivers), and the apps the shell opens things in (unless --no-apps): a browser for links, a file
+manager for folders, an image viewer for screenshots and a video player for recordings, each only when nothing installed
+opens that kind of thing yet.
 """
 import os
 from pathlib import Path
@@ -35,6 +37,27 @@ OTHER_POWER = ('tlp', 'tuned', 'auto-cpufreq')
 NETWORK_UNITS = re.compile(r'(NetworkManager|iwd|systemd-networkd|connman|dhcpcd(@.+)?|netctl(-auto|-ifplugd)?(@.+)?|wpa_supplicant@.+)\.service')
 # Terminals that are also their package's name.
 TERMINALS = ('kitty', 'foot', 'alacritty', 'wezterm', 'ghostty', 'konsole', 'gnome-terminal')
+# What the shell hands to xdg-open, and the app added when nothing installed opens it: (a MIME type the shell opens, the
+# categories an installed app needs to count as opening it, package, its .desktop file names, the MIME types it becomes
+# the default for where none is set, why). An exact MIME type and a category both count: kitty's "Open in kitty" claims
+# image/* and folders, and code editors claim folders too.
+APPS = (
+    ('x-scheme-handler/https', ('WebBrowser',), 'firefox', ('firefox.desktop',),
+     ('x-scheme-handler/http', 'x-scheme-handler/https', 'text/html'), 'web links, web search and what changed in an update'),
+    ('inode/directory', ('FileManager',), 'thunar', ('thunar.desktop',), ('inode/directory',),
+     'folders: screenshots, recordings, wallpapers and files Find found'),
+    ('image/png', ('Graphics', 'Viewer'), 'ristretto', ('org.xfce.ristretto.desktop', 'ristretto.desktop'),
+     ('image/png', 'image/jpeg', 'image/webp'), 'opening screenshots'),
+    ('video/mp4', ('Video', 'Player'), 'mpv', ('mpv.desktop', 'io.mpv.Mpv.desktop'),
+     ('video/mp4', 'video/webm', 'video/x-matroska'), 'playing screen recordings'),
+)
+# What makes Thunar whole: the trash and removable drives (gvfs) and picture thumbnails (tumbler).
+THUNAR_PARTS = (('gvfs', "Thunar's trash and USB drives"), ('tumbler', 'thumbnails of screenshots and wallpapers in Thunar'))
+# File managers Super+E can open, by command.
+FILE_MANAGERS = ('thunar', 'nautilus', 'dolphin', 'nemo', 'pcmanfm-qt', 'pcmanfm', 'caja')
+# Where installed apps' .desktop files are, system-wide (the home ones are added per user, ahead of these).
+APPLICATION_DIRS = (Path('/usr/local/share/applications'), Path('/usr/share/applications'),
+                    Path('/var/lib/flatpak/exports/share/applications'))
 EXAMPLE_CONFIG = Path('/usr/share/hypr/hyprland.lua')
 # Graphics vendors by PCI id.
 NVIDIA, AMD, INTEL = '0x10de', '0x1002', '0x8086'
@@ -99,6 +122,48 @@ def service_state(name, run=subprocess.run):
         if run(['systemctl', '--quiet', state, name + '.service'], capture_output=True).returncode == 0:
             return 'enabled' if state == 'is-enabled' else 'active'
     return ''
+
+
+def application_dirs(home):
+    """Where .desktop files are, the user's first: theirs override the system's of the same name."""
+    return [home / '.local/share/applications', home / '.local/share/flatpak/exports/share/applications', *APPLICATION_DIRS]
+
+
+def desktop_entries(home, folders=None):
+    """{desktop file id: (MIME types, categories)} for the installed apps. A file of the user's that hides one of the
+    system's (Hidden=true) removes it."""
+    found = {}
+    for folder in application_dirs(home) if folders is None else folders:
+        if not folder.is_dir():
+            continue
+        for path in sorted(folder.rglob('*.desktop')):
+            ident = str(path.relative_to(folder)).replace('/', '-')
+            if ident in found:
+                continue
+            try:
+                # Only the [Desktop Entry] group: actions further down have keys of their own.
+                entry = path.read_text(errors='replace').split('\n[', 1)[0]
+            except OSError:
+                continue
+            values = dict(re.findall(r'^([A-Za-z]+)=(.*)$', entry, re.M))
+            hidden = values.get('Hidden', '').strip() == 'true'
+            found[ident] = (set() if hidden else {t for t in values.get('MimeType', '').split(';') if t},
+                            set() if hidden else {c for c in values.get('Categories', '').split(';') if c})
+    return found
+
+
+def opens(entries, mime, categories):
+    """Whether an installed app opens `mime` (named exactly, not by a wildcard) and is one of `categories`."""
+    return any(mime in types and set(categories) & kinds for types, kinds in entries.values())
+
+
+def desktop_file(names, home, folders=None):
+    """The first of `names` (.desktop file names) that is installed, or None."""
+    for name in names:
+        for folder in application_dirs(home) if folders is None else folders:
+            if (folder / name).is_file():
+                return name
+    return None
 
 
 def configured_terminal(text):
@@ -193,12 +258,15 @@ def graphics(facts, present, services):
 
 
 def plan(home, facts=None, absent=missing, services=service_state, which=shutil.which, environ=os.environ,
-         network=network_units, connected=online, drivers=True):
+         network=network_units, connected=online, drivers=True, apps=True, entries=None):
     """{packages, services (enable now), boot (enable for next boot), config, notes, conflicts (installed packages
-    pacman has to replace), reboot (a kernel module is added, so it loads from the next boot)} for this machine.
+    pacman has to replace), reboot (a kernel module is added, so it loads from the next boot), defaults (the apps added
+    here: their .desktop file names and the MIME types they open), fileManager (the command Super+E opens in a new
+    config)} for this machine.
 
     `absent(names)` returns the packages not installed yet; only those are planned. Without `drivers`, graphics
-    drivers and firmware are left out."""
+    drivers and firmware are left out; without `apps`, the apps the shell opens things in. `entries` stands in for
+    the installed apps' .desktop files (desktop_entries())."""
     facts = hardware() if facts is None else facts
     packages, units, boot, notes = list(CORE) + list(DESKTOP), [], [], []
 
@@ -251,6 +319,24 @@ def plan(home, facts=None, absent=missing, services=service_state, which=shutil.
         terminal = 'kitty' if config else ''
     if terminal in TERMINALS and not which(terminal):
         packages.append((terminal, 'the terminal your Hyprland config opens with Super+Q'))
+    elif not any(which(name) for name in TERMINALS):
+        packages.append(('kitty', 'a terminal: Shale runs terminal apps and its updates in one'))
+
+    # The apps the shell opens links, folders, screenshots and recordings in, where nothing installed opens them yet.
+    opening = []
+    if apps:
+        entries = desktop_entries(home) if entries is None else entries
+        for mime, kinds, package, files, types, reason in APPS:
+            if not opens(entries, mime, kinds):
+                packages.append((package, reason))
+                opening.append((package, files, types))
+                if package == 'thunar':
+                    packages += THUNAR_PARTS
+    # What Super+E opens in a config copied from the example (which names Dolphin): an installed file manager, or
+    # Thunar once it is added.
+    file_manager = next((name for name in FILE_MANAGERS if which(name)), '')
+    if not file_manager and any(package == 'thunar' for package, *_ in opening):
+        file_manager = 'thunar'
 
     # A login screen only on a fresh setup: no Hyprland config yet, no display manager, not inside a desktop.
     # Someone who already starts Hyprland from a TTY keeps doing so.
@@ -278,4 +364,5 @@ def plan(home, facts=None, absent=missing, services=service_state, which=shutil.
                      'to remove pulseaudio; answer y.' + (' First remove pulseaudio-bluetooth: sudo pacman -R '
                      'pulseaudio-bluetooth' if 'pulseaudio-bluetooth' in present else ''))
     return {'packages': [(n, r) for n, r in packages if n in needed], 'services': units, 'boot': boot, 'config': config,
-            'notes': notes, 'conflicts': conflicts, 'reboot': module}
+            'notes': notes, 'conflicts': conflicts, 'reboot': module,
+            'defaults': [(files, types) for package, files, types in opening if package in needed], 'fileManager': file_manager}
