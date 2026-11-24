@@ -2360,6 +2360,15 @@ class Backend:
                     return platform.read_text().strip() == "custom"
                 except OSError:
                     return False
+            def charger_in():
+                # As integration/power-max/shale-power-max checks it: a mains adapter (AC*, ADP*) online.
+                for online in Path("/sys/class/power_supply").glob("A*/online"):
+                    try:
+                        if online.read_text().strip() == "1":
+                            return True
+                    except OSError:
+                        pass
+                return False
             from dbus_next import Variant
             if method == "power.set":
                 profile = p.get("profile")
@@ -2382,7 +2391,11 @@ class Backend:
                     # Without the polkit rule, the polkit agent asks for a password: give it time.
                     await run("systemctl", "start", "shale-power-max.service", timeout=120)
                 except BackendError as error:
-                    raise BackendError(error.code, "Max performance needs the charger plugged in." if error.code == "failed" else error.message) from None
+                    if error.code != "failed":
+                        raise
+                    # The helper refuses on battery; any other refusal or write error is in its journal.
+                    raise BackendError("failed", "Max performance needs the charger plugged in." if not charger_in()
+                                       else "Could not raise the firmware power limits. See why: journalctl -u shale-power-max") from None
                 properties = await interface.call_get_all(name)
             try:
                 tuned = "=shale-" in Path("/etc/tuned/ppd.conf").read_text()

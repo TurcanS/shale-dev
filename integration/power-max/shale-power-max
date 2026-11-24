@@ -5,16 +5,20 @@
 # Choosing any other power mode (Shale, powerprofilesctl, Fn+Q) puts the firmware's own limits back.
 set -u
 ATTR=/sys/class/firmware-attributes/lenovo-wmi-other-0/attributes
-PROFILE=/sys/firmware/acpi/platform_profile
+# The kernel refuses "custom" through /sys/firmware/acpi/platform_profile; Lenovo's own platform profile takes it.
+PROFILE=
+for device in /sys/class/platform-profile/*; do
+    [ "$(cat "$device/name" 2>/dev/null)" = lenovo-wmi-gamezone ] && PROFILE=$device
+done
 
 ac=0
 for online in /sys/class/power_supply/A*/online; do
     [ -r "$online" ] && [ "$(cat "$online")" = 1 ] && ac=1
 done
 [ "$ac" = 1 ] || { echo "Plug in the charger first." >&2; exit 2; }
-[ -d "$ATTR" ] && grep -qw custom "$PROFILE"_choices || { echo "No Lenovo custom power mode on this device." >&2; exit 3; }
+[ -d "$ATTR" ] && [ -n "$PROFILE" ] && grep -qw custom "$PROFILE/choices" || { echo "No Lenovo custom power mode on this device." >&2; exit 3; }
 
-echo custom > "$PROFILE" || exit 1
+echo custom > "$PROFILE/profile" || exit 1
 for name in ppt_pl1_spl ppt_pl2_sppt ppt_pl3_fppt ppt_cpu_cl gpu_nv_ctgp; do
     [ -r "$ATTR/$name/max_value" ] || continue
     cat "$ATTR/$name/max_value" > "$ATTR/$name/current_value" || echo "Could not raise $name." >&2
