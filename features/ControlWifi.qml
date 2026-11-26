@@ -25,6 +25,13 @@ ColumnLayout {
         id: wifiModule
         readonly property var networks: ShellState.wifi.powered ? ShellState.wifi.networks || [] : []
         readonly property var current: networks.find(n => n.connected) || null
+        // Where the network in use gets its DNS: "" when its profile couldn't be read.
+        readonly property string dnsText: {
+            const dns = current ? current.dns : null;
+            if (!dns)
+                return "";
+            return ({auto: "Automatic", cloudflare: "Cloudflare", google: "Google"})[dns.mode] || dns.servers.join(", ");
+        }
         visible: ShellState.detail === "wifi" && ShellState.wifiAvailable
         Layout.fillWidth: true
         implicitHeight: wifiColumn.implicitHeight + 24
@@ -103,7 +110,10 @@ ColumnLayout {
                             hint: "Forget this network"
                             rest: Qt.rgba(0, 0, 0, 0.25)
                             enabled: !control.acting
-                            onClicked: control.forgetPath = wifiModule.current.path
+                            onClicked: {
+                                control.dnsPath = "";
+                                control.forgetPath = wifiModule.current.path;
+                            }
                         }
                     }
                     RowLayout {
@@ -128,6 +138,94 @@ ColumnLayout {
                                 control.forgetPath = "";
                                 control.refresh();
                             })
+                        }
+                    }
+                    // Its DNS, kept with this network only: other networks, and the sign-in pages of café and
+                    // campus networks, keep the DNS they give out.
+                    RowLayout {
+                        visible: wifiModule.dnsText !== "" && control.forgetPath !== wifiModule.current.path && control.dnsPath !== wifiModule.current.path
+                        Layout.fillWidth: true
+                        spacing: Theme.gapS
+                        C.Label {
+                            text: "DNS"
+                            color: Theme.mix(Theme.textSecondary, Theme.text, 0.4)
+                            font.pixelSize: 12
+                        }
+                        C.Label {
+                            text: wifiModule.dnsText
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+                        ControlSmallKey {
+                            text: "Change"
+                            hint: "Choose this network's DNS servers"
+                            rest: Qt.rgba(0, 0, 0, 0.25)
+                            enabled: !control.acting
+                            onClicked: control.openDns(wifiModule.current)
+                        }
+                    }
+                    ColumnLayout {
+                        visible: !!wifiModule.current && control.dnsPath === wifiModule.current.path
+                        Layout.fillWidth: true
+                        spacing: 6
+                        C.Segmented {
+                            Layout.fillWidth: true
+                            proportional: true
+                            segmentHeight: 32
+                            trackColor: Qt.rgba(0, 0, 0, 0.25)
+                            enabled: !control.busy
+                            model: [{key: "auto", text: "Automatic", hint: "The DNS this network gives out"},
+                                    {key: "cloudflare", text: "Cloudflare", hint: "1.1.1.1 and 1.0.0.1"},
+                                    {key: "google", text: "Google", hint: "8.8.8.8 and 8.8.4.4"},
+                                    {key: "custom", text: "Custom", hint: "Servers you type in"}]
+                            current: control.dnsMode
+                            onActivated: key => {
+                                control.dnsMode = key;
+                                if (key === "custom")
+                                    Qt.callLater(() => dnsField.forceActiveFocus());
+                            }
+                        }
+                        C.Field {
+                            id: dnsField
+                            visible: control.dnsMode === "custom"
+                            Layout.fillWidth: true
+                            implicitHeight: 34
+                            font.pixelSize: 14
+                            placeholderText: "Servers, like 9.9.9.9 149.112.112.112"
+                            Accessible.name: "DNS servers"
+                            enabled: !control.busy
+                            text: control.dnsDraft
+                            onTextChanged: control.dnsDraft = text
+                            onAccepted: control.saveDns()
+                            Keys.onEscapePressed: event => {
+                                control.dnsPath = "";
+                                event.accepted = true;
+                            }
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 6
+                            C.Caption {
+                                text: control.dnsMode === "auto" ? "Keep this on networks with a sign-in page."
+                                      : control.dnsMode === "custom" ? "IPv4 or IPv6, separated by spaces."
+                                      : "Encrypted where the network allows it."
+                                color: Theme.mix(Theme.textSecondary, Theme.text, 0.4)
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                            ControlSmallKey {
+                                text: "Cancel"
+                                rest: Qt.rgba(0, 0, 0, 0.25)
+                                enabled: !control.busy
+                                onClicked: control.dnsPath = ""
+                            }
+                            ControlSmallKey {
+                                accent: true
+                                text: control.pendingMethod === "wifi.dns" ? "Saving…" : "Save"
+                                enabled: !control.busy && (control.dnsMode !== "custom" || control.dnsDraft.trim() !== "")
+                                onClicked: control.saveDns()
+                            }
                         }
                     }
                 }

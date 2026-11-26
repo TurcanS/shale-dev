@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import datetime
 import hashlib
 import importlib.util
+import ipaddress
 import json
 import math
 import operator
@@ -16,6 +17,7 @@ import select
 import shutil
 import signal
 import sqlite3
+import struct
 import subprocess
 import sys
 import tempfile
@@ -941,6 +943,94 @@ def key_management(rsn_flags):
     (SAE without PSK); WPA2/WPA3 transition networks keep wpa-psk."""
     return "sae" if rsn_flags & 0x400 and not rsn_flags & 0x100 else "wpa-psk"
 
+# The DNS a Wi-Fi network can use besides its own, as in Omarchy's DNS setup: IPv4 servers first.
+DNS_PRESETS = {"cloudflare": ("1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001"),
+               "google": ("8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844")}
+
+def dns_choice(mode, servers):
+    """The DNS servers a choice stands for: none for the network's own ("auto"), a preset's, or the addresses typed
+    in ("custom"), separated by spaces or commas."""
+    if not isinstance(mode, str):
+        raise BackendError("invalid", "Choose where this network gets its DNS from.")
+    if mode == "auto":
+        return []
+    if mode in DNS_PRESETS:
+        return [ipaddress.ip_address(server) for server in DNS_PRESETS[mode]]
+    if mode != "custom" or not isinstance(servers, str):
+        raise BackendError("invalid", "Choose where this network gets its DNS from.")
+    words = [word for word in re.split(r"[\s,]+", servers[:500]) if word]
+    if not words:
+        raise BackendError("invalid", "Enter at least one DNS server, like 9.9.9.9.")
+    found = []
+    for word in words:
+        try:
+            # A zone ("%wlan0") can't be saved in the profile's DNS list.
+            address = ipaddress.ip_address(word) if "%" not in word else None
+        except ValueError:
+            address = None
+        if address is None or address.is_unspecified or address.is_multicast:
+            raise BackendError("invalid", f"{word[:60]} isn't a DNS server address.")
+        if address not in found:
+            found.append(address)
+    if len(found) > 8:
+        raise BackendError("invalid", "Enter up to 8 DNS servers.")
+    return found
+
+def dns_state(config):
+    """Where a saved connection (as GetSettings returns it) gets its DNS: {"mode", "servers"}, the mode being "auto",
+    a preset's name or "custom"."""
+    servers = []
+    for family in ("ipv4", "ipv6"):
+        section = config.get(family, {})
+        if "dns-data" in section:
+            # Newer NetworkManagers may add a DoT server name: "1.1.1.1#cloudflare-dns.com".
+            servers += [entry.partition("#")[0] for entry in section["dns-data"].value]
+        elif "dns" in section:
+            servers += [str(ipaddress.IPv4Address(struct.pack("=I", value))) if family == "ipv4" else str(ipaddress.IPv6Address(bytes(value)))
+                        for value in section["dns"].value]
+    if not servers:
+        return {"mode": "auto", "servers": []}
+    for preset, addresses in DNS_PRESETS.items():
+        if set(servers) in (set(addresses), set(addresses[:2])):
+            return {"mode": preset, "servers": servers}
+    return {"mode": "custom", "servers": servers}
+
+def dns_settings(config, servers, encrypted):
+    """A saved connection's settings (as GetSettings returns them) with these DNS servers in place of the network's
+    own, or with the network's own again when there are none. `encrypted` asks for DNS over TLS where the servers
+    offer it, falling back to plain DNS where they don't."""
+    from dbus_next import Variant  # importable once interface() has found dbus-next
+    used, off = 0, []
+    for family, kind in (("ipv4", ipaddress.IPv4Address), ("ipv6", ipaddress.IPv6Address)):
+        section = config.setdefault(family, {})
+        # NetworkManager reads a legacy key over its replacement when both come back, so only the replacements go,
+        # and the servers go in the legacy `dns` alone, which every version reads.
+        for legacy, current in (("addresses", "address-data"), ("routes", "route-data")):
+            if current in section:
+                section.pop(legacy, None)
+        section.pop("dns", None)
+        section.pop("dns-data", None)
+        if section.get("method", Variant("s", "auto")).value in ("disabled", "ignore"):
+            off.append(family)
+            continue  # this family is off for the network: it takes no servers
+        mine = [address for address in servers if isinstance(address, kind)]
+        if mine:
+            section["dns"] = (Variant("au", [struct.unpack("=I", address.packed)[0] for address in mine]) if family == "ipv4"
+                              else Variant("aay", [address.packed for address in mine]))
+            used += len(mine)
+        # With servers of its own the network's DNS is left out, for both families, as Omarchy does.
+        section["ignore-auto-dns"] = Variant("b", bool(servers))
+    if servers and not used:
+        if len(off) == 2:
+            raise BackendError("invalid", "This network has IPv4 and IPv6 turned off.")
+        family, other = ("IPv6", "IPv4") if off == ["ipv6"] else ("IPv4", "IPv6")
+        raise BackendError("invalid", f"This network has {family} turned off. Add an {other} server.")
+    if encrypted:
+        config.setdefault("connection", {})["dns-over-tls"] = Variant("i", 1)  # opportunistic
+    else:
+        config.get("connection", {}).pop("dns-over-tls", None)
+    return config
+
 async def tray_owner(call, item_id, title=""):
     """The pid of the process that owns a tray item, found through the StatusNotifierWatcher.
 
@@ -1685,9 +1775,35 @@ class Backend:
             except Exception:
                 pass
             raise BackendError("failed", f"Couldn't join {ssid}. Check its name and password.")
+        if action == "dns":
+            # The DNS of the network in use, kept in its own profile: every other network, and the sign-in page of
+            # a café or campus network, keeps the DNS it gives out.
+            mode = p.get("mode")
+            servers = dns_choice(mode, p.get("servers"))
+            active = (await device_props.call_get(name + ".Device", "ActiveConnection")).value
+            if (await device_props.call_get(name + ".Device", "State")).value != 100 or active == "/":
+                raise BackendError("unavailable", "Connect to the network first.")
+            if p.get("path") != (await device_props.call_get(name + ".Device.Wireless", "ActiveAccessPoint")).value:
+                raise BackendError("unavailable", "The network changed while you were choosing. Try again.")
+            active_props = await self.interface(name, active, "org.freedesktop.DBus.Properties", alike="nm-active")
+            profile = (await active_props.call_get(name + ".Connection.Active", "Connection")).value
+            connection = await self.interface(name, profile, name + ".Settings.Connection", alike="nm-connection")
+            try:
+                # Settings sent without secrets keep the saved password.
+                await connection.call_update(dns_settings(await connection.call_get_settings(), servers, mode in DNS_PRESETS))
+            except Exception as error:
+                if "PermissionDenied" not in str(getattr(error, "type", "")):
+                    raise
+                raise BackendError("permission", "NetworkManager didn't let you change this network's settings.") from None
+            try:
+                await device.call_reapply({}, 0, 0)
+            except Exception:
+                # A change NetworkManager can't apply to a live link: join the network again to use it.
+                await manager.call_activate_connection(profile, device_path, "/")
+            return {"done": True}
 
         settings = await self.interface(name, "/org/freedesktop/NetworkManager/Settings", name + ".Settings")
-        profiles = {}
+        profiles, configs = {}, {}
         for path in await settings.call_list_connections():
             connection = await self.interface(name, path, name + ".Settings.Connection", alike="nm-connection")
             try:
@@ -1699,10 +1815,20 @@ class Backend:
             ssid = bytes(config.get("802-11-wireless", {}).get("ssid", Variant("ay", b"")).value)
             security = config.get("802-11-wireless-security", {}).get("key-mgmt")
             profiles[(ssid, "open" if security is None or security.value == "owe" else "8021x" if security.value == "wpa-eap" else "secured")] = path
+            configs[path] = config
 
         active_ap = (await device_props.call_get(name + ".Device.Wireless", "ActiveAccessPoint")).value
         state = (await device_props.call_get(name + ".Device", "State")).value
         powered = (await manager_props.call_get(name, "WirelessEnabled")).value
+        # The profile in use, whose DNS the network in use shows.
+        in_use = None
+        if state == 100:
+            try:
+                active = (await device_props.call_get(name + ".Device", "ActiveConnection")).value
+                active_props = await self.interface(name, active, "org.freedesktop.DBus.Properties", alike="nm-active")
+                in_use = (await active_props.call_get(name + ".Connection.Active", "Connection")).value
+            except Exception:
+                pass  # the link dropped while being read
         networks, rsn = {}, {}
         for path in await wireless.call_get_all_access_points():
             props = await self.interface(name, path, "org.freedesktop.DBus.Properties", alike="nm-access-point")
@@ -1731,6 +1857,8 @@ class Backend:
                     network["speed"] = round((await device_props.call_get(name + ".Device.Wireless", "Bitrate")).value / 1000)
                 except Exception:
                     pass  # an older NetworkManager, or the link just dropped
+                if in_use in configs:
+                    network["dns"] = dns_state(configs[in_use])
             key = (ssid, kind)
             if key not in networks or connected or (not networks[key]["connected"] and network["signal"] > networks[key]["signal"]):
                 networks[key] = network
@@ -2168,7 +2296,7 @@ class Backend:
             return calculate(p.get("expression", ""))
         if method.startswith("wifi."):
             action = method.split(".")[1]
-            if action in ("connect", "hidden"):
+            if action in ("connect", "hidden", "dns"):
                 if self.wifi_lock.locked():
                     raise BackendError("busy", "A Wi-Fi connection is already in progress.")
                 async with self.wifi_lock:

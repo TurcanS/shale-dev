@@ -149,6 +149,26 @@ FocusScope {
     readonly property Timer scanTimer: scanWait
     // The form for a network that doesn't announce its name.
     property bool hiddenOpen: false
+    // The DNS form under the network in use: the access point it was opened for (none when closed), the choice and
+    // the servers typed for Custom.
+    property string dnsPath: ""
+    property string dnsMode: "auto"
+    property string dnsDraft: ""
+    function openDns(network) {
+        const dns = network.dns || {mode: "auto", servers: []};
+        forgetPath = "";
+        dnsMode = dns.mode;
+        dnsDraft = dns.mode === "custom" ? dns.servers.join(" ") : "";
+        dnsPath = network.path;
+    }
+    function saveDns() {
+        if (busy || !dnsPath || (dnsMode === "custom" && dnsDraft.trim() === ""))
+            return;
+        perform("wifi.dns", {path: dnsPath, mode: dnsMode, servers: dnsDraft}, () => {
+            dnsPath = "";
+            refresh();
+        });
+    }
     TrayMenu {
         id: trayMenu
     }
@@ -370,6 +390,7 @@ FocusScope {
             root.error = "";
             root.selectedNetwork = null;
             root.forgetPath = "";
+            root.dnsPath = "";
             root.expandedDevice = "";
             root.passwordDraft = "";
             root.passwordVisible = false;
@@ -404,7 +425,7 @@ FocusScope {
     }
     Timer {
         interval: 5000
-        running: ShellState.detail === "wifi" && !root.busy && !root.selectedNetwork
+        running: ShellState.detail === "wifi" && !root.busy && !root.selectedNetwork && !root.dnsPath
         repeat: true
         onTriggered: root.refresh()
     }

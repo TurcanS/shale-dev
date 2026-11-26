@@ -70,7 +70,7 @@ Uninstall puts back the files Shale replaced, removes the ones it added and take
 |---|---|
 | **Bar** | Workspaces, window title, clock, media with a visualizer (optional `cava`), mic and screen-sharing indicator, tray, keyboard layout (with two or more), VPN, audio, Wi-Fi, battery and notifications. Tooltips on hover; can be hidden per output and over fullscreen apps. |
 | **Launcher** | Apps with pins, open windows and actions (lock, restart, Wi-Fi, settings…). Type `6 * 7`, `10 km to mi`, `timer 10m tea` or `focus 40`; `:` for emoji, `/` for files, `?` to search the web, `>` to run a command. |
-| **Control center** | Wi-Fi and NetworkManager VPN/WireGuard connections, Bluetooth with per-device auto-connect, per-app volume, microphone, brightness, power profiles, do not disturb, stay awake, media with an equalizer. |
+| **Control center** | Wi-Fi with per-network DNS (automatic, Cloudflare, Google or your own) and NetworkManager VPN/WireGuard connections, Bluetooth with per-device auto-connect, per-app volume, microphone, brightness, power profiles, do not disturb, stay awake, media with an equalizer. |
 | **Notifications** | Grouped history, actions and optional persistence. |
 | **Focus** | A timed session (25, 50 or 90 min, or `shale focus 40`) holds notifications and shows a countdown ring in the bar. When it ends, one card sums up what came in, grouped by app. Countdown timers too (`shale timer 10m Tea`). |
 | **Lock screen** | PAM through ext-session-lock. The time is drawn in particles of light that gather, shift each minute and burst apart as you unlock; a classic clock or hyprlock if you prefer. |
