@@ -24,7 +24,10 @@ Design files (live canvas, owner only: https://claude.ai/artifact/A2obyYkUzXVFqb
 | group | `#1f2125` | grouped settings rows (inside `moduleAlt`) |
 | well | `#141518` | slider/graph backgrounds, fields, segmented track inside a module |
 | key | `#2a2d33` | secondary buttons, empty tracks, icon tiles at rest (`#24272c` for list tiles) |
-| keySelected | `#2c2f35` | the selected option of a segmented control |
+| keySelected | `#2c2f35` | "on" and chosen things (`raised`): tiles, keys, rows, chips, the segmented selector |
+| keyHover | `#34373d` | hovered keys; "on" for things that already rest on a `key` (`raisedOnKey`) |
+| raisedLip / restLip | `rgba(0,0,0,0.26)` / `0.16` | 1 px dark lip under an on key / a key at rest |
+| raisedSheen / restSheen | `rgba(255,255,255,0.05)` / `0.03` | 1 px light line along the top of an on key / a key at rest |
 | hairline | `rgba(255,255,255,0.06)` | case edge (as a 1 px inset shadow), separators (`0.05`) |
 | text | `#efece6` | primary text |
 | textSecondary | `#c9c6bf` | values, secondary labels |
@@ -33,16 +36,20 @@ Design files (live canvas, owner only: https://claude.ai/artifact/A2obyYkUzXVFqb
 | textFaint | `#6b6f76` | placeholders, off items |
 | knob | `#f4f2ee` | slider and switch thumbs |
 | accent | from wallpaper | night-ridge `#ff8a3d`, aurora `#4fd1c5`, ember-city `#ff6b6b` in the mockups |
-| accentSoft | accent at 14% | "on" background (tiles, rows, chips) |
-| accentLine | accent at 40% | 1 px edge on "on" things |
+| accentSoft | accent at 14% | drop targets, progress and meter fills (not "on" states) |
+| accentLine | accent at 40% | 1 px edge for focus and for cards asking for attention (not "on" states) |
 | accentGlow | accent at 45% | `0 0 12px` glow on live meters and the volume fill |
 | second | from wallpaper | night-ridge `#7fb2c4`, aurora `#d9b26a`, ember-city `#8fb8a8`; **only** a second chart line |
 | onAccent | `#17181a` | text/icons on a filled accent |
 | danger | `#ff6b5b` | power off, destructive; text `#ffb4a8`; background `rgba(255,107,91,0.07–0.2)` |
 
 Rules:
-- "On" = `accentSoft` background + `accentLine` edge + accent icon/text, or a filled accent icon tile with `onAccent`
-  icon. Never the old cream key.
+- "On" = a raised neutral key: `keySelected` fill (`keyHover` on a key), a stronger lip and sheen, no edge, normal
+  text, the accent on the icon only; an icon tile still fills with the accent and an `onAccent` icon. Never an accent
+  wash or accent edge, never the old cream key.
+- Keys sit up a little: every pressable key (buttons, tiles, small keys, keycaps) has the rest lip and sheen; the lip
+  goes while the key is held down. Modules, cards, list rows at rest, bar keys at rest and outlined chips stay flat.
+  The raise is a finish, not a shadow: keep it this quiet. Drawn by `components/Raise.qml`.
 - The accent appears only for on / live / chosen / primary action / today / now. Charts are accent plus `second`.
 - Body text 10:1 or better on its surface, secondary text 5:1 or better.
 
@@ -90,20 +97,22 @@ one. The mockups carry the exact paths; add missing ones to `core/icons.js` and 
 
 ## Controls (see `previews/Language.png` and `previews/Control.png`)
 
-- **Primary button**: accent fill, `onAccent` text, 650. **Secondary**: `key` fill. **Danger**: danger edge at 45%,
+- **Primary button**: accent fill, `onAccent` text, 650. **Secondary**: `key` fill, rest raise. **Danger**: danger edge at 45%,
   danger text, danger background at 7%; destructive power actions are hold-to-confirm (1 s, a fill or ring shows
   progress).
 - **Switch**: 40×22 track (`key` off, accent on), 16 px `knob`, slides in 160 ms.
-- **Segmented**: track `module` (or `well` inside a module), radius 10, padding 3; selected option `keySelected`
-  with `0 1px 3px rgba(0,0,0,.4)`, white text; others `textMuted`.
+- **Segmented**: track `module` (or `well` inside a module), radius 10, padding 3; selected option a raised
+  `keySelected` key, white text; others `textMuted`.
 - **Slider**: 6 px track `key`, fill accent (volume: gradient accentSoft→accent plus accentGlow), 16 px `knob`
   with `0 1px 5px rgba(0,0,0,.55)`; an icon button on the left mutes (danger soft when muted); value at the right.
-- **Chip**: 28 px, fully round, 1 px `rgba(255,255,255,.08)` edge; on = accentSoft + accentLine + accent text.
-- **Quick tile**: 60 px, radius 14; 36 px icon tile (`key` → accent when on), title 14/600, subtitle 12.
-- **List row**: 42–48 px, radius 10–12; selected = accentSoft background, icon tile turns accent, hint text accent.
+- **Chip**: 28 px, fully round, 1 px `rgba(255,255,255,.08)` edge; on = raised `keySelected`, no edge, accent icon.
+- **Quick tile**: 60 px, radius 14, rest raise; on = raised `keySelected`; 36 px icon tile (`key` → accent when on),
+  title 14/600, subtitle 12.
+- **List row**: 42–48 px, radius 10–12, flat at rest; selected = raised `keySelected`, icon tile turns accent.
+- **Bar live chips** (focus, recording, privacy, AirDrop): raised `keySelected`, accent icon, normal text.
 - **Undo bar**: floats 14 px from the bottom of the panel, `keySelected` background, accent "Undo" text.
 - **Meters**: bars with `linear-gradient(to top, accentSoft, accent)`; rings (36 px, stroke 4) for shares.
-- **Key hints**: small `module` chips in footers ("↑↓ Move", "↵ Open", "Esc").
+- **Key hints**: small `module` keycaps with the rest raise, in footers ("↑↓ Move", "↵ Open", "Esc").
 
 ## Motion
 
